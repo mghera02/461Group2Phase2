@@ -1,7 +1,7 @@
 <style lang="css" src="../assets/css/packageContainer.css"></style>
 
 <template>
-    <div id="packageContainer">
+    <div class="packageContainer">
         {{packageContent.packageName}}
     </div>
 </template>

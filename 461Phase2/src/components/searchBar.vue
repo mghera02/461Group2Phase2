@@ -1,7 +1,7 @@
 <template>
   <main id="topNav">
     <input id="searchBar" type="text" v-model="searchBarVal" placeholder="Search Package via regex"/>
-    <button id="searchBtn" :onclick="sendSearchToParent"> Search </button>
+    <button id="searchBtn" @click="sendSearchToParent"> Search </button>
   </main>
 </template>
 
