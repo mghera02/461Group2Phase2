@@ -1,3 +1,22 @@
-#test {
-    background: red;
+#searchBtn {
+    font-size: 1.75em;
+    display: flex;
+}
+
+#searchBar {
+    width:44%;
+    font-size: 1.75em;
+    display: flex;
+}
+
+#topNav {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+#packages {
+    display: flex;
+    justify-content: center;
 }
