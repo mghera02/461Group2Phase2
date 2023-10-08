@@ -1,6 +1,8 @@
 <template>
-  <input type="text" v-model="searchBarVal" placeholder="Search Package via regex"/>
-  <button :onclick="search"> Search </button>
+  <main id="topNav">
+    <input id="searchBar" type="text" v-model="searchBarVal" placeholder="Search Package via regex"/>
+    <button id="searchBtn" :onclick="sendSearchToParent"> Search </button>
+  </main>
 </template>
 
 <script>
@@ -12,8 +14,8 @@
             }
         },
         methods: {
-            search() {
-              console.log(this.searchBarVal)
+            sendSearchToParent() {
+              this.$emit('searchBarVal', this.searchBarVal)
             }
         },
         props: {
