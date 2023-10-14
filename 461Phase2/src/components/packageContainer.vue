@@ -2,7 +2,30 @@
 
 <template>
     <div class="packageContainer">
-        {{packageContent.packageName}}
+        <div class="packageTitle">
+          {{packageContent.packageName}}
+        </div>
+        <router-link :to="{ name: 'install', params: { packageName: packageContent.packageName } }">Go to install page</router-link>
+        <div class="metricScores">
+          <div class="metricScore">
+            Metric 1: {{ packageContent.metric1 }}
+          </div>
+          <div class="metricScore">
+            Metric 2: {{ packageContent.metric2 }}
+          </div>
+          <div class="metricScore">
+            Metric 3: {{ packageContent.metric3 }}
+          </div>
+          <div class="metricScore">
+            Metric 4: {{ packageContent.metric4 }}
+          </div>
+          <div class="metricScore">
+            Metric 5: {{ packageContent.metric5 }}
+          </div>
+          <div class="metricScore">
+            Total Score: {{ packageContent.totalMetric }}
+          </div>
+        </div>
     </div>
 </template>
   
@@ -16,7 +39,7 @@
         methods: {
         },
         props: {
-            packageContent: String
+            packageContent: Object,
         },
         computed: {
         },

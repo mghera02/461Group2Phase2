@@ -9,7 +9,7 @@
   <main>
     <SearchBar @search-bar-val="getSearchBarVal"/>
     <div id="packages" v-for="packageContent in packages">
-      <PackageContainer :packageContent="packageContent" />
+      <PackageContainer :packageContent="packageContent"/>
     </div>
   </main>
 </template>
@@ -29,7 +29,10 @@
             this.searchBarVal = x;
           },
           getMatchingPackages() {
-            this.packages = [{packageName: "1"},{packageName: "2"},{packageName: "3"},{packageName: "4"}] // temporary placeholder
+            this.packages = [{packageName: "NodeJs", metric1: .2, metric2: .4, metric3: .2, metric4: .8, metric5: .1, totalMetric: .5},
+                            {packageName: "TensorFlow", metric1: .2, metric2: .4, metric3: .2, metric4: .8, metric5: .1, totalMetric: .5},
+                            {packageName: "Random Package", metric1: .2, metric2: .4, metric3: .2, metric4: .8, metric5: .1, totalMetric: .5},
+                            {packageName: "New Pacakge", metric1: .2, metric2: .4, metric3: .2, metric4: .8, metric5: .1, totalMetric: .5}] // temporary placeholder
           }
         },
         props: {

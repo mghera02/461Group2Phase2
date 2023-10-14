@@ -1,6 +1,20 @@
 .packageContainer {
     width: 70%;
-    height: 100px;
-    background: #ccc;
+    background: #ddd;
     margin-bottom: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.metricScore {
+    margin-right: 1vw;
+    margin-top: .5vw;
+    font-size: 1.2em;
+}
+
+.packageTitle {
+    font-size: 2em;
+    margin-left: 20px;
+    margin-top: 10px;
 }
