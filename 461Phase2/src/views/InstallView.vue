@@ -1,10 +1,3 @@
-<style lang="css" src="../assets/css/search.css"></style>
-
-<script setup>
-  import SearchBar from '../components/searchBar.vue'
-  import PackageContainer from '../components/packageContainer.vue'
-</script>
-
 <template>
    {{ this.$route.params.packageName }}
    <a href="/files/test.zip" download>DOWNLOAD</a>
