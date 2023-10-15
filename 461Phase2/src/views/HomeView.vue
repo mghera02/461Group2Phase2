@@ -6,6 +6,7 @@
 </script>
 
 <template>
+  <router-link :to="{ name: 'upload', params: {} }">Upload a package</router-link>
   <main>
     <SearchBar @search-bar-val="getSearchBarVal"/>
     <div id="packages" v-for="packageContent in packages">
