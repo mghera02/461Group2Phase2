@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#!/bin/bash
-
 # Check if at least one argument is provided
 if [[ $# -lt 1 ]]; then
     echo "Usage: ./run.sh install|<other_arg>"
@@ -10,10 +8,10 @@ fi
 
 # Check if the argument is 'install'
 if [[ $1 == "install" ]]; then
-    tsc install.ts
-    node install.js
+    tsc src/install.ts
+    node src/install.js
 else
     # If the argument is not 'install', then run 'tsc main.ts' and 'node main.ts <arg>'
-    tsc main.ts
-    node main.js "$1"
+    tsc src/main.ts
+    node src/main.js "$1"
 fi
