@@ -368,4 +368,5 @@ export {
     fetchRepoReadme,
     fetchLintOutput,
     fetchRepoIssues,
+    fetchRepoInfo,
 }

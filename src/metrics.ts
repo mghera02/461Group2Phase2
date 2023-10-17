@@ -171,4 +171,6 @@ export {
     calcCorrectnessScore,
     calcRespMaintScore,
     get_metric_info,
+    outputResults,
+    calcTotalScore,
 }

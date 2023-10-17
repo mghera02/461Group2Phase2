@@ -1,7 +1,7 @@
 import { Octokit, App } from "octokit"; // Octokit v17
 import * as fs from 'fs'; // use filesystem
 import { execSync } from 'child_process'; // to execute shell cmds
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 const { exec } = require('child_process'); // to execute shell cmds async version
 
 import { get_metric_info } from "./metrics";
@@ -10,6 +10,7 @@ import {
     url_list,
     get_npm_package_name,
 } from "./urls_parse"
+
 
 const arg = process.argv[2];  // this is the url(s).txt arguement passed to the js executable
 const npmPkgName: string[] = []; // setup array for package names
@@ -228,6 +229,7 @@ export {
     logFilePath,
     runEslint,
     ensureDirectoryExistence,
+    check_npm_for_open_source,
 }
 
 // https://github.com/Purdue-ECE-461/is-sorted

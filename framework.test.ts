@@ -1,6 +1,8 @@
 //imported functions
-import { check_npm_for_open_source, fetchRepoInfo, fetchRepoContributors, fetchRepoLicense, fetchRepoReadme, fetchRepoIssues, 
-  outputResults, createLintDirs, get_metric_info, ensureDirectoryExistence, calcTotalScore, calcRespMaintScore, calcCorrectnessScore } from '../main.js';
+const { check_npm_for_open_source } = require('./src/main');
+const { fetchRepoInfo, fetchRepoContributors, fetchRepoLicense, fetchRepoReadme, fetchRepoIssues, 
+  createLintDirs } = require('./src/metric_helpers');
+const { outputResults, calcTotalScore, calcRespMaintScore, calcCorrectnessScore } = require('./src/metrics');
 import * as fs from 'fs'; // Replace with the actual fs import
 
 //handle any mock creations for test suites
