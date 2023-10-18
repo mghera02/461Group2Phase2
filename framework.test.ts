@@ -47,7 +47,7 @@ describe('fetchRepoInfo', () => {
   
       try{
         await fetchRepoInfo(username, repo);
-      } catch (error: any){
+      } catch (error){
         expect(fs.appendFile).toHaveBeenCalled();
       }
     });
@@ -71,7 +71,7 @@ describe('fetchRepoInfo', () => {
   
       try{
         await fetchRepoContributors(username, repo);
-      } catch (error: any){
+      } catch (error){
         expect(fs.appendFile).toHaveBeenCalled();
       }
     });
@@ -103,7 +103,7 @@ describe('fetchRepoInfo', () => {
   
       try{
         await fetchRepoLicense(username, repo);
-      } catch (error: any){
+      } catch (error){
         expect(fs.appendFile).toHaveBeenCalled();
       }
     });
@@ -127,7 +127,7 @@ describe('fetchRepoInfo', () => {
   
       try{
         await fetchRepoReadme(username, repo);
-      } catch (error: any){
+      } catch (error){
         expect(fs.appendFile).toHaveBeenCalled();
       }
     });
@@ -151,7 +151,7 @@ describe('fetchRepoInfo', () => {
   
       try{
         await fetchRepoReadme(username, repo);
-      } catch (error: any){
+      } catch (error){
         expect(fs.appendFile).toHaveBeenCalled();
       }
     });
