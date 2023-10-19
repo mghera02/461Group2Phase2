@@ -1,8 +1,1 @@
-● Validation Error:
-
-  Module dotenv in the setupFiles option was not found.
-         <rootDir> is: /Users/gabimazion/Desktop/git/461Group2Phase2
-
-  Configuration Documentation:
-  https://jestjs.io/docs/configuration
-
+sh: 1: jest: Permission denied

@@ -3,7 +3,7 @@ const { check_npm_for_open_source } = require('./src/main');
 const { fetchRepoInfo, fetchRepoContributors, fetchRepoLicense, fetchRepoReadme, fetchRepoIssues, 
   createLintDirs } = require('./src/metric_helpers');
 const { outputResults, calcTotalScore, calcRespMaintScore, calcCorrectnessScore } = require('./src/metrics');
-import * as fs from 'fs'; // Replace with the actual fs import
+const fs = require('fs'); // Replace with the actual fs import
 
 //handle any mock creations for test suites
 // Mock the fs module to track function calls

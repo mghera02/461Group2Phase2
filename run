@@ -13,7 +13,8 @@ if [[ $1 == "install" ]]; then
 
 elif [ "$1" == "test" ]; then
   # Run Jest tests
-  test_output=$(npx jest --coverage --silent 2>&1 | tee jest.log.txt)
+  #test_output=$(npx jest --coverage --silent 2>&1 | tee jest.log.txt)
+  npx jest
 
   if grep -q "FAIL " jest.log.txt; then
     # Extract the entire line containing test results

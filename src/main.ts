@@ -1,7 +1,7 @@
 import { Octokit, App } from "octokit"; // Octokit v17
 import * as fs from 'fs'; // use filesystem
 import { execSync } from 'child_process'; // to execute shell cmds
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 const { exec } = require('child_process'); // to execute shell cmds async version
 
 import { get_metric_info } from "./metrics";
@@ -17,15 +17,15 @@ const npmPkgName: string[] = []; // setup array for package names
 const gitDetails: { username: string, repo: string }[] = []; // setup array for git user/repo name 
 const gitUrls: string[] = []; // setup array for git urls
 
-dotenv.config()
+dotenv.config();
 
 // Env variables
-const gitHubToken: string = process.env.GITHUB_TOKEN!;
-const logLevel: number = parseFloat(process.env.LOG_LEVEL!);
-const logFilePath: string = process.env.LOG_FILE!;
+const gitHubToken = String(process.env.GITHUB_TOKEN);
+const logLevel = Number(process.env.LOG_LEVEL);
+const logFilePath = String(process.env.LOG_FILE);
 
 if(!gitHubToken || !logLevel || !logFilePath){
-    console.error("Error: environment variables not set...\n")
+    console.error("Error: environment variables not set...\n", gitHubToken, logLevel, logFilePath)
     process.exit(1)
 }
 
