@@ -20,3 +20,21 @@
     display: flex;
     justify-content: center;
 }
+
+.goToBtn {
+    position: absolute;
+    background: #ddd;
+    display: block;
+    width: 120px;
+    padding: 10px;
+    text-align:center;
+    color: black;
+    font-family: Arial;
+    font-size: 1.4em;
+}
+
+.title {
+    text-align:center;
+    font-size: 2.5em;
+    font-family: Arial;
+}
