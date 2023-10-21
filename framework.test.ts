@@ -3,7 +3,7 @@ const { check_npm_for_open_source } = require('./src/main');
 const { fetchRepoInfo, fetchRepoContributors, fetchRepoLicense, fetchRepoReadme, fetchRepoIssues, 
   createLintDirs } = require('./src/metric_helpers');
 const { outputResults, calcTotalScore, calcRespMaintScore, calcCorrectnessScore } = require('./src/metrics');
-const fs = require('fs'); // Replace with the actual fs import
+const fs = require('fs');
 
 //handle any mock creations for test suites
 // Mock the fs module to track function calls
@@ -11,7 +11,6 @@ jest.mock('fs', () => ({
   appendFile: jest.fn(),
 }));
 
-//begin test suites
 describe('check_npm_for_open_source', () => {
     it('should return https link if valid github repository is present', async () => {
       const result1 = await check_npm_for_open_source('./test_files/browserify_info.json');
