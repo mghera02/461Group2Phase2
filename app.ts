@@ -1,6 +1,6 @@
-const express = require('express');
-const multer = require('multer');
-const AWS = require('aws-sdk');
+import express from 'express';
+import multer from 'multer';
+import AWS from 'aws-sdk';
 
 const app = express();
 const port = 3000;
@@ -38,6 +38,33 @@ app.post('/upload', upload.single('file'), (req, res) => {
     res.status(500).send('An error occurred.');
   }
 });
+
+app.get('/rate/:packageId', (req, res) => {
+    try {
+      const packageId = req.params.packageId;
+
+      //S3 getObject parameters
+      const s3Params: AWS.S3.GetObjectRequest = {
+        Bucket: 'your-s3-bucket-name',
+        Key: packageId + '.json', //assuming each rate data is stored as a JSON object
+      };
+      s3.getObject(s3Params, (err: AWS.AWSError, data: AWS.S3.GetObjectOutput) => { //request to AWS S3 to retrieve the rate information
+        if (err) {
+          console.error('S3 getObject error:', err);
+          return res.status(500).send('An error occurred while fetching the rate data.');
+        }
+        // Parse the rate data from the response
+        const rateData = JSON.parse(data.Body?.toString() || '');
+        if (!rateData || !rateData.rate) {
+          return res.status(404).send('Rate data not found.');
+        }
+        res.status(200).json(rateData);
+      });
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).send('An error occurred.');
+    }
+  });
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
