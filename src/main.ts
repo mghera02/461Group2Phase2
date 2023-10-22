@@ -214,10 +214,11 @@ async function main() {
  
         process.exit(0);
 
-    } else {
-        console.log("Invalid command...\n");
-        process.exit(0);
-    }
+    } 
+    // else {
+    //     console.log("Invalid command...\n");
+    //     process.exit(0);
+    // }
 }
 
 main();
@@ -230,6 +231,7 @@ export {
     runEslint,
     ensureDirectoryExistence,
     check_npm_for_open_source,
+    readJSON,
 }
 
 // https://github.com/Purdue-ECE-461/is-sorted
