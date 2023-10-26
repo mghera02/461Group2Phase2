@@ -17,6 +17,8 @@
 </template>
 
 <script>
+    import axios from "axios"
+
     export default {
         name: 'SearchBar',
         data() {
@@ -30,11 +32,34 @@
           getSearchBarVal(x) {
             this.searchBarVal = x;
           },
-          getMatchingPackages() {
-            this.packages = [{packageName: "NodeJs", metric1: .2, metric2: .4, metric3: .2, metric4: .8, metric5: .1, totalMetric: .5},
-                            {packageName: "TensorFlow", metric1: .2, metric2: .4, metric3: .2, metric4: .8, metric5: .1, totalMetric: .5},
-                            {packageName: "Random Package", metric1: .2, metric2: .4, metric3: .2, metric4: .8, metric5: .1, totalMetric: .5},
-                            {packageName: "New Pacakge", metric1: .2, metric2: .4, metric3: .2, metric4: .8, metric5: .1, totalMetric: .5}] // temporary placeholder
+          async getMatchingPackages() {
+            let packageNames = ["NodeJs", "TensorFlow", "Random Package", "New Package"] // temp hardcoded
+            for (let packageName of packageNames) {
+              let ratings = await this.getPackageRatings(packageName);
+              (this.packages).push({
+                packageName: packageName, 
+                metric1: ".2", // temp hardcoded
+                metric2: ".4", // temp hardcoded
+                metric3: ".2", // temp hardcoded
+                metric4: ".8", // temp hardcoded
+                metric5: ".1", // temp hardcoded
+                totalMetric: ".1" // temp hardcoded
+              });
+            } 
+          },
+          async getPackageRatings(packageName) {
+            try {
+              const response = await axios.get(`http://localhost:3000/rate/:${packageName}`, {
+                headers: {
+                  "Content-Type": "multipart/form-data",
+                },
+              });
+              console.log("Rate received successfuly", response.data);
+              return response.data;
+            } catch (error) {
+              console.error("Error retrieving the rate.", error);
+              return null;
+            }
           }
         },
         props: {

@@ -11,12 +11,11 @@
 
     export default{
         name:'Add',
-
         setup() {
             const file = ref(null)
 
             const handleFileUpload = async() => {
-            // debugger;
+                // debugger;
                 console.log("selected file",file.value.files)
                 //Upload to server
                 const selectedFile = file.value.files[0]
