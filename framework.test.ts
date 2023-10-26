@@ -1,8 +1,8 @@
 //imported functions
-const { check_npm_for_open_source } = require('./src/main');
+const { check_npm_for_open_source } = require('./src/main.ts');
 const { fetchRepoInfo, fetchRepoContributors, fetchRepoLicense, fetchRepoReadme, fetchRepoIssues, 
-  createLintDirs } = require('./src/metric_helpers');
-const { outputResults, calcTotalScore, calcRespMaintScore, calcCorrectnessScore } = require('./src/metrics');
+  createLintDirs } = require('./src/metric_helpers.ts');
+const { outputResults, calcTotalScore, calcRespMaintScore, calcCorrectnessScore } = require('./src/metrics.ts');
 const fs = require('fs');
 
 //handle any mock creations for test suites
