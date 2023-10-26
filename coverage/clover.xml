@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1698287298094" clover="3.2.0">
-  <project timestamp="1698287298094" name="All files">
+<coverage generated="1698288248963" clover="3.2.0">
+  <project timestamp="1698288248963" name="All files">
     <metrics statements="210" coveredstatements="79" conditionals="100" coveredconditionals="10" methods="35" coveredmethods="11" elements="345" coveredelements="100" complexity="0" loc="210" ncloc="210" packages="1" files="2" classes="2"/>
     <file name="metric_helpers.ts" path="/home/shay/a/mghera/461/461Group2Phase2/src/metric_helpers.ts">
       <metrics statements="136" coveredstatements="33" conditionals="71" coveredconditionals="0" methods="25" coveredmethods="6"/>
