@@ -12,11 +12,6 @@ import {
     fetchRepoIssues,
 } from './metric_helpers'
 
-const mit = "MIT" || "mit";
-const apache = "Apache" || "apache";
-const gpl = "GPL" || "gpl";
-const bsd = "BSD" || "bsd"; 
-
 interface RepoData {
     URL: string;
     NET_SCORE: number;
@@ -40,14 +35,14 @@ function calcRampUpScore(x: number): number {
     return result;
 }
 
-function calcLicenseScore(x: string): number { 
-    let licenseScore = 0; 
-    if (x.includes(apache) || x.includes(mit) || x.includes(gpl) || x.includes(bsd)) {
+function calcLicenseScore(licenseName: string): number {
+    let licenseScore = 0;
+    const lowercaseLicense = licenseName.toLowerCase();
+
+    if (lowercaseLicense.includes('apache') || lowercaseLicense.includes('mit') || lowercaseLicense.includes('gpl') || lowercaseLicense.includes('bsd')) {
         licenseScore = 1;
-    } else { 
-        licenseScore = 0;
     }
-    //console.log(`License: ${licenseScore}`);
+
     return licenseScore;
 }
 

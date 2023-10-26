@@ -1,6 +1,0 @@
-Error, invalid url: https://github.com/random
-Error, invalid url: asda
-Error, invalid url: sd
-Failed to get npm info for package: notreal
-Failed to get repo license for cloudinary/cloudinary_npm from API
-{"URL":"https://github.com/cloudinary/cloudinary_npm","NET_SCORE":0,"RAMP_UP_SCORE":0.90987,"CORRECTNESS_SCORE":0.7,"BUS_FACTOR_SCORE":0.47998,"LICENSE_SCORE":0,"RESPONSIVE_MAINTAINER_SCORE":0.85328}

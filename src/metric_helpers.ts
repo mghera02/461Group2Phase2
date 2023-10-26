@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 // here we are getting everything we need for our metrics from the api  (contributors, license, readme, issues, etc)
 import * as fs from 'fs';
-import { octokit, logLevel, logFilePath, runEslint, ensureDirectoryExistence, } from './main';
+import { octokit, logLevel, logFilePath, runEslint, ensureDirectoryExistence } from './main';
 import {
     calcuBusFactor,
     calcLicenseScore,
@@ -63,9 +63,8 @@ async function fetchRepoLicense(username: string, repo: string): Promise<number>
                 'X-GitHub-Api-Version': '2022-11-28'
               }
         });
-
+        
         if((response.data.license?.key && (response.data.license?.key != "other"))) {
-            
             return calcLicenseScore(response.data.license.name);
         } else { 
             //console.error(`No license found for ${username}/${repo}`);
@@ -75,7 +74,7 @@ async function fetchRepoLicense(username: string, repo: string): Promise<number>
             return 0;
         }
     } catch (error) { 
-        //console.error(`Failed to get repo license for ${username}/${repo}`);
+        console.error(`Failed to get repo license for ${username}/${repo}`, error);
         if(logLevel == 2){
             fs.appendFile(logFilePath, `Failed to get repo license for ${username}/${repo} from API\n`, (err)=>{});
         }
@@ -238,10 +237,8 @@ async function fetchTsAndJsFiles(username: string, repo: string)  {
 }
 
 async function createLintDirs(username: string, repo: string) {
-
     const appendRepo = `/${repo}`;
     const subDir = `./temp_linter_test${appendRepo}`;
-    ensureDirectoryExistence(subDir);
     const esLintconfig = `/* eslint-env node */
 module.exports = {
     extends: ['eslint:recommended'],
@@ -262,9 +259,12 @@ module.exports = {
 };
     `;
     const config = esLintconfig.trim(); // remove whitespace
-    fs.writeFileSync(`${subDir}/.eslintrc.cjs`, config);
-
-
+    try {
+        fs.writeFileSync(`${subDir}/.eslintrc.cjs`, config);
+        return 1;
+    } catch(e) {
+        return e;
+    }
 }
 
 async function fetchLintOutput(username: string, repo: string): Promise<number> {
