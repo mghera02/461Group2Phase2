@@ -1,6 +1,6 @@
 <template>
   <main id="topNav">
-    <input id="searchBar" type="text" v-model="searchBarVal" placeholder="Lets see if this CD works"/>
+    <input id="searchBar" type="text" v-model="searchBarVal" placeholder="Search for a package using regex"/>
     <button id="searchBtn" @click="sendSearchToParent"> Search </button>
   </main>
 </template>
