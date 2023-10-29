@@ -7,17 +7,30 @@
 
 <script>
     import { ref} from "vue"
+    import axios from "axios"
 
     export default{
         name:'Add',
-
         setup() {
             const file = ref(null)
 
             const handleFileUpload = async() => {
-            // debugger;
+                // debugger;
                 console.log("selected file",file.value.files)
                 //Upload to server
+                const selectedFile = file.value.files[0]
+                const formData = new FormData();
+                formData.append("file", selectedFile);
+                try {
+                    const response = await axios.post("http://localhost:3000/upload", formData, {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                    });
+                    console.log("File uploaded successfully.", response.data);
+                } catch (error) {
+                    console.error("Error uploading the file.", error);
+                }
             }
 
             return {
