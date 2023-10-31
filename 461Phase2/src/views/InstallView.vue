@@ -1,11 +1,15 @@
 <template>
+   <router-link :to="{ name: 'home', params: {} }" class="goToBtn">Back to search page</router-link>
+    <h1 class="title">
+        Download a package 
+    </h1>
    {{ this.$route.params.packageName }}
    <a href="/files/test.zip" download>DOWNLOAD</a>
 </template>
 
 <script>
     import axios from "axios"
-    
+
     export default {
         name: 'Install',
         data() {

@@ -1,5 +1,8 @@
+<style lang="css" src="../assets/css/uploadDownload.css"></style>
+
 <template>
-    <h1>
+    <router-link :to="{ name: 'home', params: {} }" class="goToBtn">Back to search page</router-link>
+    <h1 class="title">
         Upload a package 
     </h1>
    <input ref="file" v-on:change="handleFileUpload()"  type="file">
