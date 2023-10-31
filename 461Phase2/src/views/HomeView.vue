@@ -33,7 +33,21 @@
             this.searchBarVal = x;
           },
           async getMatchingPackages() {
+            
             let packageNames = ["NodeJs", "TensorFlow", "Random Package", "New Package"] // temp hardcoded
+
+            axios.get(`"http://localhost:3000/search`, {
+              params: {
+                q: this.searchBarVal,
+              }
+            }).then(response => {
+              console.log('Search Results:', response.data);
+              packageNames = response.data;
+            })
+            .catch(error => {
+              console.error('Error:', error.message);
+            });
+
             for (let packageName of packageNames) {
               let ratings = await this.getPackageRatings(packageName);
               (this.packages).push({
