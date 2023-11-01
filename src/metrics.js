@@ -42,10 +42,6 @@ exports.calcTotalScore = exports.outputResults = exports.get_metric_info = expor
 var main_1 = require("./main");
 var fs = require("fs");
 var metric_helpers_1 = require("./metric_helpers");
-var mit = "MIT" || "mit";
-var apache = "Apache" || "apache";
-var gpl = "GPL" || "gpl";
-var bsd = "BSD" || "bsd";
 function calcuBusFactor(x) {
     var result = (Math.pow((Math.log(x + 1) / (Math.log(1500 + 1))), 1.22));
     //console.log(`Bus Factor: ${result}`);
@@ -58,15 +54,12 @@ function calcRampUpScore(x) {
     return result;
 }
 exports.calcRampUpScore = calcRampUpScore;
-function calcLicenseScore(x) {
+function calcLicenseScore(licenseName) {
     var licenseScore = 0;
-    if (x.includes(apache) || x.includes(mit) || x.includes(gpl) || x.includes(bsd)) {
+    var lowercaseLicense = licenseName.toLowerCase();
+    if (lowercaseLicense.includes('apache') || lowercaseLicense.includes('mit') || lowercaseLicense.includes('gpl') || lowercaseLicense.includes('bsd')) {
         licenseScore = 1;
     }
-    else {
-        licenseScore = 0;
-    }
-    //console.log(`License: ${licenseScore}`);
     return licenseScore;
 }
 exports.calcLicenseScore = calcLicenseScore;
@@ -130,18 +123,18 @@ function calcTotalScore(busFactor, rampup, license, correctness, maintainer) {
 exports.calcTotalScore = calcTotalScore;
 function get_metric_info(gitDetails) {
     return __awaiter(this, void 0, void 0, function () {
-        var i, gitInfo, busFactor, license, rampup, correctness, maintainer, score, error_1;
+        var i, gitInfo, busFactor, license, rampup, correctness, maintainer, pinning, score, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     i = 0;
                     _a.label = 1;
                 case 1:
-                    if (!(i < gitDetails.length)) return [3 /*break*/, 12];
+                    if (!(i < gitDetails.length)) return [3 /*break*/, 13];
                     gitInfo = gitDetails[i];
                     _a.label = 2;
                 case 2:
-                    _a.trys.push([2, 10, , 11]);
+                    _a.trys.push([2, 11, , 12]);
                     //console.log(`Getting Metric info for ${gitInfo.username}/${gitInfo.repo}`);
                     //await fetchRepoInfo(gitInfo.username, gitInfo.repo);
                     return [4 /*yield*/, (0, metric_helpers_1.createLintDirs)(gitInfo.username, gitInfo.repo)];
@@ -164,28 +157,31 @@ function get_metric_info(gitDetails) {
                     return [4 /*yield*/, (0, metric_helpers_1.fetchRepoIssues)(gitInfo.username, gitInfo.repo)];
                 case 8:
                     maintainer = _a.sent();
-                    return [4 /*yield*/, calcTotalScore(busFactor, rampup, license, correctness, maintainer)];
+                    return [4 /*yield*/, (0, metric_helpers_1.fetchRepoPinning)(gitInfo.username, gitInfo.repo)];
                 case 9:
-                    score = _a.sent();
-                    outputResults(gitInfo.username, gitInfo.repo, busFactor, rampup, license, correctness, maintainer, score);
-                    return [3 /*break*/, 11];
+                    pinning = _a.sent();
+                    return [4 /*yield*/, calcTotalScore(busFactor, rampup, license, correctness, maintainer)];
                 case 10:
+                    score = _a.sent();
+                    outputResults(gitInfo.username, gitInfo.repo, busFactor, rampup, license, correctness, maintainer, pinning, score);
+                    return [3 /*break*/, 12];
+                case 11:
                     error_1 = _a.sent();
                     //console.error(`Failed to get Metric info for ${gitInfo.username}/${gitInfo.repo}`);
                     if (main_1.logLevel == 2) {
                         fs.appendFile(main_1.logFilePath, "Failed to get Metric info for ".concat(gitInfo.username, "/").concat(gitInfo.repo, "\n"), function (err) { });
                     }
-                    return [3 /*break*/, 11];
-                case 11:
+                    return [3 /*break*/, 12];
+                case 12:
                     i++;
                     return [3 /*break*/, 1];
-                case 12: return [2 /*return*/];
+                case 13: return [2 /*return*/];
             }
         });
     });
 }
 exports.get_metric_info = get_metric_info;
-function outputResults(username, repo, busFactor, rampup, license, correctness, maintainer, score) {
+function outputResults(username, repo, busFactor, rampup, license, correctness, maintainer, pinning, score) {
     return __awaiter(this, void 0, void 0, function () {
         var url, repoData, ndJsonpath;
         return __generator(this, function (_a) {
@@ -197,6 +193,7 @@ function outputResults(username, repo, busFactor, rampup, license, correctness, 
                 CORRECTNESS_SCORE: parseFloat(correctness.toFixed(5)),
                 BUS_FACTOR_SCORE: parseFloat(busFactor.toFixed(5)),
                 LICENSE_SCORE: license,
+                GOOD_PINNING_PRACTICE: parseFloat(pinning.toFixed(5)),
                 RESPONSIVE_MAINTAINER_SCORE: parseFloat(maintainer.toFixed(5))
             };
             console.log(JSON.stringify(repoData));

@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.fetchRepoInfo = exports.fetchRepoIssues = exports.fetchLintOutput = exports.fetchRepoReadme = exports.fetchRepoLicense = exports.fetchRepoContributors = exports.createLintDirs = void 0;
+exports.fetchRepoPinning = exports.fetchRepoInfo = exports.fetchRepoIssues = exports.fetchLintOutput = exports.fetchRepoReadme = exports.fetchRepoLicense = exports.fetchRepoContributors = exports.createLintDirs = void 0;
 //////////////////////////////////////////////////////////////////////
 // here we are getting everything we need for our metrics from the api  (contributors, license, readme, issues, etc)
 var fs = require("fs");
@@ -129,7 +129,7 @@ function fetchRepoLicense(username, repo) {
                     return [3 /*break*/, 3];
                 case 2:
                     error_3 = _c.sent();
-                    //console.error(`Failed to get repo license for ${username}/${repo}`);
+                    //sconsole.error(`Failed to get repo license for ${username}/${repo}`, error);
                     if (main_1.logLevel == 2) {
                         fs.appendFile(main_1.logFilePath, "Failed to get repo license for ".concat(username, "/").concat(repo, " from API\n"), function (err) { });
                     }
@@ -419,3 +419,46 @@ function fetchRepoIssues(username, repo) {
     });
 }
 exports.fetchRepoIssues = fetchRepoIssues;
+function fetchRepoPinning(username, repo) {
+    return __awaiter(this, void 0, void 0, function () {
+        var response, content, packageJson_1, totalPackages_1, nonPinnedPackages_1, error_8;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    return [4 /*yield*/, main_1.octokit.request('GET /repos/{owner}/{repo}/contents/package.json', {
+                            owner: username,
+                            repo: repo
+                        })];
+                case 1:
+                    response = _a.sent();
+                    content = Buffer.from(response.data.content, 'base64').toString('utf-8');
+                    packageJson_1 = JSON.parse(content);
+                    if (packageJson_1.dependencies) {
+                        totalPackages_1 = 0;
+                        nonPinnedPackages_1 = 0;
+                        Object.keys(packageJson_1.dependencies).forEach(function (deps) {
+                            var version = packageJson_1.dependencies[deps];
+                            var regex = /^\d+\.\d+\.[a-zA-Z]$/;
+                            if (!regex.test(version)) {
+                                nonPinnedPackages_1++;
+                            }
+                            totalPackages_1++;
+                        });
+                        console.log(packageJson_1.dependencies);
+                        return [2 /*return*/, nonPinnedPackages_1 / totalPackages_1];
+                    }
+                    else {
+                        return [2 /*return*/, 1];
+                    }
+                    return [3 /*break*/, 3];
+                case 2:
+                    error_8 = _a.sent();
+                    console.error('Error occurred while fetching data:', error_8);
+                    throw error_8;
+                case 3: return [2 /*return*/];
+            }
+        });
+    });
+}
+exports.fetchRepoPinning = fetchRepoPinning;

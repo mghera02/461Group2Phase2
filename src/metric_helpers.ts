@@ -74,7 +74,7 @@ async function fetchRepoLicense(username: string, repo: string): Promise<number>
             return 0;
         }
     } catch (error) { 
-        console.error(`Failed to get repo license for ${username}/${repo}`, error);
+        //sconsole.error(`Failed to get repo license for ${username}/${repo}`, error);
         if(logLevel == 2){
             fs.appendFile(logFilePath, `Failed to get repo license for ${username}/${repo} from API\n`, (err)=>{});
         }
@@ -361,6 +361,38 @@ async function fetchRepoIssues(username: string, repo: string) {
     }
 }
 
+async function fetchRepoPinning(username: string, repo: string) {
+    try {
+        const response = await octokit.request('GET /repos/{owner}/{repo}/contents/package.json', {
+            owner: username,
+            repo: repo,
+        });
+
+        const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
+        const packageJson = JSON.parse(content);
+
+        if (packageJson.dependencies) {
+            let totalPackages = 0;
+            let nonPinnedPackages = 0;
+            Object.keys(packageJson.dependencies).forEach(deps => {
+                let version = packageJson.dependencies[deps];
+                const regex = /^\d+\.\d+\.[a-zA-Z]$/;
+                if(!regex.test(version)) {
+                    nonPinnedPackages++;
+                }
+                totalPackages++;
+            });
+            //console.log(packageJson.dependencies);
+            return nonPinnedPackages/totalPackages;
+        } else {
+            return 1;
+        }
+    } catch (error) {
+        console.error('Error occurred while fetching data:', error);
+        throw error;
+    }
+}
+
 export { 
     createLintDirs,
     fetchRepoContributors,
@@ -369,4 +401,5 @@ export {
     fetchLintOutput,
     fetchRepoIssues,
     fetchRepoInfo,
+    fetchRepoPinning
 }

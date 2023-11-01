@@ -10,6 +10,7 @@ import {
     fetchRepoReadme,
     fetchLintOutput,
     fetchRepoIssues,
+    fetchRepoPinning,
 } from './metric_helpers'
 
 interface RepoData {
@@ -19,6 +20,7 @@ interface RepoData {
     CORRECTNESS_SCORE: number;
     BUS_FACTOR_SCORE: number;
     LICENSE_SCORE: number;
+    GOOD_PINNING_PRACTICE: number;
     RESPONSIVE_MAINTAINER_SCORE: number;
 }
 
@@ -125,8 +127,9 @@ async function get_metric_info(gitDetails: { username: string, repo: string }[])
             const rampup = await fetchRepoReadme(gitInfo.username, gitInfo.repo);
             const correctness = await fetchLintOutput(gitInfo.username, gitInfo.repo);
             const maintainer = await fetchRepoIssues(gitInfo.username, gitInfo.repo);
+            const pinning = await fetchRepoPinning(gitInfo.username, gitInfo.repo);
             let score = await calcTotalScore(busFactor, rampup, license, correctness, maintainer);
-            outputResults(gitInfo.username, gitInfo.repo, busFactor, rampup, license, correctness, maintainer, score);
+            outputResults(gitInfo.username, gitInfo.repo, busFactor, rampup, license, correctness, maintainer, pinning, score);
             //console.log(`~~~~~~~~~~~~~~~~\n`);
           
         } catch (error) {
@@ -138,7 +141,7 @@ async function get_metric_info(gitDetails: { username: string, repo: string }[])
     }
 }
 
-async function outputResults(username: string, repo: string, busFactor: number, rampup: number, license: number, correctness: number, maintainer: number, score: number) {
+async function outputResults(username: string, repo: string, busFactor: number, rampup: number, license: number, correctness: number, maintainer: number, pinning: number, score: number) {
     const url = `https://github.com/${username}/${repo}`;
     
     
@@ -149,6 +152,7 @@ async function outputResults(username: string, repo: string, busFactor: number, 
         CORRECTNESS_SCORE: parseFloat(correctness.toFixed(5)),
         BUS_FACTOR_SCORE: parseFloat(busFactor.toFixed(5)),
         LICENSE_SCORE: license,
+        GOOD_PINNING_PRACTICE: parseFloat(pinning.toFixed(5)),
         RESPONSIVE_MAINTAINER_SCORE: parseFloat(maintainer.toFixed(5)),
     };
     console.log(JSON.stringify(repoData));
