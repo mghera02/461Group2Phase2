@@ -393,6 +393,61 @@ async function fetchRepoPinning(username: string, repo: string) {
     }
 }
 
+async function fetchRepoPullRequest(username: string, repo: string) {
+    try {
+        const pullRequests = await octokit.paginate("GET /repos/{owner}/{repo}/pulls", {
+          owner: username,
+          repo: repo,
+          state: "closed",
+        });
+    
+        let reviewedLines = 0;
+        let totalLines = 0;
+    
+        let idx = 0;
+        for (const pr of pullRequests) {
+            if(idx > 50) {
+                break;
+            }
+            if (pr.merged_at) {
+                const files = await octokit.paginate("GET /repos/{owner}/{repo}/pulls/{pull_number}/files", {
+                    owner: username,
+                    repo: repo,
+                    pull_number: pr.number,
+                });
+    
+                for (const file of files) {
+                    totalLines += file.additions;
+    
+                    const reviewComments = await octokit.paginate("GET /repos/{owner}/{repo}/pulls/{pull_number}/comments", {
+                        owner: username,
+                        repo: repo,
+                        pull_number: pr.number,
+                    });
+    
+                    const fileComments = reviewComments.filter((comment: any) => comment.path === file.filename);
+                    if (fileComments.length > 0) {
+                        reviewedLines += file.additions;
+                    }
+                }
+            }
+            idx++;
+        }
+    
+        if (totalLines === 0) {
+          //console.log("No code changes found in the pull requests of the repository.");
+          return 0;
+        } else {
+          const fraction = reviewedLines / totalLines;
+          //console.log(`Fraction of code introduced through reviewed pull requests: ${fraction}`);
+          return fraction;
+        }
+    } catch (error) {
+        console.error("An error occurred while fetching data from GitHub API:", error);
+        return 0;
+    }
+}
+
 export { 
     createLintDirs,
     fetchRepoContributors,
@@ -401,5 +456,6 @@ export {
     fetchLintOutput,
     fetchRepoIssues,
     fetchRepoInfo,
-    fetchRepoPinning
+    fetchRepoPinning,
+    fetchRepoPullRequest
 }
