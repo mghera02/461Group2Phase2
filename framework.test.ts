@@ -244,7 +244,7 @@ describe('fetchRepoInfo', () => {
   describe('calcTotalScore', () => {
     it('should return score as a sum of weighted components', async () => {
 
-    const score = await calcTotalScore(0.5, 0.5, 1, 0.5, 0.5);
+    const score = await calcTotalScore(0.5, 0.5, 1, 0.5, 0.5, 0.5);
 
     expect(score).toBeGreaterThanOrEqual(0);
     expect(score).toBeLessThanOrEqual(1);
@@ -280,7 +280,7 @@ describe('fetchRepoInfo', () => {
     // Create a spy for console.log
     const consoleSpy = jest.spyOn(console, 'log');
 
-    await outputResults(username, repo, 0.5, 0.5, 1, 0.5, 0.5, 0.5);
+    await outputResults(username, repo, 0.5, 0.5, 1, 0.5, 0.5, 0.5, 0.5);
 
     expect(consoleSpy).toHaveBeenCalledWith(expect.any(String)); // Ensure it logs to console
 
