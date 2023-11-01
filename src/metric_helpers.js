@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.fetchRepoPinning = exports.fetchRepoInfo = exports.fetchRepoIssues = exports.fetchLintOutput = exports.fetchRepoReadme = exports.fetchRepoLicense = exports.fetchRepoContributors = exports.createLintDirs = void 0;
+exports.fetchRepoPullRequest = exports.fetchRepoPinning = exports.fetchRepoInfo = exports.fetchRepoIssues = exports.fetchLintOutput = exports.fetchRepoReadme = exports.fetchRepoLicense = exports.fetchRepoContributors = exports.createLintDirs = void 0;
 //////////////////////////////////////////////////////////////////////
 // here we are getting everything we need for our metrics from the api  (contributors, license, readme, issues, etc)
 var fs = require("fs");
@@ -443,12 +443,9 @@ function fetchRepoPinning(username, repo) {
                             if (!regex.test(version)) {
                                 nonPinnedPackages_1++;
                             }
-                            else {
-                                console.log('failed pinned', version);
-                            }
                             totalPackages_1++;
                         });
-                        console.log(packageJson_1.dependencies);
+                        //console.log(packageJson.dependencies);
                         return [2 /*return*/, nonPinnedPackages_1 / totalPackages_1];
                     }
                     else {
@@ -465,3 +462,96 @@ function fetchRepoPinning(username, repo) {
     });
 }
 exports.fetchRepoPinning = fetchRepoPinning;
+function fetchRepoPullRequest(username, repo) {
+    return __awaiter(this, void 0, void 0, function () {
+        var pullRequests, reviewedLines, totalLines, idx, _i, pullRequests_1, pr, files, _loop_1, _a, files_1, file, fraction, error_9;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    _b.trys.push([0, 10, , 11]);
+                    return [4 /*yield*/, main_1.octokit.paginate("GET /repos/{owner}/{repo}/pulls", {
+                            owner: username,
+                            repo: repo,
+                            state: "closed"
+                        })];
+                case 1:
+                    pullRequests = _b.sent();
+                    reviewedLines = 0;
+                    totalLines = 0;
+                    idx = 0;
+                    _i = 0, pullRequests_1 = pullRequests;
+                    _b.label = 2;
+                case 2:
+                    if (!(_i < pullRequests_1.length)) return [3 /*break*/, 9];
+                    pr = pullRequests_1[_i];
+                    if (idx > 50) {
+                        return [3 /*break*/, 9];
+                    }
+                    if (!pr.merged_at) return [3 /*break*/, 7];
+                    return [4 /*yield*/, main_1.octokit.paginate("GET /repos/{owner}/{repo}/pulls/{pull_number}/files", {
+                            owner: username,
+                            repo: repo,
+                            pull_number: pr.number
+                        })];
+                case 3:
+                    files = _b.sent();
+                    _loop_1 = function (file) {
+                        var reviewComments, fileComments;
+                        return __generator(this, function (_c) {
+                            switch (_c.label) {
+                                case 0:
+                                    totalLines += file.additions;
+                                    return [4 /*yield*/, main_1.octokit.paginate("GET /repos/{owner}/{repo}/pulls/{pull_number}/comments", {
+                                            owner: username,
+                                            repo: repo,
+                                            pull_number: pr.number
+                                        })];
+                                case 1:
+                                    reviewComments = _c.sent();
+                                    fileComments = reviewComments.filter(function (comment) { return comment.path === file.filename; });
+                                    if (fileComments.length > 0) {
+                                        reviewedLines += file.additions;
+                                    }
+                                    return [2 /*return*/];
+                            }
+                        });
+                    };
+                    _a = 0, files_1 = files;
+                    _b.label = 4;
+                case 4:
+                    if (!(_a < files_1.length)) return [3 /*break*/, 7];
+                    file = files_1[_a];
+                    return [5 /*yield**/, _loop_1(file)];
+                case 5:
+                    _b.sent();
+                    _b.label = 6;
+                case 6:
+                    _a++;
+                    return [3 /*break*/, 4];
+                case 7:
+                    idx++;
+                    _b.label = 8;
+                case 8:
+                    _i++;
+                    return [3 /*break*/, 2];
+                case 9:
+                    if (totalLines === 0) {
+                        //console.log("No code changes found in the pull requests of the repository.");
+                        return [2 /*return*/, 0];
+                    }
+                    else {
+                        fraction = reviewedLines / totalLines;
+                        //console.log(`Fraction of code introduced through reviewed pull requests: ${fraction}`);
+                        return [2 /*return*/, fraction];
+                    }
+                    return [3 /*break*/, 11];
+                case 10:
+                    error_9 = _b.sent();
+                    console.error("An error occurred while fetching data from GitHub API:", error_9);
+                    return [2 /*return*/, 0];
+                case 11: return [2 /*return*/];
+            }
+        });
+    });
+}
+exports.fetchRepoPullRequest = fetchRepoPullRequest;

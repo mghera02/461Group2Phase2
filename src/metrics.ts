@@ -11,6 +11,7 @@ import {
     fetchLintOutput,
     fetchRepoIssues,
     fetchRepoPinning,
+    fetchRepoPullRequest
 } from './metric_helpers'
 
 interface RepoData {
@@ -21,6 +22,7 @@ interface RepoData {
     BUS_FACTOR_SCORE: number;
     LICENSE_SCORE: number;
     GOOD_PINNING_PRACTICE: number;
+    PULL_REQUEST: number;
     RESPONSIVE_MAINTAINER_SCORE: number;
 }
 
@@ -93,7 +95,7 @@ function calcRespMaintScore(timeDifference: number[], username: string, repo: st
     return maintainer;
 }
 
-async function calcTotalScore(busFactor: number, rampup: number, license: number, correctness: number, maintainer: number, pinning: number) {
+async function calcTotalScore(busFactor: number, rampup: number, license: number, correctness: number, maintainer: number, pullRequest: number, pinning: number) {
     /*
     Sarah highest priority is is not enough maintainers, we tie this into the responsive maintainer score
     responsive ^
@@ -105,14 +107,16 @@ async function calcTotalScore(busFactor: number, rampup: number, license: number
     const busWeight = 0.10;
     const rampupWeight = 0.10;
     const respMaintWeight = 0.30;
-    const correctnessWeight = 0.40;
+    const correctnessWeight = 0.30;
     const pinningWeight = 0.10;
+    const pullRequestWeight = 0.10;
     const busScore = busFactor * busWeight;
     const rampupScore = rampup * rampupWeight;
     const respMaintScore = maintainer * respMaintWeight;
     const correctnessScore = correctness * correctnessWeight;
     const pinningScore = pinning * pinningWeight;
-    const score = license*(busScore + rampupScore + respMaintScore + correctnessScore + pinningScore);
+    const pullRequestScore = pullRequest * pullRequestWeight;
+    const score = license*(busScore + rampupScore + respMaintScore + correctnessScore + pinningScore + pullRequestScore);
     //console.log(`Total Score: ${score.toFixed(5)}`); // can allow more or less decimal, five for now
     return score;
 }
@@ -130,8 +134,10 @@ async function get_metric_info(gitDetails: { username: string, repo: string }[])
             const correctness = await fetchLintOutput(gitInfo.username, gitInfo.repo);
             const maintainer = await fetchRepoIssues(gitInfo.username, gitInfo.repo);
             const pinning = await fetchRepoPinning(gitInfo.username, gitInfo.repo);
-            let score = await calcTotalScore(busFactor, rampup, license, correctness, maintainer, pinning);
-            outputResults(gitInfo.username, gitInfo.repo, busFactor, rampup, license, correctness, maintainer, pinning, score);
+            const pullRequest = await fetchRepoPullRequest(gitInfo.username, gitInfo.repo);
+            console.log(pullRequest);
+            let score = await calcTotalScore(busFactor, rampup, license, correctness, maintainer, pullRequest, pinning);
+            outputResults(gitInfo.username, gitInfo.repo, busFactor, rampup, license, correctness, maintainer, pinning, pullRequest, score);
             //console.log(`~~~~~~~~~~~~~~~~\n`);
           
         } catch (error) {
@@ -143,7 +149,7 @@ async function get_metric_info(gitDetails: { username: string, repo: string }[])
     }
 }
 
-async function outputResults(username: string, repo: string, busFactor: number, rampup: number, license: number, correctness: number, maintainer: number, pinning: number, score: number) {
+async function outputResults(username: string, repo: string, busFactor: number, rampup: number, license: number, correctness: number, maintainer: number, pinning: number, pullRequest: number, score: number) {
     const url = `https://github.com/${username}/${repo}`;
     
     const repoData: RepoData = {
@@ -154,6 +160,7 @@ async function outputResults(username: string, repo: string, busFactor: number, 
         BUS_FACTOR_SCORE: parseFloat(busFactor.toFixed(5)),
         LICENSE_SCORE: license,
         GOOD_PINNING_PRACTICE: parseFloat(pinning.toFixed(5)),
+        PULL_REQUEST: parseFloat(pullRequest.toFixed(5)),
         RESPONSIVE_MAINTAINER_SCORE: parseFloat(maintainer.toFixed(5)),
     };
     console.log(JSON.stringify(repoData));

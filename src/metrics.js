@@ -102,19 +102,23 @@ function calcRespMaintScore(timeDifference, username, repo) {
     return maintainer;
 }
 exports.calcRespMaintScore = calcRespMaintScore;
-function calcTotalScore(busFactor, rampup, license, correctness, maintainer) {
+function calcTotalScore(busFactor, rampup, license, correctness, maintainer, pullRequest, pinning) {
     return __awaiter(this, void 0, void 0, function () {
-        var busWeight, rampupWeight, respMaintWeight, correctnessWeight, busScore, rampupScore, respMaintScore, correctnessScore, score;
+        var busWeight, rampupWeight, respMaintWeight, correctnessWeight, pinningWeight, pullRequestWeight, busScore, rampupScore, respMaintScore, correctnessScore, pinningScore, pullRequestScore, score;
         return __generator(this, function (_a) {
             busWeight = 0.10;
-            rampupWeight = 0.20;
+            rampupWeight = 0.10;
             respMaintWeight = 0.30;
-            correctnessWeight = 0.40;
+            correctnessWeight = 0.30;
+            pinningWeight = 0.10;
+            pullRequestWeight = 0.10;
             busScore = busFactor * busWeight;
             rampupScore = rampup * rampupWeight;
             respMaintScore = maintainer * respMaintWeight;
             correctnessScore = correctness * correctnessWeight;
-            score = license * (busScore + rampupScore + respMaintScore + correctnessScore);
+            pinningScore = pinning * pinningWeight;
+            pullRequestScore = pullRequest * pullRequestWeight;
+            score = license * (busScore + rampupScore + respMaintScore + correctnessScore + pinningScore + pullRequestScore);
             //console.log(`Total Score: ${score.toFixed(5)}`); // can allow more or less decimal, five for now
             return [2 /*return*/, score];
         });
@@ -123,18 +127,18 @@ function calcTotalScore(busFactor, rampup, license, correctness, maintainer) {
 exports.calcTotalScore = calcTotalScore;
 function get_metric_info(gitDetails) {
     return __awaiter(this, void 0, void 0, function () {
-        var i, gitInfo, busFactor, license, rampup, correctness, maintainer, pinning, score, error_1;
+        var i, gitInfo, busFactor, license, rampup, correctness, maintainer, pinning, pullRequest, score, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     i = 0;
                     _a.label = 1;
                 case 1:
-                    if (!(i < gitDetails.length)) return [3 /*break*/, 13];
+                    if (!(i < gitDetails.length)) return [3 /*break*/, 14];
                     gitInfo = gitDetails[i];
                     _a.label = 2;
                 case 2:
-                    _a.trys.push([2, 11, , 12]);
+                    _a.trys.push([2, 12, , 13]);
                     //console.log(`Getting Metric info for ${gitInfo.username}/${gitInfo.repo}`);
                     //await fetchRepoInfo(gitInfo.username, gitInfo.repo);
                     return [4 /*yield*/, (0, metric_helpers_1.createLintDirs)(gitInfo.username, gitInfo.repo)];
@@ -160,28 +164,32 @@ function get_metric_info(gitDetails) {
                     return [4 /*yield*/, (0, metric_helpers_1.fetchRepoPinning)(gitInfo.username, gitInfo.repo)];
                 case 9:
                     pinning = _a.sent();
-                    return [4 /*yield*/, calcTotalScore(busFactor, rampup, license, correctness, maintainer)];
+                    return [4 /*yield*/, (0, metric_helpers_1.fetchRepoPullRequest)(gitInfo.username, gitInfo.repo)];
                 case 10:
-                    score = _a.sent();
-                    outputResults(gitInfo.username, gitInfo.repo, busFactor, rampup, license, correctness, maintainer, pinning, score);
-                    return [3 /*break*/, 12];
+                    pullRequest = _a.sent();
+                    console.log(pullRequest);
+                    return [4 /*yield*/, calcTotalScore(busFactor, rampup, license, correctness, maintainer, pullRequest, pinning)];
                 case 11:
+                    score = _a.sent();
+                    outputResults(gitInfo.username, gitInfo.repo, busFactor, rampup, license, correctness, maintainer, pinning, pullRequest, score);
+                    return [3 /*break*/, 13];
+                case 12:
                     error_1 = _a.sent();
                     //console.error(`Failed to get Metric info for ${gitInfo.username}/${gitInfo.repo}`);
                     if (main_1.logLevel == 2) {
                         fs.appendFile(main_1.logFilePath, "Failed to get Metric info for ".concat(gitInfo.username, "/").concat(gitInfo.repo, "\n"), function (err) { });
                     }
-                    return [3 /*break*/, 12];
-                case 12:
+                    return [3 /*break*/, 13];
+                case 13:
                     i++;
                     return [3 /*break*/, 1];
-                case 13: return [2 /*return*/];
+                case 14: return [2 /*return*/];
             }
         });
     });
 }
 exports.get_metric_info = get_metric_info;
-function outputResults(username, repo, busFactor, rampup, license, correctness, maintainer, pinning, score) {
+function outputResults(username, repo, busFactor, rampup, license, correctness, maintainer, pinning, pullRequest, score) {
     return __awaiter(this, void 0, void 0, function () {
         var url, repoData, ndJsonpath;
         return __generator(this, function (_a) {
@@ -194,6 +202,7 @@ function outputResults(username, repo, busFactor, rampup, license, correctness, 
                 BUS_FACTOR_SCORE: parseFloat(busFactor.toFixed(5)),
                 LICENSE_SCORE: license,
                 GOOD_PINNING_PRACTICE: parseFloat(pinning.toFixed(5)),
+                PULL_REQUEST: parseFloat(pullRequest.toFixed(5)),
                 RESPONSIVE_MAINTAINER_SCORE: parseFloat(maintainer.toFixed(5))
             };
             console.log(JSON.stringify(repoData));
