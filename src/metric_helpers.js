@@ -439,9 +439,12 @@ function fetchRepoPinning(username, repo) {
                         nonPinnedPackages_1 = 0;
                         Object.keys(packageJson_1.dependencies).forEach(function (deps) {
                             var version = packageJson_1.dependencies[deps];
-                            var regex = /^\d+\.\d+\.[a-zA-Z]$/;
+                            var regex = /^\d+(\.\d+){2}(\.[a-zA-Zx])?$/;
                             if (!regex.test(version)) {
                                 nonPinnedPackages_1++;
+                            }
+                            else {
+                                console.log('failed pinned', version);
                             }
                             totalPackages_1++;
                         });

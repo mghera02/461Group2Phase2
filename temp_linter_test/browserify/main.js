@@ -1,2 +1,4 @@
-var foo = require('./foo');
-console.log(foo(5));
+console.log('main line 1');
+var foo = require('./foo.js');
+
+foo();

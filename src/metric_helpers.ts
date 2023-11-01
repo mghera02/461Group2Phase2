@@ -376,7 +376,7 @@ async function fetchRepoPinning(username: string, repo: string) {
             let nonPinnedPackages = 0;
             Object.keys(packageJson.dependencies).forEach(deps => {
                 let version = packageJson.dependencies[deps];
-                const regex = /^\d+\.\d+\.[a-zA-Z]$/;
+                const regex = /^\d+(\.\d+){2}(\.[a-zA-Zx])?$/;
                 if(!regex.test(version)) {
                     nonPinnedPackages++;
                 }
