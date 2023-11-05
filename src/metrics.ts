@@ -10,12 +10,9 @@ import {
     fetchRepoReadme,
     fetchLintOutput,
     fetchRepoIssues,
+    fetchRepoPinning,
+    fetchRepoPullRequest
 } from './metric_helpers'
-
-const mit = "MIT" || "mit";
-const apache = "Apache" || "apache";
-const gpl = "GPL" || "gpl";
-const bsd = "BSD" || "bsd"; 
 
 interface RepoData {
     URL: string;
@@ -24,6 +21,8 @@ interface RepoData {
     CORRECTNESS_SCORE: number;
     BUS_FACTOR_SCORE: number;
     LICENSE_SCORE: number;
+    GOOD_PINNING_PRACTICE: number;
+    PULL_REQUEST: number;
     RESPONSIVE_MAINTAINER_SCORE: number;
 }
 
@@ -40,14 +39,14 @@ function calcRampUpScore(x: number): number {
     return result;
 }
 
-function calcLicenseScore(x: string): number { 
-    let licenseScore = 0; 
-    if (x.includes(apache) || x.includes(mit) || x.includes(gpl) || x.includes(bsd)) {
+function calcLicenseScore(licenseName: string): number {
+    let licenseScore = 0;
+    const lowercaseLicense = licenseName.toLowerCase();
+
+    if (lowercaseLicense.includes('apache') || lowercaseLicense.includes('mit') || lowercaseLicense.includes('gpl') || lowercaseLicense.includes('bsd')) {
         licenseScore = 1;
-    } else { 
-        licenseScore = 0;
     }
-    //console.log(`License: ${licenseScore}`);
+
     return licenseScore;
 }
 
@@ -96,7 +95,7 @@ function calcRespMaintScore(timeDifference: number[], username: string, repo: st
     return maintainer;
 }
 
-async function calcTotalScore(busFactor: number, rampup: number, license: number, correctness: number, maintainer: number) {
+async function calcTotalScore(busFactor: number, rampup: number, license: number, correctness: number, maintainer: number, pullRequest: number, pinning: number) {
     /*
     Sarah highest priority is is not enough maintainers, we tie this into the responsive maintainer score
     responsive ^
@@ -106,14 +105,18 @@ async function calcTotalScore(busFactor: number, rampup: number, license: number
         she explicitly wants a good ramp up score so engineers can work with the package easier
     */ 
     const busWeight = 0.10;
-    const rampupWeight = 0.20;
+    const rampupWeight = 0.10;
     const respMaintWeight = 0.30;
-    const correctnessWeight = 0.40;
+    const correctnessWeight = 0.30;
+    const pinningWeight = 0.10;
+    const pullRequestWeight = 0.10;
     const busScore = busFactor * busWeight;
     const rampupScore = rampup * rampupWeight;
     const respMaintScore = maintainer * respMaintWeight;
     const correctnessScore = correctness * correctnessWeight;
-    const score = license*(busScore + rampupScore + respMaintScore + correctnessScore);
+    const pinningScore = pinning * pinningWeight;
+    const pullRequestScore = pullRequest * pullRequestWeight;
+    const score = license*(busScore + rampupScore + respMaintScore + correctnessScore + pinningScore + pullRequestScore);
     //console.log(`Total Score: ${score.toFixed(5)}`); // can allow more or less decimal, five for now
     return score;
 }
@@ -130,8 +133,11 @@ async function get_metric_info(gitDetails: { username: string, repo: string }[])
             const rampup = await fetchRepoReadme(gitInfo.username, gitInfo.repo);
             const correctness = await fetchLintOutput(gitInfo.username, gitInfo.repo);
             const maintainer = await fetchRepoIssues(gitInfo.username, gitInfo.repo);
-            let score = await calcTotalScore(busFactor, rampup, license, correctness, maintainer);
-            outputResults(gitInfo.username, gitInfo.repo, busFactor, rampup, license, correctness, maintainer, score);
+            const pinning = await fetchRepoPinning(gitInfo.username, gitInfo.repo);
+            const pullRequest = await fetchRepoPullRequest(gitInfo.username, gitInfo.repo);
+            console.log(pullRequest);
+            let score = await calcTotalScore(busFactor, rampup, license, correctness, maintainer, pullRequest, pinning);
+            outputResults(gitInfo.username, gitInfo.repo, busFactor, rampup, license, correctness, maintainer, pinning, pullRequest, score);
             //console.log(`~~~~~~~~~~~~~~~~\n`);
           
         } catch (error) {
@@ -143,9 +149,8 @@ async function get_metric_info(gitDetails: { username: string, repo: string }[])
     }
 }
 
-async function outputResults(username: string, repo: string, busFactor: number, rampup: number, license: number, correctness: number, maintainer: number, score: number) {
+async function outputResults(username: string, repo: string, busFactor: number, rampup: number, license: number, correctness: number, maintainer: number, pinning: number, pullRequest: number, score: number) {
     const url = `https://github.com/${username}/${repo}`;
-    
     
     const repoData: RepoData = {
         URL: url,
@@ -154,6 +159,8 @@ async function outputResults(username: string, repo: string, busFactor: number, 
         CORRECTNESS_SCORE: parseFloat(correctness.toFixed(5)),
         BUS_FACTOR_SCORE: parseFloat(busFactor.toFixed(5)),
         LICENSE_SCORE: license,
+        GOOD_PINNING_PRACTICE: parseFloat(pinning.toFixed(5)),
+        PULL_REQUEST: parseFloat(pullRequest.toFixed(5)),
         RESPONSIVE_MAINTAINER_SCORE: parseFloat(maintainer.toFixed(5)),
     };
     console.log(JSON.stringify(repoData));
