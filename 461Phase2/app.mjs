@@ -128,6 +128,44 @@ app.get('/search', async (req, res) => {
   }
 });
 
+app.post('/reset', (req, res) => {
+  try {
+    const s3Params = {
+      Bucket: 'your-s3-bucket-name',
+    };
+
+    s3.listObjectsV2(s3Params, (err, data) => {
+      if (err) {
+        console.error('Error listing objects:', err);
+        return res.status(500).send('An error occurred while listing objects.');
+      }
+      if (data.Contents.length === 0) {
+        return res.status(200).send('Registry is already empty.');
+      }
+
+      const deleteErrors = [];
+      data.Contents.forEach((object) => {
+        s3.deleteObject({ Bucket: 'your-s3-bucket-name', Key: object.Key }, (err) => {
+          if (err) {
+            console.error('Error deleting object:', err);
+            deleteErrors.push(err.message);
+          }
+        });
+      });
+      if (deleteErrors.length > 0) {
+        return res.status(500).json({
+          message: 'Registry reset with errors',
+          errors: deleteErrors,
+        });
+      }
+      res.status(200).send('Registry reset to default state.');
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('An error occurred while resetting the registry.');
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
