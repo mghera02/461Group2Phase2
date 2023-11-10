@@ -66,6 +66,22 @@ app.get('/rate/:packageId', (req, res) => {
     }
   });
 
+  app.get('/download/:packageId', (req, res) => {
+    try {
+      const packageId = req.params.packageId;
+      const s3Params = {
+        Bucket: 'your-s3-bucket-name',
+        Key: packageId + '.json',
+      };
+      s3.getObject(s3Params)
+        .createReadStream()
+        .pipe(res); //send package directly
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).send('An error occurred.');
+    }
+  });
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
