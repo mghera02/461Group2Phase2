@@ -1,6 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import AWS from 'aws-sdk';
+import { AWSMock } from 'jest-aws-sdk-mock';
 
 const app = express();
 const port = 3000;
@@ -10,6 +11,25 @@ const s3 = new AWS.S3({
   accessKeyId: 'YOUR_ACCESS_KEY',
   secretAccessKey: 'YOUR_SECRET_KEY',
 }); //aws setup
+
+// Mock the AWS S3 services
+AWSMock.setSDKInstance(AWS);
+
+// Mock S3 upload
+AWSMock.mock('S3', 'upload', (params: AWS.S3.PutObjectRequest, callback: AWS.RequestHandler<AWS.S3.PutObjectOutput>) => {
+  // Define your mock behavior for S3 upload here
+  callback(null, { Location: 'mocked-s3-location' });
+});
+
+// Mock S3 getObject
+AWSMock.mock('S3', 'getObject', (params: AWS.S3.GetObjectRequest, callback: AWS.RequestHandler<AWS.S3.GetObjectOutput>) => {
+  // Define your mock behavior for S3 getObject here
+  const rateData = { rate: 10 };
+  const response: AWS.S3.GetObjectOutput = {
+    Body: JSON.stringify(rateData),
+  };
+  callback(null, response);
+});
 
 app.post('/upload', upload.single('file'), (req, res) => {
   try {
