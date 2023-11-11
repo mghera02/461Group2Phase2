@@ -104,16 +104,3 @@ export {
     display_package_data,
     TABLE_NAME,
 }
-
-async function main() {
-    await drop_package_data_table();
-    await setup_rds_tables();
-    await add_rds_package_data("A", {});
-    await add_rds_package_data("AA", {});
-    await add_rds_package_data("AAA", {});
-    await add_rds_package_data("hello", {});
-    await match_rds_rows("^A")
-    await clear_package_data
-}
-
-main();

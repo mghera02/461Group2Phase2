@@ -7,6 +7,7 @@ import * as rds_handler from './rds_packages'
 import {
   upload_package,
   download_package,
+  clear_s3_bucket,
 } from './s3_packages';
 
 const app = express();
@@ -74,13 +75,6 @@ app.get('/rate/:packageId', async (req, res) => {
 app.get('/download/:packageId', async (req, res) => {
   try {
     const package_id = req.params.packageId;
-    // const s3Params = {
-    //   Bucket: 'your-s3-bucket-name',
-    //   Key: packageId + '.json',
-    // };
-    // s3.getObject(s3Params)
-    //   .createReadStream()
-    //   .pipe(res); //send package directly
 
     const package_data = await rds_handler.get_package_data(package_id)
     if (package_data === null) {
@@ -125,62 +119,66 @@ app.get('/packages', async (req, res) => {
   }
 });
 
+// Sends the a list of package names that match the regex
 app.get('/search', async (req, res) => {
   try {
     const searchString = req.query.q;
     if (!searchString) {
       return res.status(400).send('Search string is required.');
     }
-    const s3Params = {
-      Bucket: 'your-s3-bucket-name',
-    };
-    const s3Objects = await s3.listObjectsV2(s3Params).promise();
-    const packages = s3Objects.Contents.map((object) => object.Key);
 
-    const searchResults = packages.filter((pkg) => {
-      const regex = new RegExp(searchString, 'i');
-      return regex.test(pkg) || regex.test(pkg + '.readme');
-    });
+    // const searchResults = packages.filter((pkg) => {
+    //   const regex = new RegExp(searchString, 'i');
+    //   return regex.test(pkg) || regex.test(pkg + '.readme');
+    // });
 
-    res.status(200).json(searchResults);
+    const searchResults = await rds_handler.match_rds_rows(searchString);
+    const package_names = searchResults.map((data) => data.package_name);
+
+    res.status(200).json(package_names);
   } catch (error) {
     console.error('Error:', error);
     res.status(500).send('An error occurred.');
   }
 });
 
-app.post('/reset', (req, res) => {
+// Resets RDS and S3
+app.post('/reset', async (req, res) => {
   try {
-    const s3Params = {
-      Bucket: 'your-s3-bucket-name',
-    };
+    // const s3Params = {
+    //   Bucket: 'your-s3-bucket-name',
+    // };
 
-    s3.listObjectsV2(s3Params, (err, data) => {
-      if (err) {
-        console.error('Error listing objects:', err);
-        return res.status(500).send('An error occurred while listing objects.');
-      }
-      if (data.Contents.length === 0) {
-        return res.status(200).send('Registry is already empty.');
-      }
+    // s3.listObjectsV2(s3Params, (err, data) => {
+    //   if (err) {
+    //     console.error('Error listing objects:', err);
+    //     return res.status(500).send('An error occurred while listing objects.');
+    //   }
+    //   if (data.Contents.length === 0) {
+    //     return res.status(200).send('Registry is already empty.');
+    //   }
 
-      const deleteErrors = [];
-      data.Contents.forEach((object) => {
-        s3.deleteObject({ Bucket: 'your-s3-bucket-name', Key: object.Key }, (err) => {
-          if (err) {
-            console.error('Error deleting object:', err);
-            deleteErrors.push(err.message);
-          }
-        });
-      });
-      if (deleteErrors.length > 0) {
-        return res.status(500).json({
-          message: 'Registry reset with errors',
-          errors: deleteErrors,
-        });
-      }
-      res.status(200).send('Registry reset to default state.');
-    });
+    //   const deleteErrors = [];
+    //   data.Contents.forEach((object) => {
+    //     s3.deleteObject({ Bucket: 'your-s3-bucket-name', Key: object.Key }, (err) => {
+    //       if (err) {
+    //         console.error('Error deleting object:', err);
+    //         deleteErrors.push(err.message);
+    //       }
+    //     });
+    //   });
+    //   if (deleteErrors.length > 0) {
+    //     return res.status(500).json({
+    //       message: 'Registry reset with errors',
+    //       errors: deleteErrors,
+    //     });
+    //   }
+    //   res.status(200).send('Registry reset to default state.');
+    // });
+    await clear_s3_bucket();
+    await rds_configurator.drop_package_data_table();
+    await rds_configurator.setup_rds_tables();
+
   } catch (error) {
     console.error('Error:', error);
     res.status(500).send('An error occurred while resetting the registry.');

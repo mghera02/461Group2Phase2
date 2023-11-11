@@ -59,24 +59,21 @@ async function download_package(package_id: number) : Promise<Buffer | null> {
 }
 
 async function clear_s3_bucket() {
-    const params = {
+    const params: AWS.S3.DeleteObjectsRequest = {
         Bucket: BUCKET_NAME,
-    }
-
+        Delete: { Objects: [] }, // Initialize the Objects array
+      };
+    
     try {
-        const s3_objects = await s3.listObjects(params).promise();
+    const s3Objects = await s3.listObjects(params).promise();
 
-        if (!s3_objects.Contents) {
-            console.log('No S3 objects to delete!')
-            return 
-        }
-
-        const delete_objects_params = {
-            Bucket: BUCKET_NAME,
-            Delete: { Objects: s3_objects.Contents.map(obj => ({ Key: obj.Key })) },
-          };
-
-        
+    if (s3Objects.Contents && s3Objects.Contents.length > 0) {
+        params.Delete.Objects = s3Objects.Contents.map(obj => ({ Key: obj.Key })) as AWS.S3.ObjectIdentifierList;
+        await s3.deleteObjects(params).promise();
+        console.log('All S3 objects deleted successfully.');
+    } else {
+        console.log('No S3 objects to delete!');
+    }
     } catch (error) {
         console.error('Error deleting S3 objects:', error)
     }
