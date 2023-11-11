@@ -1,21 +1,29 @@
 // ALL FUNCTIONS IN THIS FOLDER ARE EXPORTED TO app.mjs
 // TO RUN THESE FUNCTIONS, RUN app.mjs
 import { Client } from 'pg';
+import * as dotenv from 'dotenv';
 import { add_rds_package_data, match_rds_rows } from './rds_packages';
 
-const TABLE_NAME = 'package_data';
+dotenv.config();
+
+const user = String(process.env.RDS_USER)
+const host = String(process.env.RDS_HOST)
+const password = String(process.env.RDS_PASSWORD)
+const database = String(process.env.RDS_DB_NAME)
 
 const dbConfig = {
-  user: 'group2',
-  host: 'rds461.cqc0ujpmrgo5.us-east-2.rds.amazonaws.com',
-  database: 'initial_db',
-  password: 'rds461password',
+  user: user,
+  host: host,
+  database: database,
+  password: password,
   port: 5432, // Default PostgreSQL port
   ssl: {
     // Set the SSL option
     rejectUnauthorized: false, // Reject self-signed certificates (recommended for production)
   },
 };
+
+const TABLE_NAME = 'package_data';
 
 async function get_rds_connection() {
   const client = new Client(dbConfig);

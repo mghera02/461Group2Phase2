@@ -11,21 +11,59 @@ interface PackageData {
     created_at: Date,
 }
 
-async function add_rds_package_data(name: string, rating: object) {
-    const client = await get_rds_connection();
+// Adds data to the amazon RDS instance. That data is assigned a unique ID that is returned.
+// This ID is used to locate the package contents in the S3 bucket.
+async function add_rds_package_data(name: string, rating: object) : Promise<number | null> {
+  const client = await get_rds_connection();
 
-    try {
-        const query = 'INSERT INTO package_data(package_name, rating, num_downloads) VALUES($1, $2, $2)'
-        const values = [name, rating, 0]
-        await client.query(query, values);
-      } catch (error) {
-        console.error('Error entering data:', error);
-      } finally {
-        await client.end();
+  try {
+      const query = `
+        INSERT INTO package_data(package_name, rating, num_downloads) VALUES($1, $2, $3)
+        RETURNING package_id;
+      `;
+      const values = [name, rating, 0]
+      const result = await client.query(query, values);
+
+      // Making sure something is returned at all
+      if (result.rowCount == 0) {
+        return null;
       }
+
+      return result.rows[0];
+    } catch (error) {
+      console.error('Error entering data:', error);
+      return null;
+    } finally {
+      await client.end();
+    }
 }
 
-async function match_rds_rows(regex: string) {
+async function get_package_data(package_id: number) : Promise<PackageData | null> {
+  const client = await get_rds_connection();
+
+  try {
+      const query = `
+        SELECT * FROM ${TABLE_NAME} WHERE package_id = $1
+      `;
+      const values = [package_id]
+      const data: QueryResult<PackageData> = await client.query(query, values);
+
+      // Making sure something is returned at all
+      if (data.rowCount == 0) {
+        return null;
+      }
+
+      return data.rows[0];
+    } catch (error) {
+      console.error('Error grabbing data:', error);
+      return null;
+    } finally {
+      await client.end();
+    }
+}
+
+// Finds all data for packages whos names match a given regex
+async function match_rds_rows(regex: string) : Promise<PackageData[]> {
     const client = await get_rds_connection();
 
     try {
@@ -43,6 +81,7 @@ async function match_rds_rows(regex: string) {
 
       } catch (error) {
         console.error('Error searching data:', error);
+        return [];
       } finally {
         await client.end();
       }
@@ -50,6 +89,7 @@ async function match_rds_rows(regex: string) {
 
 export {
     add_rds_package_data,
+    get_package_data,
     match_rds_rows,
     PackageData,
 }
