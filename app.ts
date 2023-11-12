@@ -102,6 +102,27 @@ app.get('/rate/:packageId', (req, res) => {
     }
   });
 
+  app.get('/packages', async (req, res) => {
+    try {
+      const s3Params = {
+        Bucket: 'your-s3-bucket-name',
+        Prefix: '', 
+      };
+      const s3Objects = await s3.listObjectsV2(s3Params).promise();
+      const packages = s3Objects.Contents.map((object) => object.Key);
+      //pagination
+      const page = req.query.page || 1;
+      const perPage = req.query.perPage || 10;
+      const startIndex = (page - 1) * perPage;
+      const endIndex = page * perPage;
+      const paginatedPackages = packages.slice(startIndex, endIndex);
+      res.status(200).json(paginatedPackages);
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).send('An error occurred.');
+    }
+  });
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

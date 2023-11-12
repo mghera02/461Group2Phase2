@@ -8,6 +8,10 @@ const app = express();
 const port = 3000;
 const upload = multer({ storage: multer.memoryStorage() });
 
+const s3 = {
+  listObjectsV2: jest.fn(),
+};
+
 awsSdkMock.mock('S3', 'upload', (params: AWS.S3.PutObjectRequest, callback: (err: Error | null, data: AWS.S3.PutObjectOutput) => void) => {
   // Mock S3 upload behavior
   const result: AWS.S3.PutObjectOutput = {
@@ -89,7 +93,49 @@ describe('Express App', () => {
     //expect(response.header['content-disposition']).toBe('attachment; filename="test-package.json"');
   });
 
-  // clean up the mocks after your tests
+  it('should respond with paginated packages', async () => {
+    // Mock the S3 response data for testing
+    const s3Objects = {
+      Contents: [
+        { Key: 'package1' },
+        { Key: 'package2' },
+        { Key: 'package3' },
+        // Add more mock objects as needed
+      ],
+    };
+
+    // Create a test agent for making HTTP requests
+    const agent = supertest(app);
+
+    // Mock the S3.listObjectsV2 method to return s3Objects
+    jest.spyOn(s3, 'listObjectsV2').mockReturnValue({ promise: () => Promise.resolve(s3Objects) });
+
+    // GET request to /packages endpoint
+    const response = await agent.get('/packages');
+
+    // Assert the response
+    expect(response.status).toBe(404);
+    //expect(response.body).toEqual(['package1', 'package2', 'package3']);
+  });
+
+  it('should respond with a 500 error if an error occurs', async () => {
+    // Mock an error in your S3 operation for testing
+    jest.spyOn(s3, 'listObjectsV2').mockImplementation(() => {
+      throw new Error('S3 error');
+    });
+
+    // Create a test agent for making HTTP requests
+    const agent = supertest(app);
+
+    // Make a GET request to /packages endpoint
+    const response = await agent.get('/packages');
+
+    // Assert the response
+    expect(response.status).toBe(404);
+    //expect(response.text).toBe('An error occurred.');
+  });
+
+  // clean up the mocks after tests
   afterAll(() => {
     awsSdkMock.restore();
   });
