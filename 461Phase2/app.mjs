@@ -166,6 +166,45 @@ app.post('/reset', (req, res) => {
   }
 });
 
+app.post('/ingest', async (req, res) => {
+  try {
+    const packageName = req.body.packageName; 
+    if (!packageName) {
+      return res.status(400).send('Package name is required.');
+    }
+    const s3Params = {
+      Bucket: 'your-s3-bucket-name',
+      Key: packageName + '.json', 
+    };
+    s3.getObject(s3Params, (err, data) => {
+      if (err) {
+        console.error('S3 getObject error:', err);
+        return res.status(500).send('An error occurred while fetching the rate data.');
+      }
+      const rateData = JSON.parse(data.Body?.toString() || '');
+      if (!rateData || !rateData.rate || rateData.rate <= 0.5) {
+        return res.status(400).send('Package rate is not sufficient for ingestion.');
+      }
+      const uploadParams = {
+        Bucket: 'your-s3-bucket-name',
+        Key: packageName + '.zip', 
+        Body: req.file.buffer,
+      };
+      s3.upload(uploadParams, (uploadErr, uploadData) => {
+        if (uploadErr) {
+          console.error('S3 upload error:', uploadErr);
+          return res.status(500).send('An error occurred while uploading the package.');
+        }
+        console.log('Package uploaded to S3:', uploadData.Location);
+        res.status(200).send('Package ingested and uploaded successfully!');
+      });
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('An error occurred while trying to ingest an npm package.');
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
