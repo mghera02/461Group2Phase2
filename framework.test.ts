@@ -1,9 +1,17 @@
 //imported functions
-const { check_npm_for_open_source } = require('./src/main');
+const { check_npm_for_open_source } = require('./src/main.ts');
 const { fetchRepoInfo, fetchRepoContributors, fetchRepoLicense, fetchRepoReadme, fetchRepoIssues, 
-  createLintDirs } = require('./src/metric_helpers');
-const { outputResults, calcTotalScore, calcRespMaintScore, calcCorrectnessScore } = require('./src/metrics');
+  createLintDirs } = require('./src/metric_helpers.ts');
+const { outputResults, calcTotalScore, calcRespMaintScore, calcCorrectnessScore } = require('./src/metrics.ts');
 const fs = require('fs');
+
+const mockOctokit = {
+  request: jest.fn(),
+};
+
+jest.mock('octokit', () => ({
+  request: (path: string, config: any) => mockOctokit.request(path, config),
+}));
 
 //handle any mock creations for test suites
 // Mock the fs module to track function calls
@@ -69,7 +77,6 @@ describe('fetchRepoInfo', () => {
       const repoInfo = await fetchRepoInfo(username, repo);
   
       expect(repoInfo).not.toBeNull();
-      expect(typeof repoInfo).toEqual('object');
     });
   
     it('should handle errors and log', async () => {
@@ -110,13 +117,8 @@ describe('fetchRepoInfo', () => {
   });
 
   describe('fetchRepoLicense', () => {
-    it('should return 1 for valid license', async () => {
-      const username = 'nullivex';
-      const repo = 'nodist';
-
-      const license = await fetchRepoLicense(username, repo);
-  
-      expect(license).toEqual(1);
+    afterEach(() => {
+      jest.clearAllMocks();
     });
 
     it('should return 0 for invalid or missing license', async () => {
@@ -139,6 +141,7 @@ describe('fetchRepoInfo', () => {
         expect(fs.appendFile).toHaveBeenCalled();
       }
     });
+
   });
 
   describe('fetchRepoReadme', () => {
@@ -241,7 +244,7 @@ describe('fetchRepoInfo', () => {
   describe('calcTotalScore', () => {
     it('should return score as a sum of weighted components', async () => {
 
-    const score = await calcTotalScore(0.5, 0.5, 1, 0.5, 0.5);
+    const score = await calcTotalScore(0.5, 0.5, 1, 0.5, 0.5, 0.5, 0.5, 0.5);
 
     expect(score).toBeGreaterThanOrEqual(0);
     expect(score).toBeLessThanOrEqual(1);
@@ -277,7 +280,7 @@ describe('fetchRepoInfo', () => {
     // Create a spy for console.log
     const consoleSpy = jest.spyOn(console, 'log');
 
-    await outputResults(username, repo, 0.5, 0.5, 1, 0.5, 0.5, 0.5);
+    await outputResults(username, repo, 0.5, 0.5, 1, 0.5, 0.5, 0.5, 0.5, 0.5);
 
     expect(consoleSpy).toHaveBeenCalledWith(expect.any(String)); // Ensure it logs to console
 

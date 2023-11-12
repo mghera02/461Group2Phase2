@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 // here we are getting everything we need for our metrics from the api  (contributors, license, readme, issues, etc)
 import * as fs from 'fs';
-import { octokit, logLevel, logFilePath, runEslint, ensureDirectoryExistence, } from './main';
+import { octokit, logLevel, logFilePath, runEslint, ensureDirectoryExistence } from './main';
 import {
     calcuBusFactor,
     calcLicenseScore,
@@ -63,9 +63,8 @@ async function fetchRepoLicense(username: string, repo: string): Promise<number>
                 'X-GitHub-Api-Version': '2022-11-28'
               }
         });
-
+        
         if((response.data.license?.key && (response.data.license?.key != "other"))) {
-            
             return calcLicenseScore(response.data.license.name);
         } else { 
             //console.error(`No license found for ${username}/${repo}`);
@@ -75,7 +74,7 @@ async function fetchRepoLicense(username: string, repo: string): Promise<number>
             return 0;
         }
     } catch (error) { 
-        //console.error(`Failed to get repo license for ${username}/${repo}`);
+        //sconsole.error(`Failed to get repo license for ${username}/${repo}`, error);
         if(logLevel == 2){
             fs.appendFile(logFilePath, `Failed to get repo license for ${username}/${repo} from API\n`, (err)=>{});
         }
@@ -238,10 +237,8 @@ async function fetchTsAndJsFiles(username: string, repo: string)  {
 }
 
 async function createLintDirs(username: string, repo: string) {
-
     const appendRepo = `/${repo}`;
     const subDir = `./temp_linter_test${appendRepo}`;
-    ensureDirectoryExistence(subDir);
     const esLintconfig = `/* eslint-env node */
 module.exports = {
     extends: ['eslint:recommended'],
@@ -262,9 +259,12 @@ module.exports = {
 };
     `;
     const config = esLintconfig.trim(); // remove whitespace
-    fs.writeFileSync(`${subDir}/.eslintrc.cjs`, config);
-
-
+    try {
+        fs.writeFileSync(`${subDir}/.eslintrc.cjs`, config);
+        return 1;
+    } catch(e) {
+        return e;
+    }
 }
 
 async function fetchLintOutput(username: string, repo: string): Promise<number> {
@@ -361,6 +361,93 @@ async function fetchRepoIssues(username: string, repo: string) {
     }
 }
 
+async function fetchRepoPinning(username: string, repo: string) {
+    try {
+        const response = await octokit.request('GET /repos/{owner}/{repo}/contents/package.json', {
+            owner: username,
+            repo: repo,
+        });
+
+        const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
+        const packageJson = JSON.parse(content);
+
+        if (packageJson.dependencies) {
+            let totalPackages = 0;
+            let nonPinnedPackages = 0;
+            Object.keys(packageJson.dependencies).forEach(deps => {
+                let version = packageJson.dependencies[deps];
+                const regex = /^\d+(\.\d+){2}(\.[a-zA-Zx])?$/;
+                if(!regex.test(version)) {
+                    nonPinnedPackages++;
+                }
+                totalPackages++;
+            });
+            //console.log(packageJson.dependencies);
+            return nonPinnedPackages/totalPackages;
+        } else {
+            return 1;
+        }
+    } catch (error) {
+        console.error('Error occurred while fetching data:', error);
+        throw error;
+    }
+}
+
+async function fetchRepoPullRequest(username: string, repo: string) {
+    try {
+        const pullRequests = await octokit.paginate("GET /repos/{owner}/{repo}/pulls", {
+          owner: username,
+          repo: repo,
+          state: "closed",
+        });
+    
+        let reviewedLines = 0;
+        let totalLines = 0;
+    
+        let idx = 0;
+        for (const pr of pullRequests) {
+            if(idx > 50) {
+                break;
+            }
+            if (pr.merged_at) {
+                const files = await octokit.paginate("GET /repos/{owner}/{repo}/pulls/{pull_number}/files", {
+                    owner: username,
+                    repo: repo,
+                    pull_number: pr.number,
+                });
+    
+                for (const file of files) {
+                    totalLines += file.additions;
+    
+                    const reviewComments = await octokit.paginate("GET /repos/{owner}/{repo}/pulls/{pull_number}/comments", {
+                        owner: username,
+                        repo: repo,
+                        pull_number: pr.number,
+                    });
+    
+                    const fileComments = reviewComments.filter((comment: any) => comment.path === file.filename);
+                    if (fileComments.length > 0) {
+                        reviewedLines += file.additions;
+                    }
+                }
+            }
+            idx++;
+        }
+    
+        if (totalLines === 0) {
+          //console.log("No code changes found in the pull requests of the repository.");
+          return 0;
+        } else {
+          const fraction = reviewedLines / totalLines;
+          //console.log(`Fraction of code introduced through reviewed pull requests: ${fraction}`);
+          return fraction;
+        }
+    } catch (error) {
+        console.error("An error occurred while fetching data from GitHub API:", error);
+        return 0;
+    }
+}
+
 export { 
     createLintDirs,
     fetchRepoContributors,
@@ -369,4 +456,6 @@ export {
     fetchLintOutput,
     fetchRepoIssues,
     fetchRepoInfo,
+    fetchRepoPinning,
+    fetchRepoPullRequest
 }
