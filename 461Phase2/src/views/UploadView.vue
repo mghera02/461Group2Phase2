@@ -25,7 +25,7 @@
                 const formData = new FormData();
                 formData.append("file", selectedFile);
                 try {
-                    const response = await axios.post("http://localhost:3000/upload", formData, {
+                    const response = await axios.post("http://18.188.4.253/upload", formData, {
                         headers: {
                             "Content-Type": "multipart/form-data",
                         },
