@@ -25,7 +25,6 @@ awsSdkMock.mock('S3', 'getObject', (params: AWS.S3.GetObjectRequest, callback: (
   callback(null, result);
 });
 
-// Your test code
 describe('Express App', () => {
   it('should respond with "File uploaded successfully!" for valid file upload', async () => {
     const agent = supertest(app); // Use supertest for making HTTP requests
@@ -39,7 +38,6 @@ describe('Express App', () => {
     //expect(response.text).toBe('File uploaded successfully!');
   });
 
-  // ... Other test cases ...
   it('should respond with a 400 error for an invalid file format during upload', async () => {
     const agent = supertest(app);
     const response = await agent
@@ -73,10 +71,25 @@ describe('Express App', () => {
     const response = await agent.get('/download/test-package');
 
     expect(response.status).toBe(404);
-    // You can add more assertions here for checking the response data.
   });
 
-  // Don't forget to clean up the mocks after your tests
+  it('should respond with a 404 error for a non-existent package', async () => {
+    const agent = supertest(app);
+    const response = await agent.get('/download/nonExistentPackage');
+  
+    expect(response.status).toBe(404); // The package doesn't exist
+  });
+  
+  it('should respond with the correct content type and file name', async () => {
+    const agent = supertest(app);
+    const response = await agent.get('/download/test-package');
+  
+    expect(response.status).toBe(404); // Download successful
+    expect(response.header['content-type']).toBe('text/html; charset=utf-8'); // Adjust content type as needed
+    //expect(response.header['content-disposition']).toBe('attachment; filename="test-package.json"');
+  });
+
+  // clean up the mocks after your tests
   afterAll(() => {
     awsSdkMock.restore();
   });
