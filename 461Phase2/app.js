@@ -40,9 +40,10 @@ var express = require('express');
 var multer = require('multer');
 // import AWS from 'aws-sdk';
 var cors = require('cors');
+var logger_1 = require("./logger");
 var rds_configurator = require("./rds_config");
 var rds_handler = require("./rds_packages");
-var s3_packages_js_1 = require("./s3_packages.js");
+var s3_packages_1 = require("./s3_packages");
 var app = express();
 var port = 3000;
 var upload = multer({ storage: multer.memoryStorage() });
@@ -64,20 +65,24 @@ app.post('/upload', upload.single('file'), function (req, res) { return __awaite
                 package_id = _a.sent();
                 // Check to see if package metadata was upladed to RDS
                 if (package_id === null) {
+                    logger_1.logger.error("Could not upload package data to RDS");
                     return [2 /*return*/, res.status(400).send('Could not add package metadata')];
                 }
-                return [4 /*yield*/, (0, s3_packages_js_1.upload_package)(package_id, req.file)];
+                logger_1.logger.debug("Uploaded package to rds with id: ".concat(package_id));
+                return [4 /*yield*/, (0, s3_packages_1.upload_package)(package_id, req.file)];
             case 2:
                 s3_response = _a.sent();
                 // Check to see if package data was uploaded to S3
                 if (s3_response === null) {
+                    logger_1.logger.error("Error uploading package to S3");
                     return [2 /*return*/, res.status(400).send('Could not add package data')];
                 }
+                logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id));
                 res.status(200).send("Package uploaded successfully");
                 return [3 /*break*/, 4];
             case 3:
                 error_1 = _a.sent();
-                console.error('Diff Error:', error_1);
+                logger_1.logger.error('Could not upload package', error_1);
                 res.status(500).send('An error occurred.');
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -91,21 +96,25 @@ app.get('/rate/:packageId', function (req, res) { return __awaiter(void 0, void 
             case 0:
                 _a.trys.push([0, 2, , 3]);
                 package_id = parseInt(req.params.packageId);
+                logger_1.logger.debug("Attempting to rate package with id: ".concat(package_id));
                 return [4 /*yield*/, rds_handler.get_package_data(package_id)];
             case 1:
                 package_data = _a.sent();
                 if (package_data === null) {
+                    logger_1.logger.error("No package found with id: ".concat(package_id));
                     return [2 /*return*/, res.status(404).json({ error: 'Package not found' })];
                 }
                 rateData = package_data.rating;
                 if (!rateData) {
+                    logger_1.logger.error("No rate data found for package with id: ".concat(package_id));
                     return [2 /*return*/, res.status(404).send('Rate data not found.')];
                 }
+                logger_1.logger.info("Rate data found for package with id: ".concat(package_id, ", rateData: ").concat(rateData));
                 res.status(200).json(rateData);
                 return [3 /*break*/, 3];
             case 2:
                 error_2 = _a.sent();
-                console.error('Error:', error_2);
+                logger_1.logger.error('Error rating package:', error_2);
                 res.status(500).send('An error occurred.');
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -123,22 +132,26 @@ app.get('/download/:packageId', function (req, res) { return __awaiter(void 0, v
             case 1:
                 package_data = _a.sent();
                 if (package_data === null) {
+                    logger_1.logger.error("No package found with id: ".concat(package_id));
                     return [2 /*return*/, res.status(404).json({ error: 'Package not found' })];
                 }
+                logger_1.logger.debug("Package data found for package with id: ".concat(package_id));
                 package_name = package_data.package_name;
-                return [4 /*yield*/, (0, s3_packages_js_1.download_package)(package_id)];
+                return [4 /*yield*/, (0, s3_packages_1.download_package)(package_id)];
             case 2:
                 package_buffer = _a.sent();
                 if (package_buffer === null) {
+                    logger_1.logger.error("Package with id: ".concat(package_id, " not found in S3"));
                     return [2 /*return*/, res.status(404).json({ error: 'Package file not found' })];
                 }
                 res.attachment(package_name + '.zip'); // Set the desired new file name here
                 res.setHeader('Content-Type', 'application/octet-stream');
+                logger_1.logger.info("Successfully downloaded package with id ".concat(package_id));
                 res.status(200).send(package_buffer);
                 return [3 /*break*/, 4];
             case 3:
                 error_3 = _a.sent();
-                console.error('Error:', error_3);
+                logger_1.logger.error('Error downloading package:', error_3);
                 res.status(500).send('An error occurred.');
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -165,11 +178,12 @@ app.get('/search', function (req, res) { return __awaiter(void 0, void 0, void 0
             case 1:
                 searchResults = _a.sent();
                 package_names = searchResults.map(function (data) { return data.package_name; });
+                logger_1.logger.info("Successfully searched packages");
                 res.status(200).json(package_names);
                 return [3 /*break*/, 3];
             case 2:
                 error_4 = _a.sent();
-                console.error('Error:', error_4);
+                logger_1.logger.error('Error:', error_4);
                 res.status(500).send('An error occurred.');
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -211,7 +225,7 @@ app.post('/reset', function (req, res) { return __awaiter(void 0, void 0, void 0
                 //   }
                 //   res.status(200).send('Registry reset to default state.');
                 // });
-                return [4 /*yield*/, (0, s3_packages_js_1.clear_s3_bucket)()];
+                return [4 /*yield*/, (0, s3_packages_1.clear_s3_bucket)()];
             case 1:
                 // const s3Params = {
                 //   Bucket: 'your-s3-bucket-name',
@@ -251,7 +265,7 @@ app.post('/reset', function (req, res) { return __awaiter(void 0, void 0, void 0
                 return [3 /*break*/, 5];
             case 4:
                 error_5 = _a.sent();
-                console.error('Error:', error_5);
+                logger_1.logger.error('Error clearing databases:', error_5);
                 res.status(500).send('An error occurred while resetting the registry.');
                 return [3 /*break*/, 5];
             case 5: return [2 /*return*/];
@@ -259,5 +273,5 @@ app.post('/reset', function (req, res) { return __awaiter(void 0, void 0, void 0
     });
 }); });
 app.listen(port, function () {
-    console.log("Server is running on port ".concat(port));
+    logger_1.logger.info("Server is running on port ".concat(port));
 });

@@ -2,13 +2,14 @@ const express = require('express');
 const multer = require('multer');
 // import AWS from 'aws-sdk';
 const cors = require('cors');
+import { logger } from './logger';
 import * as rds_configurator from './rds_config';
 import * as rds_handler from './rds_packages'
 import {
   upload_package,
   download_package,
   clear_s3_bucket,
-} from './s3_packages.js';
+} from './s3_packages';
 
 const app = express();
 const port = 3000;
@@ -32,20 +33,24 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 
     // Check to see if package metadata was upladed to RDS
     if (package_id === null) {
+      logger.error("Could not upload package data to RDS")
       return res.status(400).send('Could not add package metadata');
     }
+    logger.debug(`Uploaded package to rds with id: ${package_id}`)
 
     // Upload the actual package to s3
     const s3_response = await upload_package(package_id, req.file);
 
     // Check to see if package data was uploaded to S3
     if (s3_response === null) {
+      logger.error("Error uploading package to S3")
       return res.status(400).send('Could not add package data');
     }
 
+    logger.info(`Successfully uploaded package with id: ${package_id}`)
     res.status(200).send("Package uploaded successfully")
   } catch (error) {
-    console.error('Diff Error:', error);
+    logger.error('Could not upload package', error);
     res.status(500).send('An error occurred.');
   }
 });
@@ -53,21 +58,25 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 app.get('/rate/:packageId', async (req, res) => {
   try {
     const package_id = parseInt(req.params.packageId);
+    logger.debug(`Attempting to rate package with id: ${package_id}`)
 
     const package_data = await rds_handler.get_package_data(package_id);
     if (package_data === null) {
+      logger.error(`No package found with id: ${package_id}`)
       return res.status(404).json({ error: 'Package not found' });
     }
 
     const rateData = package_data.rating;
     
     if (!rateData) {
+      logger.error(`No rate data found for package with id: ${package_id}`)
       return res.status(404).send('Rate data not found.');
     }
 
+    logger.info(`Rate data found for package with id: ${package_id}, rateData: ${rateData}`)
     res.status(200).json(rateData);
   } catch (error) {
-    console.error('Error:', error);
+    logger.error('Error rating package:', error);
     res.status(500).send('An error occurred.');
   }
 });
@@ -78,22 +87,26 @@ app.get('/download/:packageId', async (req, res) => {
 
     const package_data = await rds_handler.get_package_data(package_id)
     if (package_data === null) {
+      logger.error(`No package found with id: ${package_id}`);
       return res.status(404).json({ error: 'Package not found' });
     }
 
+    logger.debug(`Package data found for package with id: ${package_id}`);
     const package_name = package_data.package_name;
 
     const package_buffer = await download_package(package_id);
     if (package_buffer === null) {
+      logger.error(`Package with id: ${package_id} not found in S3`);
       return res.status(404).json({ error: 'Package file not found' });
     }
 
     res.attachment(package_name + '.zip'); // Set the desired new file name here
     res.setHeader('Content-Type', 'application/octet-stream');
 
+    logger.info(`Successfully downloaded package with id ${package_id}`)
     res.status(200).send(package_buffer);
     } catch (error) {
-    console.error('Error:', error);
+    logger.error('Error downloading package:', error);
     res.status(500).send('An error occurred.');
   }
 });
@@ -135,9 +148,10 @@ app.get('/search', async (req, res) => {
     const searchResults = await rds_handler.match_rds_rows(searchString);
     const package_names = searchResults.map((data) => data.package_name);
 
+    logger.info(`Successfully searched packages`)
     res.status(200).json(package_names);
   } catch (error) {
-    console.error('Error:', error);
+    logger.error('Error:', error);
     res.status(500).send('An error occurred.');
   }
 });
@@ -180,11 +194,11 @@ app.post('/reset', async (req, res) => {
     await rds_configurator.setup_rds_tables();
 
   } catch (error) {
-    console.error('Error:', error);
+    logger.error('Error clearing databases:', error);
     res.status(500).send('An error occurred while resetting the registry.');
   }
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  logger.info(`Server is running on port ${port}`);
 });

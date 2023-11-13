@@ -1,6 +1,4 @@
 "use strict";
-// ALL FUNCTIONS IN THIS FOLDER ARE EXPORTED TO app.mjs
-// TO RUN THESE FUNCTIONS, RUN app.mjs
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -40,6 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.match_rds_rows = exports.get_package_data = exports.add_rds_package_data = void 0;
 var rds_config_1 = require("./rds_config");
+var logger_1 = require("./logger");
 // Adds data to the amazon RDS instance. That data is assigned a unique ID that is returned.
 // This ID is used to locate the package contents in the S3 bucket.
 function add_rds_package_data(name, rating) {
@@ -62,10 +61,10 @@ function add_rds_package_data(name, rating) {
                     if (result.rowCount == 0) {
                         return [2 /*return*/, null];
                     }
-                    return [2 /*return*/, result.rows[0]];
+                    return [2 /*return*/, result.rows[0].package_id];
                 case 4:
                     error_1 = _a.sent();
-                    console.error('Error entering data:', error_1);
+                    logger_1.logger.error('Error entering data:', error_1);
                     return [2 /*return*/, null];
                 case 5: return [4 /*yield*/, client.end()];
                 case 6:
@@ -100,7 +99,7 @@ function get_package_data(package_id) {
                     return [2 /*return*/, data.rows[0]];
                 case 4:
                     error_2 = _a.sent();
-                    console.error('Error grabbing data:', error_2);
+                    logger_1.logger.error('Error grabbing data:', error_2);
                     return [2 /*return*/, null];
                 case 5: return [4 /*yield*/, client.end()];
                 case 6:
@@ -129,11 +128,11 @@ function match_rds_rows(regex) {
                     return [4 /*yield*/, client.query(query, values)];
                 case 3:
                     result = _a.sent();
-                    console.log('Query result:', result.rows);
+                    logger_1.logger.debug('Query result:', result.rows);
                     return [2 /*return*/, result.rows];
                 case 4:
                     error_3 = _a.sent();
-                    console.error('Error searching data:', error_3);
+                    logger_1.logger.error('Error searching data:', error_3);
                     return [2 /*return*/, []];
                 case 5: return [4 /*yield*/, client.end()];
                 case 6:

@@ -41,6 +41,7 @@ exports.TABLE_NAME = exports.display_package_data = exports.clear_package_data =
 // TO RUN THESE FUNCTIONS, RUN app.mjs
 var pg_1 = require("pg");
 var dotenv = require("dotenv");
+var logger_1 = require("./logger");
 dotenv.config();
 var user = String(process.env.RDS_USER);
 var host = String(process.env.RDS_HOST);
@@ -72,10 +73,11 @@ function get_rds_connection() {
                     return [4 /*yield*/, client.connect()];
                 case 2:
                     _a.sent();
+                    logger_1.logger.debug('Successfully connected to RDS');
                     return [3 /*break*/, 4];
                 case 3:
                     error_1 = _a.sent();
-                    console.error('Error connecting to the database:', error_1);
+                    logger_1.logger.error('Error connecting to the database:', error_1);
                     return [3 /*break*/, 4];
                 case 4: return [2 /*return*/, client];
             }
@@ -97,10 +99,11 @@ function setup_rds_tables() {
                     return [4 /*yield*/, client.query("\n          CREATE TABLE IF NOT EXISTS package_data (\n            package_id SERIAL PRIMARY KEY,\n            package_name VARCHAR(50) UNIQUE NOT NULL,\n            rating JSON NOT NULL,\n            num_downloads INT NOT NULL,\n            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n          );\n        ")];
                 case 3:
                     _a.sent();
+                    logger_1.logger.debug("Successfully created tables");
                     return [3 /*break*/, 7];
                 case 4:
                     error_2 = _a.sent();
-                    console.error('Error creating table:', error_2);
+                    logger_1.logger.error('Error creating table:', error_2);
                     return [3 /*break*/, 7];
                 case 5: return [4 /*yield*/, client.end()];
                 case 6:
@@ -129,7 +132,7 @@ function drop_package_data_table() {
                     return [3 /*break*/, 7];
                 case 4:
                     error_3 = _a.sent();
-                    console.error('Error creating table:', error_3);
+                    logger_1.logger.error('Error creating table:', error_3);
                     return [3 /*break*/, 7];
                 case 5: return [4 /*yield*/, client.end()];
                 case 6:

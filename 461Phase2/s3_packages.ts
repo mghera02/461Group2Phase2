@@ -1,6 +1,7 @@
 import * as AWS from 'aws-sdk';
 import * as fs from 'fs';
 import * as dotenv from 'dotenv';
+import { logger } from './logger';
 
 dotenv.config();
 
@@ -32,11 +33,11 @@ async function upload_package(package_id: number, file: Express.Multer.File) : P
     try {
         await s3.upload(params).promise();
         const file_url = `https://${BUCKET_NAME}.s3.${AWS.config.region}.amazonaws.com/${unique_filename}`;
-        console.log(`File uploaded successfully. URL: ${file_url}`);
-    
+        logger.debug(`File uploaded successfully to S3. URL: ${file_url}`);
+        
         return file_url;
     } catch (error) {
-        console.error('Error uploading file to S3:', error);
+        logger.error('Error uploading file to S3:', error);
         return null;
     }
 }
@@ -50,10 +51,10 @@ async function download_package(package_id: number) : Promise<Buffer | null> {
     try {
         const file = await s3.getObject(params).promise();
 
-        console.log(`File downloaded successfully.`);
+        logger.debug(`File downloaded successfully.`);
         return file.Body as Buffer;
     } catch (error) {
-        console.error('Error downloading file from S3:', error);
+        logger.error('Error downloading file from S3:', error);
         return null;
     }
 }
@@ -70,12 +71,12 @@ async function clear_s3_bucket() {
     if (s3Objects.Contents && s3Objects.Contents.length > 0) {
         params.Delete.Objects = s3Objects.Contents.map(obj => ({ Key: obj.Key })) as AWS.S3.ObjectIdentifierList;
         await s3.deleteObjects(params).promise();
-        console.log('All S3 objects deleted successfully.');
+        logger.debug('All S3 objects deleted successfully.');
     } else {
-        console.log('No S3 objects to delete!');
+        logger.debug('No S3 objects to delete!');
     }
     } catch (error) {
-        console.error('Error deleting S3 objects:', error)
+        logger.error('Error deleting S3 objects:', error)
     }
 }
 

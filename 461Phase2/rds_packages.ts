@@ -1,9 +1,8 @@
 // ALL FUNCTIONS IN THIS FOLDER ARE EXPORTED TO app.mjs
 // TO RUN THESE FUNCTIONS, RUN app.mjs
-
-
 import { QueryResult } from 'pg';
 import { get_rds_connection, TABLE_NAME } from './rds_config';
+import { logger } from './logger';
 
 interface PackageData {
     package_id: number,
@@ -33,7 +32,7 @@ async function add_rds_package_data(name: string, rating: object) : Promise<numb
 
       return result.rows[0].package_id;
     } catch (error) {
-      console.error('Error entering data:', error);
+      logger.error('Error entering data:', error);
       return null;
     } finally {
       await client.end();
@@ -57,7 +56,7 @@ async function get_package_data(package_id: number) : Promise<PackageData | null
 
       return data.rows[0];
     } catch (error) {
-      console.error('Error grabbing data:', error);
+      logger.error('Error grabbing data:', error);
       return null;
     } finally {
       await client.end();
@@ -77,12 +76,12 @@ async function match_rds_rows(regex: string) : Promise<PackageData[]> {
 
         const result: QueryResult<PackageData> = await client.query(query, values);
 
-        console.log('Query result:', result.rows);
+        logger.debug('Query result:', result.rows);
     
         return result.rows;
 
       } catch (error) {
-        console.error('Error searching data:', error);
+        logger.error('Error searching data:', error);
         return [];
       } finally {
         await client.end();

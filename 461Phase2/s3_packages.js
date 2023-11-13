@@ -39,6 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.clear_s3_bucket = exports.download_package = exports.upload_package = void 0;
 var AWS = require("aws-sdk");
 var dotenv = require("dotenv");
+var logger_1 = require("./logger");
 dotenv.config();
 var access_id = String(process.env.S3_ACCESS_ID);
 var access_key = String(process.env.S3_ACCESS_KEY);
@@ -72,11 +73,11 @@ function upload_package(package_id, file) {
                 case 2:
                     _a.sent();
                     file_url = "https://".concat(BUCKET_NAME, ".s3.").concat(AWS.config.region, ".amazonaws.com/").concat(unique_filename);
-                    console.log("File uploaded successfully. URL: ".concat(file_url));
+                    logger_1.logger.debug("File uploaded successfully to S3. URL: ".concat(file_url));
                     return [2 /*return*/, file_url];
                 case 3:
                     error_1 = _a.sent();
-                    console.error('Error uploading file to S3:', error_1);
+                    logger_1.logger.error('Error uploading file to S3:', error_1);
                     return [2 /*return*/, null];
                 case 4: return [2 /*return*/];
             }
@@ -100,11 +101,11 @@ function download_package(package_id) {
                     return [4 /*yield*/, s3.getObject(params).promise()];
                 case 2:
                     file = _a.sent();
-                    console.log("File downloaded successfully.");
+                    logger_1.logger.debug("File downloaded successfully.");
                     return [2 /*return*/, file.Body];
                 case 3:
                     error_2 = _a.sent();
-                    console.error('Error downloading file from S3:', error_2);
+                    logger_1.logger.error('Error downloading file from S3:', error_2);
                     return [2 /*return*/, null];
                 case 4: return [2 /*return*/];
             }
@@ -133,15 +134,15 @@ function clear_s3_bucket() {
                     return [4 /*yield*/, s3.deleteObjects(params).promise()];
                 case 3:
                     _a.sent();
-                    console.log('All S3 objects deleted successfully.');
+                    logger_1.logger.debug('All S3 objects deleted successfully.');
                     return [3 /*break*/, 5];
                 case 4:
-                    console.log('No S3 objects to delete!');
+                    logger_1.logger.debug('No S3 objects to delete!');
                     _a.label = 5;
                 case 5: return [3 /*break*/, 7];
                 case 6:
                     error_3 = _a.sent();
-                    console.error('Error deleting S3 objects:', error_3);
+                    logger_1.logger.error('Error deleting S3 objects:', error_3);
                     return [3 /*break*/, 7];
                 case 7: return [2 /*return*/];
             }

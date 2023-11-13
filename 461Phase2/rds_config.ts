@@ -2,6 +2,7 @@
 // TO RUN THESE FUNCTIONS, RUN app.mjs
 import { Client } from 'pg';
 import * as dotenv from 'dotenv';
+import { logger } from './logger';
 
 dotenv.config();
 
@@ -29,8 +30,9 @@ async function get_rds_connection() {
 
   try {
     await client.connect();
+    logger.debug('Successfully connected to RDS')
   } catch (error) {
-    console.error('Error connecting to the database:', error);
+    logger.error('Error connecting to the database:', error);
   }
 
   return client
@@ -49,8 +51,9 @@ async function setup_rds_tables() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
           );
         `);
+        logger.debug(`Successfully created tables`);
       } catch (error) {
-        console.error('Error creating table:', error);
+        logger.error('Error creating table:', error);
       } finally {
         await client.end();
       }
@@ -62,7 +65,7 @@ async function drop_package_data_table() {
     try {
         await client.query(`DROP TABLE IF EXISTS ${TABLE_NAME}`);
       } catch (error) {
-        console.error('Error creating table:', error);
+        logger.error('Error creating table:', error);
       } finally {
         await client.end();
       }
