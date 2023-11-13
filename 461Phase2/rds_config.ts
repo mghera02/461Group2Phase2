@@ -2,7 +2,6 @@
 // TO RUN THESE FUNCTIONS, RUN app.mjs
 import { Client } from 'pg';
 import * as dotenv from 'dotenv';
-import { add_rds_package_data, match_rds_rows } from './rds_packages';
 
 dotenv.config();
 

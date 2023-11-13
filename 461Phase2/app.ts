@@ -1,14 +1,14 @@
-import express from 'express';
-import multer from 'multer';
-import AWS from 'aws-sdk';
-import cors from "cors";
+const express = require('express');
+const multer = require('multer');
+// import AWS from 'aws-sdk';
+const cors = require('cors');
 import * as rds_configurator from './rds_config';
 import * as rds_handler from './rds_packages'
 import {
   upload_package,
   download_package,
   clear_s3_bucket,
-} from './s3_packages';
+} from './s3_packages.js';
 
 const app = express();
 const port = 3000;
@@ -36,7 +36,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     }
 
     // Upload the actual package to s3
-    const s3_response = await upload_package(package_id, req.file.buffer);
+    const s3_response = await upload_package(package_id, req.file);
 
     // Check to see if package data was uploaded to S3
     if (s3_response === null) {
@@ -52,7 +52,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 
 app.get('/rate/:packageId', async (req, res) => {
   try {
-    const package_id = req.params.packageId;
+    const package_id = parseInt(req.params.packageId);
 
     const package_data = await rds_handler.get_package_data(package_id);
     if (package_data === null) {
@@ -61,7 +61,7 @@ app.get('/rate/:packageId', async (req, res) => {
 
     const rateData = package_data.rating;
     
-    if (!rateData || !rateData.rate) {
+    if (!rateData) {
       return res.status(404).send('Rate data not found.');
     }
 
@@ -74,7 +74,7 @@ app.get('/rate/:packageId', async (req, res) => {
 
 app.get('/download/:packageId', async (req, res) => {
   try {
-    const package_id = req.params.packageId;
+    const package_id = parseInt(req.params.packageId);
 
     const package_data = await rds_handler.get_package_data(package_id)
     if (package_data === null) {
@@ -99,30 +99,30 @@ app.get('/download/:packageId', async (req, res) => {
 });
 
 app.get('/packages', async (req, res) => {
-  try {
-    const s3Params = {
-      Bucket: 'your-s3-bucket-name',
-      Prefix: '', 
-    };
-    const s3Objects = await s3.listObjectsV2(s3Params).promise();
-    const packages = s3Objects.Contents.map((object) => object.Key);
-    //pagination
-    const page = req.query.page || 1;
-    const perPage = req.query.perPage || 10;
-    const startIndex = (page - 1) * perPage;
-    const endIndex = page * perPage;
-    const paginatedPackages = packages.slice(startIndex, endIndex);
-    res.status(200).json(paginatedPackages);
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).send('An error occurred.');
-  }
+  // try {
+  //   const s3Params = {
+  //     Bucket: 'your-s3-bucket-name',
+  //     Prefix: '', 
+  //   };
+  //   const s3Objects = await s3.listObjectsV2(s3Params).promise();
+  //   const packages = s3Objects.Contents.map((object) => object.Key);
+  //   //pagination
+  //   const page = req.query.page || 1;
+  //   const perPage = req.query.perPage || 10;
+  //   const startIndex = (page - 1) * perPage;
+  //   const endIndex = page * perPage;
+  //   const paginatedPackages = packages.slice(startIndex, endIndex);
+  //   res.status(200).json(paginatedPackages);
+  // } catch (error) {
+  //   console.error('Error:', error);
+  //   res.status(500).send('An error occurred.');
+  // }
 });
 
 // Sends the a list of package names that match the regex
 app.get('/search', async (req, res) => {
   try {
-    const searchString = req.query.q;
+    const searchString = req.query.q as string;
     if (!searchString) {
       return res.status(400).send('Search string is required.');
     }

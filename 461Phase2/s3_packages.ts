@@ -4,9 +4,9 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-const access_id = String(process.env.S3_);
-const access_key = String(process.env.S3_);
-const region = String(process.env.S3_);
+const access_id = String(process.env.S3_ACCESS_ID);
+const access_key = String(process.env.S3_ACCESS_KEY);
+const region = String(process.env.S3_REGION);
 
 // Set your AWS credentials and region
 AWS.config.update({
