@@ -24,14 +24,14 @@ async function add_rds_package_data(name: string, rating: object) : Promise<numb
         RETURNING package_id;
       `;
       const values = [name, rating, 0]
-      const result = await client.query(query, values);
+      const result: QueryResult<PackageData> = await client.query(query, values);
 
       // Making sure something is returned at all
       if (result.rowCount == 0) {
         return null;
       }
 
-      return result.rows[0];
+      return result.rows[0].package_id;
     } catch (error) {
       console.error('Error entering data:', error);
       return null;
