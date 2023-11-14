@@ -2,6 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.logger = exports.getLogger = void 0;
 var winston = require('winston'); //Logging library
+var dotenv = require("dotenv");
+dotenv.config();
 var logLevels = {
     0: 'silent',
     1: 'info',
@@ -44,7 +46,6 @@ function getLogger() {
         level: logLevel,
         format: winston.format.simple(),
         transports: [
-            new winston.transports.File({ filename: 'error.log', level: 'error' }),
             new winston.transports.File({ filename: logPath, level: logLevel }), // Actual log file
         ],
     });

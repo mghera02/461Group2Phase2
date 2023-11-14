@@ -1,4 +1,7 @@
 const winston = require('winston'); //Logging library
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 const logLevels: { [key: number]: string }= {
     0: 'silent',
@@ -49,7 +52,6 @@ export function getLogger() {
         level: logLevel,
         format: winston.format.simple(),
         transports: [
-          new winston.transports.File({ filename: 'error.log', level: 'error' }),   // Temporary to catch errors
           new winston.transports.File({ filename: logPath, level: logLevel }),   // Actual log file
         ],
       });
