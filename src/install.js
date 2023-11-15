@@ -1,17 +1,14 @@
-"use strict";
-exports.__esModule = true;
-var child_process_1 = require("child_process");
-var dependencies = ["octokit",
+import { execSync } from 'child_process';
+const dependencies = ["octokit",
     "--save-dev @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint",
     "--save dotenv @types/dotenv --save-dev"];
-for (var _i = 0, dependencies_1 = dependencies; _i < dependencies_1.length; _i++) {
-    var pkg = dependencies_1[_i];
+for (const pkg of dependencies) {
     try {
-        (0, child_process_1.execSync)("npm install ".concat(pkg));
+        execSync(`npm install ${pkg}`);
     }
     catch (_a) {
         //console.error(`Error installing dependency ${pkg}`);
-        console.error("Error: unable to install dependency ".concat(pkg));
+        console.error(`Error: unable to install dependency ${pkg}`);
         process.exit(1);
     }
 }

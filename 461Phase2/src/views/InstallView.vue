@@ -18,8 +18,9 @@
         },
         methods: {
             async getPackageZip(packageName) {
+                packageName = 17; // temp hardcoded
                 try {
-                    const response = await axios.get(`http://localhost:3000/download/:${packageName}`, {
+                    const response = await axios.get(`http://18.188.4.253:3000/download/${packageName}`, {
                         headers: {
                         "Content-Type": "multipart/form-data",
                         },

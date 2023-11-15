@@ -108,6 +108,6 @@
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
 
-  "include": ["./**/*.ts", "461Phase2/app.mjs", "461Phase2/app.mjs"]
+  "include": ["./**/*.ts", "461Phase2/app.ts", "461Phase2/app.ts"]
   
 }
