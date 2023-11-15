@@ -4,7 +4,7 @@
         Download a package 
     </h1>
    {{ this.$route.params.packageName }}
-   <a href="/files/test.zip" download>DOWNLOAD</a>
+   <a :href=downloadLink download>DOWNLOAD</a>
 </template>
 
 <script>
@@ -14,6 +14,7 @@
         name: 'Install',
         data() {
             return {
+                downloadLink: "/files/test.zip"
             }
         },
         methods: {
@@ -22,10 +23,11 @@
                 try {
                     const response = await axios.get(`http://18.188.4.253:3000/download/${packageName}`, {
                         headers: {
-                        "Content-Type": "multipart/form-data",
+                        "Content-Type": "application/octet-stream",
                         },
                     });
                     console.log("Zip received successfuly", response.data);
+                    this.downloadLink = response.data;
                     return response.data;
                 } catch (error) {
                     console.error("Error retrieving the zip file.", error);
