@@ -18,14 +18,14 @@
         },
         methods: {
             async getPackageZip(packageName) {
-                packageName = 17; // temp hardcoded
+                packageName = 23; // temp hardcoded
                 try {
                     const response = await axios.get(`http://18.188.4.253:3000/download/${packageName}`, {
                         headers: {
                         "Content-Type": "application/zip",
                         },
                     });
-                    console.log("Zip received successfuly", response.data);
+                    console.log("Zip received successfuly:", response.data);
                     return response.data;
                 } catch (error) {
                     console.error("Error retrieving the zip file.", error);
