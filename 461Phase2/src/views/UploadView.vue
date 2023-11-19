@@ -27,7 +27,7 @@
                 try {
                     const response = await axios.post("http://18.188.4.253:3000/upload", formData, {
                         headers: {
-                            "Content-Type": "multipart/form-data",
+                            "Content-Type": "application/zip",
                         },
                     });
                     console.log("File uploaded successfully.", response.data);

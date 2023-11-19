@@ -36,7 +36,7 @@
             
             let packageNames = ["NodeJs", "TensorFlow", "Random Package", "New Package"] // temp hardcoded
 
-            axios.get(`"http://localhost:3000/search`, {
+            axios.get(`http://18.188.4.253:3000/search`, {
               params: {
                 q: this.searchBarVal,
               }
@@ -45,7 +45,7 @@
               packageNames = response.data;
             })
             .catch(error => {
-              console.error('Error:', error.message);
+              console.error('Error searching:', error.message);
             });
 
             for (let packageName of packageNames) {
