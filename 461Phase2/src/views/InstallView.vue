@@ -22,7 +22,7 @@
                 try {
                     const response = await axios.get(`http://18.188.4.253:3000/download/${packageName}`, {
                         headers: {
-                        "Content-Type": "multipart/form-data",
+                        "Content-Type": "application/zip",
                         },
                     });
                     console.log("Zip received successfuly", response.data);
