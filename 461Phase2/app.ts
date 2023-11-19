@@ -101,7 +101,7 @@ app.get('/download/:packageId', async (req, res) => {
     }
 
     res.attachment(package_name + '.zip'); // Set the desired new file name here
-    res.setHeader('Content-Type', 'application/octet-stream');
+    res.setHeader('Content-Type', 'application/zip');
 
     logger.info(`Successfully downloaded package with id ${package_id}`)
     res.status(200).send(package_buffer);
