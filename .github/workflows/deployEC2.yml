@@ -26,7 +26,7 @@ jobs:
       working-directory: 461Phase2
 
     - name: Build backend
-      run: sudo npx tsc app.ts
+      run: sudo npx tsc *.ts
       working-directory: 461Phase2
 
     - name: Run backend
