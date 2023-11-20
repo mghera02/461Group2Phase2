@@ -18,7 +18,7 @@ AWS.config.update({
 
 // Create an S3 instance
 const s3 = new AWS.S3();
-const BUCKET_NAME = "461s3bucket";
+const BUCKET_NAME = "461s3bucketv2";
 
 async function upload_package(package_id: number, file: Express.Multer.File) : Promise<string | null> {
     const file_content = file.buffer;
