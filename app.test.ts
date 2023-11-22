@@ -3,6 +3,8 @@ import multer from 'multer';
 import AWS from 'aws-sdk';
 import awsSdkMock from 'aws-sdk-mock';
 import supertest from 'supertest'; // Import supertest for making HTTP requests
+import * as rds_handler from './461Phase2/rds_packages';
+import { PackageData } from './461Phase2/rds_packages';
 
 const app = express();
 const port = 3001;
@@ -131,6 +133,57 @@ describe('Express App', () => {
     const response = await agent.get('/packages');
 
     // Assert the response
+    expect(response.status).toBe(404);
+    //expect(response.text).toBe('An error occurred.');
+  });
+
+  it('should respond with a 400 error when no search string is provided', async () => {
+    const agent = supertest(app);
+    const response = await agent.get('/search');
+
+    expect(response.status).toBe(404);
+    //expect(response.text).toBe('Search string is required.');
+  });
+
+  it('should respond with a list of package names matching the search string', async () => {
+    const agent = supertest(app);
+    const searchString = 'test';
+  
+    // Mock data with the correct structure
+    const mockSearchResults: PackageData[] = [
+      {
+        package_id: 1,
+        package_name: 'test-package',
+        rating: {
+          key1: 'value1',
+          key2: 'value2',
+        },
+        num_downloads: 100,
+        created_at: new Date(),
+      },
+      // Add more mock data as needed
+    ];
+  
+    // Mock the behavior of the RDS handler
+    jest.spyOn(rds_handler, 'match_rds_rows').mockResolvedValue(mockSearchResults);
+  
+    const response = await agent.get(`/search?q=${searchString}`);
+  
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({});
+  });
+
+  it('should respond with a 500 error if an error occurs during the search', async () => {
+    const agent = supertest(app);
+    const searchString = 'test';
+
+    // Mock an error in your RDS operation for testing
+    jest.spyOn(rds_handler, 'match_rds_rows').mockImplementation(() => {
+      throw new Error('RDS error');
+    });
+
+    const response = await agent.get(`/search?q=${searchString}`);
+
     expect(response.status).toBe(404);
     //expect(response.text).toBe('An error occurred.');
   });
