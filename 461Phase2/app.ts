@@ -18,11 +18,11 @@ const upload = multer({ storage: multer.memoryStorage() });
 app.use(cors());
 
 app.get('/', (req, res) => {
-  return res.send("Welcome!");
+  return res.status(202).send('Welcome!');
 });
 
 app.get('/hello', (req, res) => {
-  return res.send("Hello!");
+  return res.status(201).send('Hello!');
 });
 
 app.post('/upload', upload.single('file'), async (req, res) => {
