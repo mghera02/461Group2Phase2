@@ -12,7 +12,7 @@ import {
 } from './s3_packages';
 
 const app = express();
-const port = 3000;
+const port = 3001;
 const upload = multer({ storage: multer.memoryStorage() });
 
 app.use(cors());
