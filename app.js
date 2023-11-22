@@ -2,7 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import AWS from 'aws-sdk';
 const app = express();
-const port = 3000;
+const port = 3001;
 const upload = multer({ storage: multer.memoryStorage() });
 const s3 = new AWS.S3({
     accessKeyId: 'YOUR_ACCESS_KEY',

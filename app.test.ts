@@ -5,7 +5,7 @@ import awsSdkMock from 'aws-sdk-mock';
 import supertest from 'supertest'; // Import supertest for making HTTP requests
 
 const app = express();
-const port = 3000;
+const port = 3001;
 const upload = multer({ storage: multer.memoryStorage() });
 
 const s3 = {
