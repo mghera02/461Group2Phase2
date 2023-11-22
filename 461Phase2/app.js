@@ -45,9 +45,15 @@ var rds_configurator = require("./rds_config");
 var rds_handler = require("./rds_packages");
 var s3_packages_1 = require("./s3_packages");
 var app = express();
-var port = 4000;
+var port = process.env.PORT || 8080;
 var upload = multer({ storage: multer.memoryStorage() });
 app.use(cors());
+app.get('/', function (req, res) {
+    res.send("Welcome!");
+});
+app.get('/hello', function (req, res) {
+    res.send("Hello!");
+});
 app.post('/upload', upload.single('file'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var package_id, s3_response, error_1;
     return __generator(this, function (_a) {

@@ -12,10 +12,18 @@ import {
 } from './s3_packages';
 
 const app = express();
-const port = 4000;
+const port = process.env.PORT||8080;
 const upload = multer({ storage: multer.memoryStorage() });
 
 app.use(cors());
+
+app.get('/', (req, res) => {
+  res.send("Welcome!");
+});
+
+app.get('/hello', (req, res) => {
+  res.send("Hello!");
+});
 
 app.post('/upload', upload.single('file'), async (req, res) => {
   try {
