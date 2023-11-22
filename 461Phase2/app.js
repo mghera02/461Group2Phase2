@@ -45,7 +45,7 @@ var rds_configurator = require("./rds_config");
 var rds_handler = require("./rds_packages");
 var s3_packages_1 = require("./s3_packages");
 var app = express();
-var port = 3000;
+var port = 3001;
 var upload = multer({ storage: multer.memoryStorage() });
 app.use(cors());
 app.post('/upload', upload.single('file'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
@@ -145,7 +145,7 @@ app.get('/download/:packageId', function (req, res) { return __awaiter(void 0, v
                     return [2 /*return*/, res.status(404).json({ error: 'Package file not found' })];
                 }
                 res.attachment(package_name + '.zip'); // Set the desired new file name here
-                res.setHeader('Content-Type', 'application/octet-stream');
+                res.setHeader('Content-Type', 'application/zip');
                 logger_1.logger.info("Successfully downloaded package with id ".concat(package_id));
                 res.status(200).send(package_buffer);
                 return [3 /*break*/, 4];
