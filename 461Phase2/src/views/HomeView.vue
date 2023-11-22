@@ -36,7 +36,7 @@
             
             let packageNames = ["NodeJs", "TensorFlow", "Random Package", "New Package"] // temp hardcoded
 
-            axios.get(`http://3.142.91.53/:3000/search`, {
+            axios.get(`http://3.142.91.53:3000/search`, {
               params: {
                 q: this.searchBarVal,
               }
