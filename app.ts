@@ -3,6 +3,7 @@ import multer from 'multer';
 import AWS from 'aws-sdk';
 import { AWSMock } from 'jest-aws-sdk-mock';
 import { logger } from './461Phase2/logger';
+import * as rds_configurator from './461Phase2/rds_config';
 import * as rds_handler from './461Phase2/rds_packages';
 import {
   upload_package,
@@ -151,6 +152,49 @@ app.get('/search', async (req, res) => {
   } catch (error) {
     logger.error('Error:', error);
     res.status(500).send('An error occurred.');
+  }
+});
+
+// Resets RDS and S3
+app.post('/reset', async (req, res) => {
+  try {
+    // const s3Params = {
+    //   Bucket: 'your-s3-bucket-name',
+    // };
+
+    // s3.listObjectsV2(s3Params, (err, data) => {
+    //   if (err) {
+    //     console.error('Error listing objects:', err);
+    //     return res.status(500).send('An error occurred while listing objects.');
+    //   }
+    //   if (data.Contents.length === 0) {
+    //     return res.status(200).send('Registry is already empty.');
+    //   }
+
+    //   const deleteErrors = [];
+    //   data.Contents.forEach((object) => {
+    //     s3.deleteObject({ Bucket: 'your-s3-bucket-name', Key: object.Key }, (err) => {
+    //       if (err) {
+    //         console.error('Error deleting object:', err);
+    //         deleteErrors.push(err.message);
+    //       }
+    //     });
+    //   });
+    //   if (deleteErrors.length > 0) {
+    //     return res.status(500).json({
+    //       message: 'Registry reset with errors',
+    //       errors: deleteErrors,
+    //     });
+    //   }
+    //   res.status(200).send('Registry reset to default state.');
+    // });
+    await clear_s3_bucket();
+    await rds_configurator.drop_package_data_table();
+    await rds_configurator.setup_rds_tables();
+
+  } catch (error) {
+    logger.error('Error clearing databases:', error);
+    res.status(500).send('An error occurred while resetting the registry.');
   }
 });
 
