@@ -36,7 +36,7 @@
             
             let packageNames = ["NodeJs", "TensorFlow", "Random Package", "New Package"] // temp hardcoded
 
-            axios.get(`http://3.142.50.181:3000/search`, {
+            axios.get(`http://3.142.50.181:4000/search`, {
               params: {
                 q: this.searchBarVal,
               }
@@ -63,7 +63,7 @@
           },
           async getPackageRatings(packageName) {
             try {
-              const response = await axios.get(`http://localhost:3000/rate/:${packageName}`, {
+              const response = await axios.get(`http://localhost:4000/rate/:${packageName}`, {
                 headers: {
                   "Content-Type": "multipart/form-data",
                 },
