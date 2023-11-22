@@ -4,7 +4,7 @@ const multer = require('multer');
 const cors = require('cors');
 import { logger } from './logger';
 import * as rds_configurator from './rds_config';
-import * as rds_handler from './rds_packages'
+import * as rds_handler from './rds_packages';
 import {
   upload_package,
   download_package,

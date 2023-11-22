@@ -2,9 +2,16 @@ import express from 'express';
 import multer from 'multer';
 import AWS from 'aws-sdk';
 import { AWSMock } from 'jest-aws-sdk-mock';
+import { logger } from './461Phase2/logger';
+import * as rds_handler from './461Phase2/rds_packages';
+import {
+  upload_package,
+  download_package,
+  clear_s3_bucket,
+} from './461Phase2/s3_packages';
 
 const app = express();
-const port = 3000;
+const port = 3001;
 const upload = multer({ storage: multer.memoryStorage() });
 
 const s3 = new AWS.S3({
@@ -122,6 +129,30 @@ app.get('/rate/:packageId', (req, res) => {
       res.status(500).send('An error occurred.');
     }
   });
+
+  // Sends the a list of package names that match the regex
+app.get('/search', async (req, res) => {
+  try {
+    const searchString = req.query.q as string;
+    if (!searchString) {
+      return res.status(400).send('Search string is required.');
+    }
+
+    // const searchResults = packages.filter((pkg) => {
+    //   const regex = new RegExp(searchString, 'i');
+    //   return regex.test(pkg) || regex.test(pkg + '.readme');
+    // });
+
+    const searchResults = await rds_handler.match_rds_rows(searchString);
+    const package_names = searchResults.map((data) => data.package_name);
+
+    logger.info(`Successfully searched packages`)
+    res.status(200).json(package_names);
+  } catch (error) {
+    logger.error('Error:', error);
+    res.status(500).send('An error occurred.');
+  }
+});
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
