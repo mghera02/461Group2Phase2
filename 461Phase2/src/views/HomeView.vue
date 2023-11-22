@@ -7,7 +7,7 @@
 
 <template>
   <router-link :to="{ name: 'upload', params: {} }" class="goToBtn">Upload a package</router-link>
-  <h1 class="title"> 461 Group 2 Phase 2 Package Manager User Interface</h1>
+  <h1 class="title">_461 Group 2 Phase 2 Package Manager User Interface_</h1>
   <main>
     <SearchBar @search-bar-val="getSearchBarVal"/>
     <div id="packages" v-for="packageContent in packages">
