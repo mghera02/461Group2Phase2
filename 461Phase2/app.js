@@ -59,43 +59,76 @@ app.post('/upload', upload.single('file'), function (req, res) { return __awaite
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 3, , 4]);
-                logger_1.time.info("Starting time");
-                logger_1.logger.info('Attempting to upload package');
-                if (!req.file) {
-                    return [2 /*return*/, res.status(400).send('No file uploaded.')];
-                }
-                if (!req.file.originalname.endsWith('.zip')) {
-                    return [2 /*return*/, res.status(400).send('Invalid file format. Please upload a zip file.')];
-                }
-                return [4 /*yield*/, rds_handler.add_rds_package_data(req.file.originalname.replace(/\.zip$/, ''), {})];
+                _a.trys.push([0, 20, , 23]);
+                return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 1:
-                package_id = _a.sent();
-                // Check to see if package metadata was upladed to RDS
-                if (package_id === null) {
-                    logger_1.logger.error("Could not upload package data to RDS");
-                    return [2 /*return*/, res.status(400).send('Could not add package metadata')];
-                }
-                logger_1.logger.debug("Uploaded package to rds with id: ".concat(package_id));
-                return [4 /*yield*/, (0, s3_packages_1.upload_package)(package_id, req.file)];
+                _a.sent();
+                return [4 /*yield*/, logger_1.logger.info('Attempting to upload package')];
             case 2:
-                s3_response = _a.sent();
-                // Check to see if package data was uploaded to S3
-                if (s3_response === null) {
-                    logger_1.logger.error("Error uploading package to S3");
-                    return [2 /*return*/, res.status(400).send('Could not add package data')];
-                }
-                logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id));
-                logger_1.time.info("Finished at this time\n");
-                res.status(200).send("Package uploaded successfully");
-                return [3 /*break*/, 4];
+                _a.sent();
+                if (!!req.file) return [3 /*break*/, 5];
+                return [4 /*yield*/, logger_1.logger.error('No file to upload')];
             case 3:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 4:
+                _a.sent();
+                return [2 /*return*/, res.status(400).send('No file uploaded.')];
+            case 5:
+                if (!!req.file.originalname.endsWith('.zip')) return [3 /*break*/, 8];
+                return [4 /*yield*/, logger_1.logger.error('The given file is not a zip file')];
+            case 6:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 7:
+                _a.sent();
+                return [2 /*return*/, res.status(400).send('Invalid file format. Please upload a zip file.')];
+            case 8: return [4 /*yield*/, rds_handler.add_rds_package_data(req.file.originalname.replace(/\.zip$/, ''), {})];
+            case 9:
+                package_id = _a.sent();
+                if (!(package_id === null)) return [3 /*break*/, 12];
+                return [4 /*yield*/, logger_1.logger.error("Could not upload package data to RDS")];
+            case 10:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 11:
+                _a.sent();
+                return [2 /*return*/, res.status(400).send('Could not add package metadata')];
+            case 12: return [4 /*yield*/, logger_1.logger.debug("Uploaded package to rds with id: ".concat(package_id))
+                // Upload the actual package to s3
+            ];
+            case 13:
+                _a.sent();
+                return [4 /*yield*/, (0, s3_packages_1.upload_package)(package_id, req.file)];
+            case 14:
+                s3_response = _a.sent();
+                if (!(s3_response === null)) return [3 /*break*/, 17];
+                return [4 /*yield*/, logger_1.logger.error("Error uploading package to S3")];
+            case 15:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 16:
+                _a.sent();
+                return [2 /*return*/, res.status(400).send('Could not add package data')];
+            case 17: return [4 /*yield*/, logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id))];
+            case 18:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
+            case 19:
+                _a.sent();
+                res.status(200).send("Package uploaded successfully");
+                return [3 /*break*/, 23];
+            case 20:
                 error_1 = _a.sent();
-                logger_1.logger.error('Could not upload package', error_1);
-                logger_1.time.error('Error occurred at this time\n');
+                return [4 /*yield*/, logger_1.logger.error('Could not upload package', error_1)];
+            case 21:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 22:
+                _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 4];
-            case 4: return [2 /*return*/];
+                return [3 /*break*/, 23];
+            case 23: return [2 /*return*/];
         }
     });
 }); });
@@ -104,34 +137,57 @@ app.get('/rate/:packageId', function (req, res) { return __awaiter(void 0, void 
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 2, , 3]);
-                logger_1.time.info("Starting time");
-                logger_1.logger.info("Attempring to get package rating");
-                package_id = parseInt(req.params.packageId);
-                logger_1.logger.debug("Attempting to rate package with id: ".concat(package_id));
-                return [4 /*yield*/, rds_handler.get_package_data(package_id)];
+                _a.trys.push([0, 13, , 16]);
+                return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 1:
-                package_data = _a.sent();
-                if (package_data === null) {
-                    logger_1.logger.error("No package found with id: ".concat(package_id));
-                    return [2 /*return*/, res.status(404).json({ error: 'Package not found' })];
-                }
-                rateData = package_data.rating;
-                if (!rateData) {
-                    logger_1.logger.error("No rate data found for package with id: ".concat(package_id));
-                    return [2 /*return*/, res.status(404).send('Rate data not found.')];
-                }
-                logger_1.logger.info("Rate data found for package with id: ".concat(package_id, ", rateData: ").concat(rateData));
-                logger_1.time.info("Finished at this time\n");
-                res.status(200).json(rateData);
-                return [3 /*break*/, 3];
+                _a.sent();
+                return [4 /*yield*/, logger_1.logger.info("Attempring to get package rating")];
             case 2:
+                _a.sent();
+                package_id = parseInt(req.params.packageId);
+                return [4 /*yield*/, logger_1.logger.debug("Attempting to rate package with id: ".concat(package_id))];
+            case 3:
+                _a.sent();
+                return [4 /*yield*/, rds_handler.get_package_data(package_id)];
+            case 4:
+                package_data = _a.sent();
+                if (!(package_data === null)) return [3 /*break*/, 7];
+                return [4 /*yield*/, logger_1.logger.error("No package found with id: ".concat(package_id))];
+            case 5:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 6:
+                _a.sent();
+                return [2 /*return*/, res.status(404).json({ error: 'Package not found' })];
+            case 7:
+                rateData = package_data.rating;
+                if (!!rateData) return [3 /*break*/, 10];
+                return [4 /*yield*/, logger_1.logger.error("No rate data found for package with id: ".concat(package_id))];
+            case 8:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 9:
+                _a.sent();
+                return [2 /*return*/, res.status(404).send('Rate data not found.')];
+            case 10: return [4 /*yield*/, logger_1.logger.info("Rate data found for package with id: ".concat(package_id, ", rateData: ").concat(rateData))];
+            case 11:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
+            case 12:
+                _a.sent();
+                res.status(200).json(rateData);
+                return [3 /*break*/, 16];
+            case 13:
                 error_2 = _a.sent();
-                logger_1.logger.error('Error rating package:', error_2);
-                logger_1.time.error('Error occurred at this time\n');
+                return [4 /*yield*/, logger_1.logger.error('Error rating package:', error_2)];
+            case 14:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 15:
+                _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 3];
-            case 3: return [2 /*return*/];
+                return [3 /*break*/, 16];
+            case 16: return [2 /*return*/];
         }
     });
 }); });
@@ -140,39 +196,62 @@ app.get('/download/:packageId', function (req, res) { return __awaiter(void 0, v
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 3, , 4]);
-                logger_1.time.info("Starting time");
-                logger_1.logger.info("Attempting to download package");
+                _a.trys.push([0, 14, , 17]);
+                return [4 /*yield*/, logger_1.time.info("Starting time")];
+            case 1:
+                _a.sent();
+                return [4 /*yield*/, logger_1.logger.info("Attempting to download package")];
+            case 2:
+                _a.sent();
                 package_id = parseInt(req.params.packageId);
                 return [4 /*yield*/, rds_handler.get_package_data(package_id)];
-            case 1:
+            case 3:
                 package_data = _a.sent();
-                if (package_data === null) {
-                    logger_1.logger.error("No package found with id: ".concat(package_id));
-                    return [2 /*return*/, res.status(404).json({ error: 'Package not found' })];
-                }
-                logger_1.logger.debug("Package data found for package with id: ".concat(package_id));
+                if (!(package_data === null)) return [3 /*break*/, 6];
+                return [4 /*yield*/, logger_1.logger.error("No package found with id: ".concat(package_id))];
+            case 4:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 5:
+                _a.sent();
+                return [2 /*return*/, res.status(404).json({ error: 'Package not found' })];
+            case 6: return [4 /*yield*/, logger_1.logger.debug("Package data found for package with id: ".concat(package_id))];
+            case 7:
+                _a.sent();
                 package_name = package_data.package_name;
                 return [4 /*yield*/, (0, s3_packages_1.download_package)(package_id)];
-            case 2:
+            case 8:
                 package_buffer = _a.sent();
-                if (package_buffer === null) {
-                    logger_1.logger.error("Package with id: ".concat(package_id, " not found in S3"));
-                    return [2 /*return*/, res.status(404).json({ error: 'Package file not found' })];
-                }
+                if (!(package_buffer === null)) return [3 /*break*/, 11];
+                return [4 /*yield*/, logger_1.logger.error("Package with id: ".concat(package_id, " not found in S3"))];
+            case 9:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 10:
+                _a.sent();
+                return [2 /*return*/, res.status(404).json({ error: 'Package file not found' })];
+            case 11:
                 res.attachment(package_name + '.zip'); // Set the desired new file name here
                 res.setHeader('Content-Type', 'application/zip');
-                logger_1.logger.info("Successfully downloaded package with id ".concat(package_id));
-                logger_1.time.info("Finished at this time\n");
+                return [4 /*yield*/, logger_1.logger.info("Successfully downloaded package with id ".concat(package_id))];
+            case 12:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
+            case 13:
+                _a.sent();
                 res.status(200).send(package_buffer);
-                return [3 /*break*/, 4];
-            case 3:
+                return [3 /*break*/, 17];
+            case 14:
                 error_3 = _a.sent();
-                logger_1.logger.error('Error downloading package:', error_3);
-                logger_1.time.error('Error occurred at this time\n');
+                return [4 /*yield*/, logger_1.logger.error('Error downloading package:', error_3)];
+            case 15:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 16:
+                _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 4];
-            case 4: return [2 /*return*/];
+                return [3 /*break*/, 17];
+            case 17: return [2 /*return*/];
         }
     });
 }); });
@@ -187,28 +266,45 @@ app.get('/search', function (req, res) { return __awaiter(void 0, void 0, void 0
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 2, , 3]);
-                logger_1.time.info("Starting time");
-                logger_1.logger.info("Attempting to search packages");
-                searchString = req.query.q;
-                if (!searchString) {
-                    return [2 /*return*/, res.status(400).send('Search string is required.')];
-                }
-                return [4 /*yield*/, rds_handler.match_rds_rows(searchString)];
+                _a.trys.push([0, 9, , 12]);
+                return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 1:
+                _a.sent();
+                return [4 /*yield*/, logger_1.logger.info("Attempting to search packages")];
+            case 2:
+                _a.sent();
+                searchString = req.query.q;
+                if (!!searchString) return [3 /*break*/, 5];
+                return [4 /*yield*/, logger_1.logger.error('No search string was given')];
+            case 3:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 4:
+                _a.sent();
+                return [2 /*return*/, res.status(400).send('Search string is required.')];
+            case 5: return [4 /*yield*/, rds_handler.match_rds_rows(searchString)];
+            case 6:
                 searchResults = _a.sent();
                 package_names = searchResults.map(function (data) { return data.package_name; });
-                logger_1.logger.info("Successfully searched packages");
-                logger_1.time.info("Finished at this time\n");
+                return [4 /*yield*/, logger_1.logger.info("Successfully searched packages")];
+            case 7:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
+            case 8:
+                _a.sent();
                 res.status(200).json(package_names);
-                return [3 /*break*/, 3];
-            case 2:
+                return [3 /*break*/, 12];
+            case 9:
                 error_4 = _a.sent();
-                logger_1.logger.error('Error searching packages:', error_4);
-                logger_1.time.error('Error occurred at this time\n');
+                return [4 /*yield*/, logger_1.logger.error('Error searching packages:', error_4)];
+            case 10:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 11:
+                _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 3];
-            case 3: return [2 /*return*/];
+                return [3 /*break*/, 12];
+            case 12: return [2 /*return*/];
         }
     });
 }); });
@@ -218,33 +314,54 @@ app.post('/reset', function (req, res) { return __awaiter(void 0, void 0, void 0
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 4, , 5]);
-                logger_1.time.info("Starting time");
-                logger_1.logger.info("Attempting to reset system");
-                return [4 /*yield*/, (0, s3_packages_1.clear_s3_bucket)()];
+                _a.trys.push([0, 8, , 11]);
+                return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 1:
                 _a.sent();
-                return [4 /*yield*/, rds_configurator.drop_package_data_table()];
+                return [4 /*yield*/, logger_1.logger.info("Attempting to reset system")];
             case 2:
                 _a.sent();
-                return [4 /*yield*/, rds_configurator.setup_rds_tables()];
+                return [4 /*yield*/, (0, s3_packages_1.clear_s3_bucket)()];
             case 3:
                 _a.sent();
-                logger_1.logger.info('Successfully cleared Databses and reset to original state');
-                logger_1.time.info("Finished at this time\n");
-                res.status(200).send('Successfully reset system to original state');
-                return [3 /*break*/, 5];
+                return [4 /*yield*/, rds_configurator.drop_package_data_table()];
             case 4:
+                _a.sent();
+                return [4 /*yield*/, rds_configurator.setup_rds_tables()];
+            case 5:
+                _a.sent();
+                return [4 /*yield*/, logger_1.logger.info('Successfully cleared Databses and reset to original state')];
+            case 6:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
+            case 7:
+                _a.sent();
+                res.status(200).send('Successfully reset system to original state');
+                return [3 /*break*/, 11];
+            case 8:
                 error_5 = _a.sent();
-                logger_1.logger.error('Error resetting system:', error_5);
-                logger_1.time.error('Error occurred at this time\n');
+                return [4 /*yield*/, logger_1.logger.error('Error resetting system:', error_5)];
+            case 9:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 10:
+                _a.sent();
                 res.status(500).send('An error occurred while resetting the registry.');
-                return [3 /*break*/, 5];
-            case 5: return [2 /*return*/];
+                return [3 /*break*/, 11];
+            case 11: return [2 /*return*/];
         }
     });
 }); });
-app.listen(port, function () {
-    logger_1.logger.info("Server is running on port ".concat(port));
-    logger_1.time.info('was the time\n');
-});
+app.listen(port, function () { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, logger_1.logger.info("Server is running on port ".concat(port))];
+            case 1:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.info('was the time\n')];
+            case 2:
+                _a.sent();
+                return [2 /*return*/];
+        }
+    });
+}); });

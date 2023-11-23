@@ -31,9 +31,13 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     await logger.info('Attempting to upload package')
 
     if (!req.file) {
+      await logger.error('No file to upload');
+      await time.error('Error occurred at this time\n');
       return res.status(400).send('No file uploaded.');
     }
     if (!req.file.originalname.endsWith('.zip')) {
+      await logger.error('The given file is not a zip file');
+      await time.error('Error occurred at this time\n');
       return res.status(400).send('Invalid file format. Please upload a zip file.');
     }
 
@@ -45,6 +49,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     // Check to see if package metadata was upladed to RDS
     if (package_id === null) {
       await logger.error("Could not upload package data to RDS")
+      await time.error('Error occurred at this time\n');
       return res.status(400).send('Could not add package metadata');
     }
     await logger.debug(`Uploaded package to rds with id: ${package_id}`)
@@ -55,6 +60,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     // Check to see if package data was uploaded to S3
     if (s3_response === null) {
       await logger.error("Error uploading package to S3")
+      await time.error('Error occurred at this time\n');
       return res.status(400).send('Could not add package data');
     }
 
@@ -79,6 +85,7 @@ app.get('/rate/:packageId', async (req, res) => {
     const package_data = await rds_handler.get_package_data(package_id);
     if (package_data === null) {
       await logger.error(`No package found with id: ${package_id}`)
+      await time.error('Error occurred at this time\n');
       return res.status(404).json({ error: 'Package not found' });
     }
 
@@ -86,6 +93,7 @@ app.get('/rate/:packageId', async (req, res) => {
     
     if (!rateData) {
       await logger.error(`No rate data found for package with id: ${package_id}`)
+      await time.error('Error occurred at this time\n');
       return res.status(404).send('Rate data not found.');
     }
 
@@ -109,6 +117,7 @@ app.get('/download/:packageId', async (req, res) => {
     const package_data = await rds_handler.get_package_data(package_id)
     if (package_data === null) {
       await logger.error(`No package found with id: ${package_id}`);
+      await time.error('Error occurred at this time\n');
       return res.status(404).json({ error: 'Package not found' });
     }
 
@@ -118,6 +127,7 @@ app.get('/download/:packageId', async (req, res) => {
     const package_buffer = await download_package(package_id);
     if (package_buffer === null) {
       await logger.error(`Package with id: ${package_id} not found in S3`);
+      await time.error('Error occurred at this time\n');
       return res.status(404).json({ error: 'Package file not found' });
     }
 
@@ -163,6 +173,8 @@ app.get('/search', async (req, res) => {
 
     const searchString = req.query.q as string;
     if (!searchString) {
+      await logger.error('No search string was given');
+      await time.error('Error occurred at this time\n');
       return res.status(400).send('Search string is required.');
     }
 
