@@ -33,17 +33,10 @@
             this.searchBarVal = x;
           },
           async getMatchingPackages() {
-
-            try {
-              const response = await axios.get(`http://localhost:8080/hello`, {});
-              console.log("response: ", response.data);
-            } catch (error) {
-              console.error("Error retrieving the hello message.", error);
-            }
             
             let packageNames = ["NodeJs", "TensorFlow", "Random Package", "New Package"] // temp hardcoded
 
-            axios.get(`http://3.142.50.181:4000/search`, {
+            axios.get(`http://3.142.50.181:8080/search`, {
               params: {
                 q: this.searchBarVal,
               }

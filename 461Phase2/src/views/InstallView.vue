@@ -21,7 +21,7 @@
              async getPackageZip(packageName) {
                  packageName = 27; // temp hardcoded
                  try {
-                     const response = await axios.get(`http://3.142.50.181:4000/download/${packageName}`, {
+                     const response = await axios.get(`http://3.142.50.181:8080/download/${packageName}`, {
                          headers: {
                          "Content-Type": "application/zip",
                          },
