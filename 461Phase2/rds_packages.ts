@@ -2,7 +2,7 @@
 // TO RUN THESE FUNCTIONS, RUN app.mjs
 import { QueryResult } from 'pg';
 import { get_rds_connection, TABLE_NAME } from './rds_config';
-import { logger } from './logger';
+import { logger, time } from './logger';
 
 interface PackageData {
     package_id: number,

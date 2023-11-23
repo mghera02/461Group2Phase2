@@ -2,7 +2,7 @@ const express = require('express');
 const multer = require('multer');
 // import AWS from 'aws-sdk';
 const cors = require('cors');
-import { logger } from './logger';
+import { logger, time } from './logger';
 import * as rds_configurator from './rds_config';
 import * as rds_handler from './rds_packages';
 import {
@@ -27,6 +27,9 @@ app.get('/hello', (req, res) => {
 
 app.post('/upload', upload.single('file'), async (req, res) => {
   try {
+    time.info("Starting time")
+    logger.info('Attempting to upload package')
+
     if (!req.file) {
       return res.status(400).send('No file uploaded.');
     }
@@ -56,15 +59,20 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     }
 
     logger.info(`Successfully uploaded package with id: ${package_id}`)
+    time.info("Finished at this time\n")
     res.status(200).send("Package uploaded successfully")
   } catch (error) {
     logger.error('Could not upload package', error);
+    time.error('Error occurred at this time\n')
     res.status(500).send('An error occurred.');
   }
 });
 
 app.get('/rate/:packageId', async (req, res) => {
   try {
+    time.info("Starting time")
+    logger.info("Attempring to get package rating")
+
     const package_id = parseInt(req.params.packageId);
     logger.debug(`Attempting to rate package with id: ${package_id}`)
 
@@ -82,15 +90,20 @@ app.get('/rate/:packageId', async (req, res) => {
     }
 
     logger.info(`Rate data found for package with id: ${package_id}, rateData: ${rateData}`)
+    time.info("Finished at this time\n")
     res.status(200).json(rateData);
   } catch (error) {
     logger.error('Error rating package:', error);
+    time.error('Error occurred at this time\n')
     res.status(500).send('An error occurred.');
   }
 });
 
 app.get('/download/:packageId', async (req, res) => {
   try {
+    time.info("Starting time")
+    logger.info("Attempting to download package")
+
     const package_id = parseInt(req.params.packageId);
 
     const package_data = await rds_handler.get_package_data(package_id)
@@ -112,9 +125,11 @@ app.get('/download/:packageId', async (req, res) => {
     res.setHeader('Content-Type', 'application/zip');
 
     logger.info(`Successfully downloaded package with id ${package_id}`)
+    time.info("Finished at this time\n")
     res.status(200).send(package_buffer);
     } catch (error) {
     logger.error('Error downloading package:', error);
+    time.error('Error occurred at this time\n')
     res.status(500).send('An error occurred.');
   }
 });
@@ -143,6 +158,9 @@ app.get('/packages', async (req, res) => {
 // Sends the a list of package names that match the regex
 app.get('/search', async (req, res) => {
   try {
+    time.info("Starting time")
+    logger.info("Attempting to search packages")
+
     const searchString = req.query.q as string;
     if (!searchString) {
       return res.status(400).send('Search string is required.');
@@ -157,9 +175,11 @@ app.get('/search', async (req, res) => {
     const package_names = searchResults.map((data) => data.package_name);
 
     logger.info(`Successfully searched packages`)
+    time.info("Finished at this time\n")
     res.status(200).json(package_names);
   } catch (error) {
-    logger.error('Error:', error);
+    logger.error('Error searching packages:', error);
+    time.error('Error occurred at this time\n')
     res.status(500).send('An error occurred.');
   }
 });
@@ -167,46 +187,24 @@ app.get('/search', async (req, res) => {
 // Resets RDS and S3
 app.post('/reset', async (req, res) => {
   try {
-    // const s3Params = {
-    //   Bucket: 'your-s3-bucket-name',
-    // };
+    time.info("Starting time")
+    logger.info("Attempting to reset system")
 
-    // s3.listObjectsV2(s3Params, (err, data) => {
-    //   if (err) {
-    //     console.error('Error listing objects:', err);
-    //     return res.status(500).send('An error occurred while listing objects.');
-    //   }
-    //   if (data.Contents.length === 0) {
-    //     return res.status(200).send('Registry is already empty.');
-    //   }
-
-    //   const deleteErrors = [];
-    //   data.Contents.forEach((object) => {
-    //     s3.deleteObject({ Bucket: 'your-s3-bucket-name', Key: object.Key }, (err) => {
-    //       if (err) {
-    //         console.error('Error deleting object:', err);
-    //         deleteErrors.push(err.message);
-    //       }
-    //     });
-    //   });
-    //   if (deleteErrors.length > 0) {
-    //     return res.status(500).json({
-    //       message: 'Registry reset with errors',
-    //       errors: deleteErrors,
-    //     });
-    //   }
-    //   res.status(200).send('Registry reset to default state.');
-    // });
     await clear_s3_bucket();
     await rds_configurator.drop_package_data_table();
     await rds_configurator.setup_rds_tables();
 
+    logger.info('Successfully cleared Databses and reset to original state');
+    time.info("Finished at this time\n")
+    res.status(200).send('Successfully reset system to original state');
   } catch (error) {
-    logger.error('Error clearing databases:', error);
+    logger.error('Error resetting system:', error);
+    time.error('Error occurred at this time\n')
     res.status(500).send('An error occurred while resetting the registry.');
   }
 });
 
 app.listen(port, () => {
   logger.info(`Server is running on port ${port}`);
+  time.info('was the time\n')
 });

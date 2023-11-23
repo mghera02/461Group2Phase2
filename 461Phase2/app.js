@@ -60,6 +60,8 @@ app.post('/upload', upload.single('file'), function (req, res) { return __awaite
         switch (_a.label) {
             case 0:
                 _a.trys.push([0, 3, , 4]);
+                logger_1.time.info("Starting time");
+                logger_1.logger.info('Attempting to upload package');
                 if (!req.file) {
                     return [2 /*return*/, res.status(400).send('No file uploaded.')];
                 }
@@ -84,11 +86,13 @@ app.post('/upload', upload.single('file'), function (req, res) { return __awaite
                     return [2 /*return*/, res.status(400).send('Could not add package data')];
                 }
                 logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id));
+                logger_1.time.info("Finished at this time\n");
                 res.status(200).send("Package uploaded successfully");
                 return [3 /*break*/, 4];
             case 3:
                 error_1 = _a.sent();
                 logger_1.logger.error('Could not upload package', error_1);
+                logger_1.time.error('Error occurred at this time\n');
                 res.status(500).send('An error occurred.');
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -101,6 +105,8 @@ app.get('/rate/:packageId', function (req, res) { return __awaiter(void 0, void 
         switch (_a.label) {
             case 0:
                 _a.trys.push([0, 2, , 3]);
+                logger_1.time.info("Starting time");
+                logger_1.logger.info("Attempring to get package rating");
                 package_id = parseInt(req.params.packageId);
                 logger_1.logger.debug("Attempting to rate package with id: ".concat(package_id));
                 return [4 /*yield*/, rds_handler.get_package_data(package_id)];
@@ -116,11 +122,13 @@ app.get('/rate/:packageId', function (req, res) { return __awaiter(void 0, void 
                     return [2 /*return*/, res.status(404).send('Rate data not found.')];
                 }
                 logger_1.logger.info("Rate data found for package with id: ".concat(package_id, ", rateData: ").concat(rateData));
+                logger_1.time.info("Finished at this time\n");
                 res.status(200).json(rateData);
                 return [3 /*break*/, 3];
             case 2:
                 error_2 = _a.sent();
                 logger_1.logger.error('Error rating package:', error_2);
+                logger_1.time.error('Error occurred at this time\n');
                 res.status(500).send('An error occurred.');
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -133,6 +141,8 @@ app.get('/download/:packageId', function (req, res) { return __awaiter(void 0, v
         switch (_a.label) {
             case 0:
                 _a.trys.push([0, 3, , 4]);
+                logger_1.time.info("Starting time");
+                logger_1.logger.info("Attempting to download package");
                 package_id = parseInt(req.params.packageId);
                 return [4 /*yield*/, rds_handler.get_package_data(package_id)];
             case 1:
@@ -153,11 +163,13 @@ app.get('/download/:packageId', function (req, res) { return __awaiter(void 0, v
                 res.attachment(package_name + '.zip'); // Set the desired new file name here
                 res.setHeader('Content-Type', 'application/zip');
                 logger_1.logger.info("Successfully downloaded package with id ".concat(package_id));
+                logger_1.time.info("Finished at this time\n");
                 res.status(200).send(package_buffer);
                 return [3 /*break*/, 4];
             case 3:
                 error_3 = _a.sent();
                 logger_1.logger.error('Error downloading package:', error_3);
+                logger_1.time.error('Error occurred at this time\n');
                 res.status(500).send('An error occurred.');
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -176,6 +188,8 @@ app.get('/search', function (req, res) { return __awaiter(void 0, void 0, void 0
         switch (_a.label) {
             case 0:
                 _a.trys.push([0, 2, , 3]);
+                logger_1.time.info("Starting time");
+                logger_1.logger.info("Attempting to search packages");
                 searchString = req.query.q;
                 if (!searchString) {
                     return [2 /*return*/, res.status(400).send('Search string is required.')];
@@ -185,11 +199,13 @@ app.get('/search', function (req, res) { return __awaiter(void 0, void 0, void 0
                 searchResults = _a.sent();
                 package_names = searchResults.map(function (data) { return data.package_name; });
                 logger_1.logger.info("Successfully searched packages");
+                logger_1.time.info("Finished at this time\n");
                 res.status(200).json(package_names);
                 return [3 /*break*/, 3];
             case 2:
                 error_4 = _a.sent();
-                logger_1.logger.error('Error:', error_4);
+                logger_1.logger.error('Error searching packages:', error_4);
+                logger_1.time.error('Error occurred at this time\n');
                 res.status(500).send('An error occurred.');
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -203,64 +219,10 @@ app.post('/reset', function (req, res) { return __awaiter(void 0, void 0, void 0
         switch (_a.label) {
             case 0:
                 _a.trys.push([0, 4, , 5]);
-                // const s3Params = {
-                //   Bucket: 'your-s3-bucket-name',
-                // };
-                // s3.listObjectsV2(s3Params, (err, data) => {
-                //   if (err) {
-                //     console.error('Error listing objects:', err);
-                //     return res.status(500).send('An error occurred while listing objects.');
-                //   }
-                //   if (data.Contents.length === 0) {
-                //     return res.status(200).send('Registry is already empty.');
-                //   }
-                //   const deleteErrors = [];
-                //   data.Contents.forEach((object) => {
-                //     s3.deleteObject({ Bucket: 'your-s3-bucket-name', Key: object.Key }, (err) => {
-                //       if (err) {
-                //         console.error('Error deleting object:', err);
-                //         deleteErrors.push(err.message);
-                //       }
-                //     });
-                //   });
-                //   if (deleteErrors.length > 0) {
-                //     return res.status(500).json({
-                //       message: 'Registry reset with errors',
-                //       errors: deleteErrors,
-                //     });
-                //   }
-                //   res.status(200).send('Registry reset to default state.');
-                // });
+                logger_1.time.info("Starting time");
+                logger_1.logger.info("Attempting to reset system");
                 return [4 /*yield*/, (0, s3_packages_1.clear_s3_bucket)()];
             case 1:
-                // const s3Params = {
-                //   Bucket: 'your-s3-bucket-name',
-                // };
-                // s3.listObjectsV2(s3Params, (err, data) => {
-                //   if (err) {
-                //     console.error('Error listing objects:', err);
-                //     return res.status(500).send('An error occurred while listing objects.');
-                //   }
-                //   if (data.Contents.length === 0) {
-                //     return res.status(200).send('Registry is already empty.');
-                //   }
-                //   const deleteErrors = [];
-                //   data.Contents.forEach((object) => {
-                //     s3.deleteObject({ Bucket: 'your-s3-bucket-name', Key: object.Key }, (err) => {
-                //       if (err) {
-                //         console.error('Error deleting object:', err);
-                //         deleteErrors.push(err.message);
-                //       }
-                //     });
-                //   });
-                //   if (deleteErrors.length > 0) {
-                //     return res.status(500).json({
-                //       message: 'Registry reset with errors',
-                //       errors: deleteErrors,
-                //     });
-                //   }
-                //   res.status(200).send('Registry reset to default state.');
-                // });
                 _a.sent();
                 return [4 /*yield*/, rds_configurator.drop_package_data_table()];
             case 2:
@@ -268,10 +230,14 @@ app.post('/reset', function (req, res) { return __awaiter(void 0, void 0, void 0
                 return [4 /*yield*/, rds_configurator.setup_rds_tables()];
             case 3:
                 _a.sent();
+                logger_1.logger.info('Successfully cleared Databses and reset to original state');
+                logger_1.time.info("Finished at this time\n");
+                res.status(200).send('Successfully reset system to original state');
                 return [3 /*break*/, 5];
             case 4:
                 error_5 = _a.sent();
-                logger_1.logger.error('Error clearing databases:', error_5);
+                logger_1.logger.error('Error resetting system:', error_5);
+                logger_1.time.error('Error occurred at this time\n');
                 res.status(500).send('An error occurred while resetting the registry.');
                 return [3 /*break*/, 5];
             case 5: return [2 /*return*/];
@@ -280,4 +246,5 @@ app.post('/reset', function (req, res) { return __awaiter(void 0, void 0, void 0
 }); });
 app.listen(port, function () {
     logger_1.logger.info("Server is running on port ".concat(port));
+    logger_1.time.info('was the time\n');
 });

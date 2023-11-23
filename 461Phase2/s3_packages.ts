@@ -1,7 +1,7 @@
 import * as AWS from 'aws-sdk';
 import * as fs from 'fs';
 import * as dotenv from 'dotenv';
-import { logger } from './logger';
+import { logger, time } from './logger';
 
 dotenv.config();
 
