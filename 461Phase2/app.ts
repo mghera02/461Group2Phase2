@@ -27,8 +27,8 @@ app.get('/hello', (req, res) => {
 
 app.post('/upload', upload.single('file'), async (req, res) => {
   try {
-    time.info("Starting time")
-    logger.info('Attempting to upload package')
+    await time.info("Starting time")
+    await logger.info('Attempting to upload package')
 
     if (!req.file) {
       return res.status(400).send('No file uploaded.');
@@ -44,92 +44,92 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 
     // Check to see if package metadata was upladed to RDS
     if (package_id === null) {
-      logger.error("Could not upload package data to RDS")
+      await logger.error("Could not upload package data to RDS")
       return res.status(400).send('Could not add package metadata');
     }
-    logger.debug(`Uploaded package to rds with id: ${package_id}`)
+    await logger.debug(`Uploaded package to rds with id: ${package_id}`)
 
     // Upload the actual package to s3
     const s3_response = await upload_package(package_id, req.file);
 
     // Check to see if package data was uploaded to S3
     if (s3_response === null) {
-      logger.error("Error uploading package to S3")
+      await logger.error("Error uploading package to S3")
       return res.status(400).send('Could not add package data');
     }
 
-    logger.info(`Successfully uploaded package with id: ${package_id}`)
-    time.info("Finished at this time\n")
+    await logger.info(`Successfully uploaded package with id: ${package_id}`)
+    await time.info("Finished at this time\n")
     res.status(200).send("Package uploaded successfully")
   } catch (error) {
-    logger.error('Could not upload package', error);
-    time.error('Error occurred at this time\n')
+    await logger.error('Could not upload package', error);
+    await time.error('Error occurred at this time\n')
     res.status(500).send('An error occurred.');
   }
 });
 
 app.get('/rate/:packageId', async (req, res) => {
   try {
-    time.info("Starting time")
-    logger.info("Attempring to get package rating")
+    await time.info("Starting time")
+    await logger.info("Attempring to get package rating")
 
     const package_id = parseInt(req.params.packageId);
-    logger.debug(`Attempting to rate package with id: ${package_id}`)
+    await logger.debug(`Attempting to rate package with id: ${package_id}`)
 
     const package_data = await rds_handler.get_package_data(package_id);
     if (package_data === null) {
-      logger.error(`No package found with id: ${package_id}`)
+      await logger.error(`No package found with id: ${package_id}`)
       return res.status(404).json({ error: 'Package not found' });
     }
 
     const rateData = package_data.rating;
     
     if (!rateData) {
-      logger.error(`No rate data found for package with id: ${package_id}`)
+      await logger.error(`No rate data found for package with id: ${package_id}`)
       return res.status(404).send('Rate data not found.');
     }
 
-    logger.info(`Rate data found for package with id: ${package_id}, rateData: ${rateData}`)
-    time.info("Finished at this time\n")
+    await logger.info(`Rate data found for package with id: ${package_id}, rateData: ${rateData}`)
+    await time.info("Finished at this time\n")
     res.status(200).json(rateData);
   } catch (error) {
-    logger.error('Error rating package:', error);
-    time.error('Error occurred at this time\n')
+    await logger.error('Error rating package:', error);
+    await time.error('Error occurred at this time\n')
     res.status(500).send('An error occurred.');
   }
 });
 
 app.get('/download/:packageId', async (req, res) => {
   try {
-    time.info("Starting time")
-    logger.info("Attempting to download package")
+    await time.info("Starting time")
+    await logger.info("Attempting to download package")
 
     const package_id = parseInt(req.params.packageId);
 
     const package_data = await rds_handler.get_package_data(package_id)
     if (package_data === null) {
-      logger.error(`No package found with id: ${package_id}`);
+      await logger.error(`No package found with id: ${package_id}`);
       return res.status(404).json({ error: 'Package not found' });
     }
 
-    logger.debug(`Package data found for package with id: ${package_id}`);
+    await logger.debug(`Package data found for package with id: ${package_id}`);
     const package_name = package_data.package_name;
 
     const package_buffer = await download_package(package_id);
     if (package_buffer === null) {
-      logger.error(`Package with id: ${package_id} not found in S3`);
+      await logger.error(`Package with id: ${package_id} not found in S3`);
       return res.status(404).json({ error: 'Package file not found' });
     }
 
     res.attachment(package_name + '.zip'); // Set the desired new file name here
     res.setHeader('Content-Type', 'application/zip');
 
-    logger.info(`Successfully downloaded package with id ${package_id}`)
-    time.info("Finished at this time\n")
+    await logger.info(`Successfully downloaded package with id ${package_id}`)
+    await time.info("Finished at this time\n")
     res.status(200).send(package_buffer);
     } catch (error) {
-    logger.error('Error downloading package:', error);
-    time.error('Error occurred at this time\n')
+    await logger.error('Error downloading package:', error);
+    await time.error('Error occurred at this time\n')
     res.status(500).send('An error occurred.');
   }
 });
@@ -158,8 +158,8 @@ app.get('/packages', async (req, res) => {
 // Sends the a list of package names that match the regex
 app.get('/search', async (req, res) => {
   try {
-    time.info("Starting time")
-    logger.info("Attempting to search packages")
+    await time.info("Starting time")
+    await logger.info("Attempting to search packages")
 
     const searchString = req.query.q as string;
     if (!searchString) {
@@ -174,12 +174,12 @@ app.get('/search', async (req, res) => {
     const searchResults = await rds_handler.match_rds_rows(searchString);
     const package_names = searchResults.map((data) => data.package_name);
 
-    logger.info(`Successfully searched packages`)
-    time.info("Finished at this time\n")
+    await logger.info(`Successfully searched packages`)
+    await time.info("Finished at this time\n")
     res.status(200).json(package_names);
   } catch (error) {
-    logger.error('Error searching packages:', error);
-    time.error('Error occurred at this time\n')
+    await logger.error('Error searching packages:', error);
+    await time.error('Error occurred at this time\n')
     res.status(500).send('An error occurred.');
   }
 });
@@ -187,24 +187,24 @@ app.get('/search', async (req, res) => {
 // Resets RDS and S3
 app.post('/reset', async (req, res) => {
   try {
-    time.info("Starting time")
-    logger.info("Attempting to reset system")
+    await time.info("Starting time")
+    await logger.info("Attempting to reset system")
 
     await clear_s3_bucket();
     await rds_configurator.drop_package_data_table();
     await rds_configurator.setup_rds_tables();
 
-    logger.info('Successfully cleared Databses and reset to original state');
-    time.info("Finished at this time\n")
+    await logger.info('Successfully cleared Databses and reset to original state');
+    await time.info("Finished at this time\n")
     res.status(200).send('Successfully reset system to original state');
   } catch (error) {
-    logger.error('Error resetting system:', error);
-    time.error('Error occurred at this time\n')
+    await logger.error('Error resetting system:', error);
+    await time.error('Error occurred at this time\n')
     res.status(500).send('An error occurred while resetting the registry.');
   }
 });
 
-app.listen(port, () => {
-  logger.info(`Server is running on port ${port}`);
-  time.info('was the time\n')
+app.listen(port, async () => {
+  await logger.info(`Server is running on port ${port}`);
+  await time.info('was the time\n')
 });
