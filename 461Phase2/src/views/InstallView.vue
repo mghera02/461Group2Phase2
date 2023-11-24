@@ -18,21 +18,33 @@
              }
          },
          methods: {
-             async getPackageZip(packageName) {
-                 packageName = 1; // temp hardcoded
-                 try {
-                     const response = await axios.get(`http://3.142.50.181:8080/download/${packageName}`, {
-                         headers: {
-                         "Content-Type": "application/zip",
-                         },
-                     });
-                     console.log("Zip received successfuly:", response.data);
-                     this.downloadLink = response.data;
-                     return response.data;
-                 } catch (error) {
-                     console.error("Error retrieving the zip file.", error);
-                     return null;
-                 }
+             async getPackageZip(id) {
+                const endpoint = `http://3.142.50.181:8080/download/${id}`;
+
+                try {
+                    const response = await fetch(endpoint, {
+                        method: 'GET',
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok.');
+                    }
+
+                    const blob = await response.blob();
+
+                    const url = window.URL.createObjectURL(new Blob([blob]));
+                    const link = document.createElement('a');
+                    link.href = url;
+
+                    link.setAttribute('download', 'yourPackage.zip');
+
+                    document.body.appendChild(link);
+                    link.click();
+
+                    document.body.removeChild(link);
+                    } catch (error) {
+                        console.error('Error downloading file:', error);
+                    }
              }
          },
          props: {
