@@ -4,7 +4,7 @@
          Download a package 
      </h1>
     {{ this.$route.params.packageName }}
-    <a :href=downloadLink download>DOWNLOAD</a>
+    <button @click="getPackageZip">DOWNLOAD</button>
  </template>
  
  <script>
@@ -14,11 +14,12 @@
          name: 'Install',
          data() {
              return {
-                 downloadLink: "/files/test.zip"
+                 downloadLink: ""
              }
          },
          methods: {
              async getPackageZip(id) {
+                id = 1;
                 const endpoint = `http://3.142.50.181:8080/download/${id}`;
 
                 try {
@@ -30,13 +31,15 @@
                         throw new Error('Network response was not ok.');
                     }
 
-                    const blob = await response.blob();
+                    const filenameHeader = response.headers.get('Content-Disposition');
+                    const package_name = filenameHeader ? filenameHeader.split('filename=')[1] : 'yourPackage.zip';
 
+                    const blob = await response.blob();
                     const url = window.URL.createObjectURL(new Blob([blob]));
+
                     const link = document.createElement('a');
                     link.href = url;
-
-                    link.setAttribute('download', 'yourPackage.zip');
+                    link.setAttribute('download', package_name);
 
                     document.body.appendChild(link);
                     link.click();
@@ -53,7 +56,6 @@
          computed: {
          },
          mounted: function () {
-             let packageZipFile = this.getPackageZip(this.packageName);
          },
          watch: {
          }
