@@ -5,7 +5,7 @@
         <div class="packageTitle">
           {{packageContent.packageName}}
         </div>
-        <router-link :to="{ name: 'install', params: { packageName: packageContent.packageName } }">Go to install page</router-link>
+        <router-link :to="{ name: 'install', params: { packageName: packageContent.packageName, packageId: packageContent.packageId} }">Go to install page</router-link>
         <div class="metricScores">
           <div class="metricScore">
             Metric 1: {{ packageContent.metric1 }}

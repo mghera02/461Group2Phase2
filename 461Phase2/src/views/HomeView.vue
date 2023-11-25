@@ -11,7 +11,7 @@
   <h1 class="title">461 Group 2 Phase 2 Package Manager User Interface</h1>
   <main>
     <SearchBar @search-bar-val="getSearchBarVal"/>
-    <div id="packages" v-for="packageContent in packages">
+    <div id="packages" v-for="(packageContent) in packages">
       <PackageContainer :packageContent="packageContent"/>
     </div>
   </main>
@@ -50,36 +50,37 @@
           },
           async getMatchingPackages() {
             
-            let packageNames = ["NodeJs", "TensorFlow", "Random Package", "New Package"] // temp hardcoded
+            let packageNames = []
 
-            axios.get(`http://3.142.50.181:8080/search`, {
-              params: {
-                q: this.searchBarVal,
-              }
-            }).then(response => {
+            try {
+              const response = await axios.get(`http://3.142.50.181:8080/search`, {
+                params: {
+                  q: this.searchBarVal,
+                }
+              })
               console.log('Search Results:', response.data);
               packageNames = response.data;
-            })
-            .catch(error => {
-              console.error('Error searching:', error.message);
-            });
-
-            for (let packageName of packageNames) {
-              let ratings = await this.getPackageRatings(packageName);
-              (this.packages).push({
-                packageName: packageName, 
-                metric1: ".2", // temp hardcoded
-                metric2: ".4", // temp hardcoded
-                metric3: ".2", // temp hardcoded
-                metric4: ".8", // temp hardcoded
-                metric5: ".1", // temp hardcoded
-                totalMetric: ".1" // temp hardcoded
-              });
-            } 
+              let idx = 1;
+              for (let packageName of packageNames) {
+                let ratings = await this.getPackageRatings(idx++);
+                (this.packages).push({
+                  packageName: packageName, 
+                  packageId: idx, 
+                  metric1: ".2", // temp hardcoded
+                  metric2: ".4", // temp hardcoded
+                  metric3: ".2", // temp hardcoded
+                  metric4: ".8", // temp hardcoded
+                  metric5: ".1", // temp hardcoded
+                  totalMetric: ".1" // temp hardcoded
+                });
+              } 
+            } catch(error) {
+              console.error('Error searching:', error);
+            }
           },
-          async getPackageRatings(packageName) {
+          async getPackageRatings(id) {
             try {
-              const response = await axios.get(`http://localhost:4000/rate/:${packageName}`, {
+              const response = await axios.get(`http://3.142.50.181:8080/rate/${id}`, {
                 headers: {
                   "Content-Type": "multipart/form-data",
                 },

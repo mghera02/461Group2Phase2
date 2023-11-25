@@ -14,12 +14,11 @@
          name: 'Install',
          data() {
              return {
-                 downloadLink: ""
              }
          },
          methods: {
-             async getPackageZip(id) {
-                id = 1;
+             async getPackageZip() {
+                let id = Number(this.$route.params.packageId);
                 const endpoint = `http://3.142.50.181:8080/download/${id}`;
 
                 try {
@@ -51,7 +50,6 @@
              }
          },
          props: {
-             packageName: String
          },
          computed: {
          },
