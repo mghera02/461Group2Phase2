@@ -60,12 +60,12 @@
               })
               console.log('Search Results:', response.data);
               packageNames = response.data;
-              let idx = 1;
               for (let packageName of packageNames) {
-                let ratings = await this.getPackageRatings(idx++);
+                let id = await this.getPackageId(packageName);
+                let ratings = await this.getPackageRatings(id);
                 (this.packages).push({
                   packageName: packageName, 
-                  packageId: idx - 1, 
+                  packageId: id, 
                   metric1: ".2", // temp hardcoded
                   metric2: ".4", // temp hardcoded
                   metric3: ".2", // temp hardcoded
@@ -76,6 +76,16 @@
               } 
             } catch(error) {
               console.error('Error searching:', error);
+            }
+          },
+          async getPackageId(packageName) {
+            try {
+              const response = await axios.get(`http://3.142.50.181:8080/packageId/${packageName}`);
+              console.log("Id received successfuly", response.data.package_id[0]);
+              return response.data.package_id[0];
+            } catch (error) {
+              console.error("Error retrieving the rate.", error);
+              return null;
             }
           },
           async getPackageRatings(id) {
