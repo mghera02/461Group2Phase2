@@ -48,12 +48,6 @@ var app = express();
 var port = process.env.PORT || 8080;
 var upload = multer({ storage: multer.memoryStorage() });
 app.use(cors());
-app.get('/', function (req, res) {
-    return res.status(202).send('Welcome!');
-});
-app.get('/hello', function (req, res) {
-    return res.status(201).send('Hello!');
-});
 app.post('/upload', upload.single('file'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var package_id, s3_response, error_1;
     return __generator(this, function (_a) {
@@ -349,6 +343,54 @@ app.post('/reset', function (req, res) { return __awaiter(void 0, void 0, void 0
                 res.status(500).send('An error occurred while resetting the registry.');
                 return [3 /*break*/, 11];
             case 11: return [2 /*return*/];
+        }
+    });
+}); });
+app.get('/packageId/:packageName', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var packageName, searchResults, package_id, error_6;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 9, , 12]);
+                return [4 /*yield*/, logger_1.time.info("Starting time")];
+            case 1:
+                _a.sent();
+                return [4 /*yield*/, logger_1.logger.info("Attempting to get package ID by name")];
+            case 2:
+                _a.sent();
+                packageName = req.params.packageName;
+                return [4 /*yield*/, rds_handler.match_rds_rows(packageName)];
+            case 3:
+                searchResults = _a.sent();
+                if (!!searchResults) return [3 /*break*/, 6];
+                return [4 /*yield*/, logger_1.logger.error("No package found with name: ".concat(packageName))];
+            case 4:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 5:
+                _a.sent();
+                return [2 /*return*/, res.status(404).json({ error: 'Package not found' })];
+            case 6:
+                package_id = searchResults.map(function (data) { return data.package_id; });
+                return [4 /*yield*/, logger_1.logger.debug("Package ID found for package '".concat(packageName, "': ").concat(package_id))];
+            case 7:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
+            case 8:
+                _a.sent();
+                res.status(200).json({ package_id: package_id });
+                return [3 /*break*/, 12];
+            case 9:
+                error_6 = _a.sent();
+                return [4 /*yield*/, logger_1.logger.error('Error getting package ID by name:', error_6)];
+            case 10:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 11:
+                _a.sent();
+                res.status(500).send('An error occurred.');
+                return [3 /*break*/, 12];
+            case 12: return [2 /*return*/];
         }
     });
 }); });

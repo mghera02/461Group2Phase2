@@ -65,7 +65,7 @@
                 let ratings = await this.getPackageRatings(idx++);
                 (this.packages).push({
                   packageName: packageName, 
-                  packageId: idx, 
+                  packageId: idx - 1, 
                   metric1: ".2", // temp hardcoded
                   metric2: ".4", // temp hardcoded
                   metric3: ".2", // temp hardcoded

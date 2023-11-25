@@ -17,14 +17,6 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 app.use(cors());
 
-app.get('/', (req, res) => {
-  return res.status(202).send('Welcome!');
-});
-
-app.get('/hello', (req, res) => {
-  return res.status(201).send('Hello!');
-});
-
 app.post('/upload', upload.single('file'), async (req, res) => {
   try {
     await time.info("Starting time")
@@ -213,6 +205,34 @@ app.post('/reset', async (req, res) => {
     await logger.error('Error resetting system:', error);
     await time.error('Error occurred at this time\n')
     res.status(500).send('An error occurred while resetting the registry.');
+  }
+});
+
+app.get('/packageId/:packageName', async (req, res) => {
+  try {
+    await time.info("Starting time");
+    await logger.info("Attempting to get package ID by name");
+
+    const packageName = req.params.packageName;
+
+    const searchResults = await rds_handler.match_rds_rows(packageName);
+
+    if (!searchResults) {
+      await logger.error(`No package found with name: ${packageName}`);
+      await time.error('Error occurred at this time\n');
+      return res.status(404).json({ error: 'Package not found' });
+    }
+
+    const package_id = searchResults.map((data) => data.package_id);
+
+    await logger.debug(`Package ID found for package '${packageName}': ${package_id}`);
+    await time.info("Finished at this time\n");
+
+    res.status(200).json({ package_id });
+  } catch (error) {
+    await logger.error('Error getting package ID by name:', error);
+    await time.error('Error occurred at this time\n');
+    res.status(500).send('An error occurred.');
   }
 });
 
