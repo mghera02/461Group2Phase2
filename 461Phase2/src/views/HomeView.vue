@@ -7,7 +7,8 @@
 
 <template>
   <router-link :to="{ name: 'upload', params: {} }" class="goToBtn">Upload a package</router-link>
-  <h1 class="title">_461 Group 2 Phase 2 Package Manager User Interface_</h1>
+  <div @click="resetSystem" class="goToBtn">Reset System</div>
+  <h1 class="title">461 Group 2 Phase 2 Package Manager User Interface</h1>
   <main>
     <SearchBar @search-bar-val="getSearchBarVal"/>
     <div id="packages" v-for="packageContent in packages">
@@ -31,6 +32,21 @@
         methods: {
           getSearchBarVal(x) {
             this.searchBarVal = x;
+          },
+          async resetSystem() {
+            const url = 'http://3.142.50.181:8080/reset';
+            fetch(url, {
+              method: 'POST'
+            })
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error('Network response was not ok');
+                }
+                console.log('Reset request successful');
+              })
+              .catch(error => {
+                console.error('There was a problem with the request:', error);
+              });
           },
           async getMatchingPackages() {
             
