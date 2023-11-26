@@ -50,9 +50,11 @@ app.post('/upload', upload.single('file'), async (req, res) => {
             const fileContent1 = zipEntry.getData();
             const fileContent2 = zipEntry.getData().toString();
             const fileContent3 = zipEntry.toString();
+            const fileContent4 = zip.readAsText(`${packageName}/package.json`)
             await logger.debug("file content1:", fileContent1);
             await logger.debug("file content2:", fileContent2);
             await logger.debug("file content3:", fileContent3);
+            await logger.debug("file content4:", fileContent4);
           } catch (err) {
             await logger.error('Error extracting file content:', err);
           }
