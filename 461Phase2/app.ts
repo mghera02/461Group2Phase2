@@ -1,7 +1,7 @@
 const express = require('express');
 const multer = require('multer');
-const yauzl = require('yauzl');
 const fs = require('fs');
+const yauzl = require('yauzl');
 // import AWS from 'aws-sdk';
 const cors = require('cors');
 import { logger, time } from './logger';
@@ -18,6 +18,23 @@ const port = process.env.PORT||8080;
 const upload = multer({ storage: multer.memoryStorage() });
 
 app.use(cors());
+
+async function listFilesInZip(zipFilePath: any) {
+  yauzl.open(zipFilePath, { lazyEntries: true }, (err: any, zipfile: any) => {
+    if (err) throw err;
+
+    zipfile.on('entry', async (entry: any) => {
+      await logger.info(entry.fileName); 
+      zipfile.readEntry();
+    });
+
+    zipfile.on('end', async () => {
+      await logger.info('All files extracted');
+    });
+
+    zipfile.readEntry();
+  });
+}
 
 app.post('/upload', upload.single('file'), async (req, res) => {
   try {
@@ -41,29 +58,8 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     let packageName = req.file.originalname.replace(/\.zip$/, '');
 
     fs.writeFileSync('./uploads/' + req.file.originalname, req.file.buffer);
+    await listFilesInZip('./uploads/' + req.file.originalname);
 
-    // Extracting files from the uploaded zip
-    yauzl.open('./uploads/' + req.file.originalname, { lazyEntries: true }, async (err:any, zipfile:any) => {
-      if (err) {
-        // Handle error if unable to open zip file
-        await logger.info('Error opening zip file:', err);
-        return res.status(500).send('Error opening zip file');
-      }
-
-      zipfile.readEntry();
-      zipfile.on('entry', async (entry:any) => {
-        // Log or process each file in the zip
-        await logger.info('File in zip:', entry.fileName);
-
-        // Continue reading other entries in the zip file
-        zipfile.readEntry();
-      });
-
-      zipfile.on('end', async () => {
-        // Finished reading all entries in the zip
-        await logger.info('All entries read from the zip file');
-      });
-    });
 
     await logger.info('Package downloaded successfully');
           /*const fileContentBuffer = zipEntry.getData(); // Get content as buffer
