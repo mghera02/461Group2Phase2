@@ -37,6 +37,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     // The package name and rating may eventually change
     // Currently not doing anything with the rating JSON
     // The replace statement gets rid of .zip from the filename
+    let packageName = req.file.originalname.replace(/\.zip$/, '');
     const AdmZip = require('adm-zip');
     const zip = new AdmZip(req.file.buffer);
     const zipEntries = zip.getEntries(); // Get list of entries in the zip file
@@ -44,12 +45,18 @@ app.post('/upload', upload.single('file'), async (req, res) => {
       await logger.debug('Files in the zip:');
       for (let zipEntry of zipEntries) {
         await logger.debug(zipEntry.entryName); // Log file name
+        if(zipEntry.entryName == `${packageName}/package.json`) {
+          const fileContent = zipEntry.getData().toString('utf8');
+          await logger.debug("file content:", fileContent);
+          const regex = /https:\/\/github\.com\/([^\/]+\/[^\/]+)/;
+          const match = fileContent.match(regex);
+          await logger.debug("match:",match);
+        }
       }
     } else {
       await logger.debug('The zip file is empty or corrupted.');
     }
 
-    let packageName = req.file.originalname.replace(/\.zip$/, '');
     const package_id = await rds_handler.add_rds_package_data(req.file.originalname.replace(/\.zip$/, ''), {});
 
     // Check to see if package metadata was upladed to RDS
