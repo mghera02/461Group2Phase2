@@ -19,7 +19,7 @@
          methods: {
              async getPackageZip() {
                 let id = Number(this.$route.params.packageId);
-                const endpoint = `http://3.142.50.181:8080/download/${id}`;
+                const endpoint = `http://18.118.241.196:8080/download/${id}`;
 
                 try {
                     const response = await fetch(endpoint, {

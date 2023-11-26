@@ -34,7 +34,7 @@
             this.searchBarVal = x;
           },
           async resetSystem() {
-            const url = 'http://3.142.50.181:8080/reset';
+            const url = 'http://18.118.241.196:8080/reset';
             fetch(url, {
               method: 'POST'
             })
