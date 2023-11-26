@@ -46,7 +46,7 @@ export function getLogger() {
     
     const logger = winston.createLogger({
         level: logLevel,
-        format: winston.format.printf(({ level, message }) => {
+        format: winston.format.printf(({ level, message }: { level: string; message: string }) => {
             return `[${level}]: ${message}`;
         }),
         transports: [
@@ -65,7 +65,7 @@ function getTimestampLogger() {
         level: logLevel,
         format: winston.format.combine(
             winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss', tz: timezone }),
-            winston.format.printf(({ message, timestamp }) => {
+            winston.format.printf(({ message, timestamp }: { message: string; timestamp: string }) => {
                 return `[time]: ${timestamp} -- ${message}`;
             }),
         ),
