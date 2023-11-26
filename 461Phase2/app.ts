@@ -40,7 +40,8 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     const zip = new AdmZip(req.file.buffer);
     const zipEntries = zip.getEntries();
     await logger.debug('Number of zip entries:', zipEntries.length);
-    for (let zipEntry of zipEntries) {
+    await logger.debug('Buffer content:', req.file.buffer.slice(0, 100).toString());
+    /*for (let zipEntry of zipEntries) {
       await logger.debug('Zip entry details:', {
         entryName: zipEntry.entryName,
         rawSize: zipEntry.header.rawSize,
@@ -55,7 +56,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 
         await logger.debug(`Found package url: ${parsedText.repository.url}`);
       }
-    }
+    }*/
 
     let packageName = req.file.originalname.replace(/\.zip$/, '');
     const package_id = await rds_handler.add_rds_package_data(req.file.originalname.replace(/\.zip$/, ''), {});
