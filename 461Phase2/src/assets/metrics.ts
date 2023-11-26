@@ -593,3 +593,7 @@ async function fetchRepoPullRequest(username: string, repo: string) {
         return 0;
     }
 }
+
+export {
+    get_metric_info
+}

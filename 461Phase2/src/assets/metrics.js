@@ -36,6 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.get_metric_info = void 0;
 var octokit_1 = require("octokit"); // Octokit v17
 var exec = require('child_process').exec; // to execute shell cmds async version
 var fs = require("fs");
@@ -186,6 +187,7 @@ function get_metric_info(gitDetails) {
         });
     });
 }
+exports.get_metric_info = get_metric_info;
 function outputResults(username, repo, busFactor, rampup, license, correctness, maintainer, pinning, pullRequest, score) {
     return __awaiter(this, void 0, void 0, function () {
         var url, repoData, ndJsonpath;
