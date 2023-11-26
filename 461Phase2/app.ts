@@ -1,5 +1,6 @@
 const express = require('express');
 const multer = require('multer');
+const AdmZip = require('adm-zip');
 // import AWS from 'aws-sdk';
 const cors = require('cors');
 import { logger, time } from './logger';
@@ -36,6 +37,18 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     // The package name and rating may eventually change
     // Currently not doing anything with the rating JSON
     // The replace statement gets rid of .zip from the filename
+    const zip = new AdmZip(req.file.path);
+    const zipEntries = zip.getEntries();
+    for (let zipEntry of zipEntries) {
+      if (zipEntry.entryName === 'package.json') {
+        const text = zip.readAsText(zipEntry); 
+        const parsedText = JSON.parse(text);
+
+        await logger.debug(`Found package url: ${parsedText.repository.url}`);
+      }
+    }
+
+    let packageName = req.file.originalname.replace(/\.zip$/, '');
     const package_id = await rds_handler.add_rds_package_data(req.file.originalname.replace(/\.zip$/, ''), {});
 
     // Check to see if package metadata was upladed to RDS
