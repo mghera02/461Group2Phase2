@@ -39,8 +39,16 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     // The replace statement gets rid of .zip from the filename
     const zip = new AdmZip(req.file.buffer);
     const zipEntries = zip.getEntries();
+    await logger.debug('Number of zip entries:', zipEntries.length);
     for (let zipEntry of zipEntries) {
-      await logger.debug(`Found zip entry`, JSON.stringify(zipEntry));
+      await logger.debug('Zip entry details:', {
+        entryName: zipEntry.entryName,
+        rawSize: zipEntry.header.rawSize,
+        compressedSize: zipEntry.header.compressedSize,
+        isDirectory: zipEntry.isDirectory,
+      });
+      const text = zip.readAsText(zipEntry); 
+      await logger.debug('Content of package.json:', text);
       if (zipEntry.entryName == 'package.json') {
         const text = zip.readAsText(zipEntry); 
         const parsedText = JSON.parse(text);
