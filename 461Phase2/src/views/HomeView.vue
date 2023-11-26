@@ -65,8 +65,8 @@
                 let id = await this.getPackageId(packageName);
                 let ratings = await this.getPackageRatings(id);
                 (this.packages).push({
-                  packageName: ratings.packageName, 
-                  packageId: ratings.id, 
+                  packageName: packageName, 
+                  packageId: id, 
                   busFactor: ratings.busFactor, 
                   rampup: ratings.rampup,
                   license: ratings.license,
