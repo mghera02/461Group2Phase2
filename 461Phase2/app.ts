@@ -42,11 +42,11 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     const zip = new AdmZip(req.file.buffer);
     const zipEntries = zip.getEntries(); // Get list of entries in the zip file
     if (zipEntries && zipEntries.length > 0) {
-      await logger.debug('Files in the zip:');
+      //await logger.debug('Files in the zip:');
       for (let zipEntry of zipEntries) {
-        await logger.debug(zipEntry.entryName); // Log file name
+        //await logger.debug(zipEntry.entryName); // Log file name
         if(zipEntry.entryName == `${packageName}/package.json`) {
-          const fileContent = zipEntry.getData().toString('utf8');
+          const fileContent = zipEntry.toString();
           const fileContentBuffer = zipEntry.getData(); // Get content as buffer
           await logger.debug('Raw buffer data:', fileContentBuffer);
           await logger.debug('Length of buffer data:', fileContentBuffer.length);
