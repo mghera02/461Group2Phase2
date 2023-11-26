@@ -160,7 +160,7 @@ app.post('/upload', upload.single('file'), function (req, res) { return __awaite
                 return [4 /*yield*/, listFilesInZip('./uploads/' + req.file.originalname, packageName)];
             case 10:
                 repoUrl = _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("retrieved repo url ".concat(repoUrl))];
+                return [4 /*yield*/, logger_1.logger.info("retrieved repo url: ".concat(repoUrl))];
             case 11:
                 _a.sent();
                 username = "";

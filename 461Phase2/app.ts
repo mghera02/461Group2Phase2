@@ -93,8 +93,8 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     fs.writeFileSync('./uploads/' + req.file.originalname, req.file.buffer);
     await logger.info('Package downloaded successfully');
     
-    let repoUrl: string = await listFilesInZip('./uploads/' + req.file.originalname, packageName);
-    await logger.info(`retrieved repo url ${repoUrl}`);
+    let repoUrl = await listFilesInZip('./uploads/' + req.file.originalname, packageName);
+    await logger.info(`retrieved repo url: ${repoUrl}`);
     let username: string = ""; 
     let repo: string = ""; 
     const regex = /https:\/\/github\.com\/(\w+)\/(\w+)\.git/;
