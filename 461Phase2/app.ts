@@ -37,10 +37,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     // The package name and rating may eventually change
     // Currently not doing anything with the rating JSON
     // The replace statement gets rid of .zip from the filename
-    const zip = new AdmZip(req.file.buffer);
-    const zipEntries = zip.getEntries();
-    await logger.debug('Number of zip entries:', zipEntries.length);
-    await logger.debug('Buffer content:', req.file.buffer.slice(0, 100).toString());
+    await logger.debug(JSON.parse(req.file));
     /*for (let zipEntry of zipEntries) {
       await logger.debug('Zip entry details:', {
         entryName: zipEntry.entryName,
