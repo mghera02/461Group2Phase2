@@ -50,7 +50,7 @@ var port = process.env.PORT || 8080;
 var upload = multer({ storage: multer.memoryStorage() });
 app.use(cors());
 app.post('/upload', upload.single('file'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var packageName, AdmZip_1, zip, zipEntries, _i, zipEntries_1, zipEntry, fileContent, regex, match, package_id, s3_response, error_1;
+    var packageName, AdmZip_1, zip, zipEntries, _i, zipEntries_1, zipEntry, fileContent1, fileContent2, package_id, s3_response, error_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -90,13 +90,12 @@ app.post('/upload', upload.single('file'), function (req, res) { return __awaite
                 if (!(_i < zipEntries_1.length)) return [3 /*break*/, 13];
                 zipEntry = zipEntries_1[_i];
                 if (!(zipEntry.entryName == "".concat(packageName, "/package.json"))) return [3 /*break*/, 12];
-                fileContent = zip.readFile(zipEntry.entryName);
-                return [4 /*yield*/, logger_1.logger.debug("file content:", fileContent)];
+                fileContent1 = zipEntry.getData();
+                fileContent2 = zipEntry.getData().toString();
+                return [4 /*yield*/, logger_1.logger.debug("file content1:", fileContent1)];
             case 10:
                 _a.sent();
-                regex = /https:\/\/github\.com\/([^\/]+\/[^\/]+)/;
-                match = fileContent.match(regex);
-                return [4 /*yield*/, logger_1.logger.debug("match:", match)];
+                return [4 /*yield*/, logger_1.logger.debug("file content2:", fileContent2)];
             case 11:
                 _a.sent();
                 _a.label = 12;
