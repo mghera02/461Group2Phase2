@@ -79,7 +79,7 @@ app.post('/upload', upload.single('file'), function (req, res) { return __awaite
                 _a.sent();
                 return [2 /*return*/, res.status(400).send('Invalid file format. Please upload a zip file.')];
             case 8:
-                zip = new AdmZip(req.file.path);
+                zip = new AdmZip(req.file);
                 zipEntries = zip.getEntries();
                 _i = 0, zipEntries_1 = zipEntries;
                 _a.label = 9;
