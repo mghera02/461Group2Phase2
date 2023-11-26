@@ -14,11 +14,6 @@
 
     export default{
         name:'Add',
-        data() {
-             return {
-                ip: "3.22.209.9"
-             }
-         },
         setup() {
             const file = ref(null)
 
@@ -30,7 +25,7 @@
                 const formData = new FormData();
                 formData.append("file", selectedFile);
                 try {
-                    const response = await axios.post(`http://${this.ip}:8080/upload`, formData, {
+                    const response = await axios.post(`http://3.22.209.9:8080/upload`, formData, {
                         headers: {
                             "Content-Type": "application/zip",
                         },
