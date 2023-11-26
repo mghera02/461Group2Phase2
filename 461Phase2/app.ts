@@ -20,8 +20,9 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 app.use(cors());
 
+let repoUrl = "";
+
 async function listFilesInZip(zipFilePath: any, packageName: any) {
-  let out = "";
   yauzl.open(zipFilePath, { lazyEntries: true }, (err: any, zipfile: any) => {
     if (err) throw err;
 
@@ -36,14 +37,14 @@ async function listFilesInZip(zipFilePath: any, packageName: any) {
             fileContent += data; // Accumulate the data
           });
 
-          let out = readStream.on('end', async () => {
+          readStream.on('end', async () => {
             //await logger.info(`Content of ${packageName}/package.json:`);
             //await logger.info(fileContent); 
             const jsonObject = JSON.parse(fileContent);
             if('repository' in jsonObject) {
               if('url' in jsonObject.repository) {
                 await logger.info(`got repo url ${jsonObject.repository.url}`);
-                out = jsonObject.repository.url;
+                repoUrl = jsonObject.repository.url;
                 return jsonObject.repository.url;
               } else {
                 await logger.info(`Could not find repo url`);
@@ -66,7 +67,6 @@ async function listFilesInZip(zipFilePath: any, packageName: any) {
 
     zipfile.readEntry();
   });
-  return out;
 }
 
 app.post('/upload', upload.single('file'), async (req, res) => {
@@ -93,46 +93,45 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     fs.writeFileSync('./uploads/' + req.file.originalname, req.file.buffer);
     await logger.info('Package downloaded successfully');
     
-    listFilesInZip('./uploads/' + req.file.originalname, packageName).then(async repoUrl => {
-      await logger.info(`retrieved repo url: ${repoUrl}`);
-      let username: string = ""; 
-      let repo: string = ""; 
-      const regex = /https:\/\/github\.com\/(\w+)\/(\w+)\.git/;
-      const matches = repoUrl.match(regex);
-      if (matches) {
-        username = matches[1]; 
-        repoUrl = matches[2]; 
-      }
-      await logger.info(`username and repo found successfully: ${username}, ${repo}`);
-      let gitDetails = [{username: username, repo: repo}];
-      get_metric_info(gitDetails);
-  
-      fs.unlinkSync('./uploads/' + req.file.originalname);
-  
-      const package_id = await rds_handler.add_rds_package_data(req.file.originalname.replace(/\.zip$/, ''), {});
-  
-      // Check to see if package metadata was upladed to RDS
-      if (package_id === null) {
-        await logger.error("Could not upload package data to RDS")
-        await time.error('Error occurred at this time\n');
-        return res.status(400).send('Could not add package metadata');
-      }
-      await logger.debug(`Uploaded package to rds with id: ${package_id}`)
-  
-      // Upload the actual package to s3
-      const s3_response = await upload_package(package_id, req.file);
-  
-      // Check to see if package data was uploaded to S3
-      if (s3_response === null) {
-        await logger.error("Error uploading package to S3")
-        await time.error('Error occurred at this time\n');
-        return res.status(400).send('Could not add package data');
-      }
-  
-      await logger.info(`Successfully uploaded package with id: ${package_id}`)
-      await time.info("Finished at this time\n")
-      res.status(200).send("Package uploaded successfully")
-    });
+    await listFilesInZip('./uploads/' + req.file.originalname, packageName)
+    await logger.info(`retrieved repo url: ${repoUrl}`);
+    let username: string = ""; 
+    let repo: string = ""; 
+    const regex = /https:\/\/github\.com\/(\w+)\/(\w+)\.git/;
+    const matches = repoUrl.match(regex);
+    if (matches) {
+      username = matches[1]; 
+      repoUrl = matches[2]; 
+    }
+    await logger.info(`username and repo found successfully: ${username}, ${repo}`);
+    let gitDetails = [{username: username, repo: repo}];
+    get_metric_info(gitDetails);
+
+    fs.unlinkSync('./uploads/' + req.file.originalname);
+
+    const package_id = await rds_handler.add_rds_package_data(req.file.originalname.replace(/\.zip$/, ''), {});
+
+    // Check to see if package metadata was upladed to RDS
+    if (package_id === null) {
+      await logger.error("Could not upload package data to RDS")
+      await time.error('Error occurred at this time\n');
+      return res.status(400).send('Could not add package metadata');
+    }
+    await logger.debug(`Uploaded package to rds with id: ${package_id}`)
+
+    // Upload the actual package to s3
+    const s3_response = await upload_package(package_id, req.file);
+
+    // Check to see if package data was uploaded to S3
+    if (s3_response === null) {
+      await logger.error("Error uploading package to S3")
+      await time.error('Error occurred at this time\n');
+      return res.status(400).send('Could not add package data');
+    }
+
+    await logger.info(`Successfully uploaded package with id: ${package_id}`)
+    await time.info("Finished at this time\n")
+    res.status(200).send("Package uploaded successfully")
   } catch (error) {
     await logger.error('Could not upload package', error);
     await time.error('Error occurred at this time\n')
