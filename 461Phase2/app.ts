@@ -98,8 +98,8 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     const regex = /https:\/\/github\.com\/(\w+)\/(\w+)\.git/;
     const matches = repoUrl.match(regex);
     if (matches) {
-      const username = matches[1]; 
-      const repoUrl = matches[2]; 
+      username = matches[1]; 
+      repoUrl = matches[2]; 
     }
     await logger.info(`username and repo found successfully: ${username}, ${repo}`);
     let gitDetails = [{username: username, repo: repo}];
