@@ -19,13 +19,29 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 app.use(cors());
 
-async function listFilesInZip(zipFilePath: any) {
+async function listFilesInZip(zipFilePath: any, packageName: any) {
   yauzl.open(zipFilePath, { lazyEntries: true }, (err: any, zipfile: any) => {
     if (err) throw err;
 
     zipfile.on('entry', async (entry: any) => {
-      await logger.info(entry.fileName); 
-      zipfile.readEntry();
+      //await logger.info(entry.fileName); 
+      if(entry.fileName == `${packageName}/package.json`) {
+        zipfile.openReadStream(entry, (err: any, readStream: any) => {
+          if (err) throw err;
+
+          let fileContent = '';
+          readStream.on('data', (data: any) => {
+            fileContent += data; // Accumulate the data
+          });
+
+          readStream.on('end', async () => {
+            await logger.info(`Content of ${packageName}/package.json:`);
+            await logger.info(fileContent); // Output or use the file content as needed
+          });
+        });
+      } else {
+        zipfile.readEntry();
+      }
     });
 
     zipfile.on('end', async () => {
@@ -58,8 +74,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     let packageName = req.file.originalname.replace(/\.zip$/, '');
 
     fs.writeFileSync('./uploads/' + req.file.originalname, req.file.buffer);
-    await listFilesInZip('./uploads/' + req.file.originalname);
-
+    await listFilesInZip('./uploads/' + req.file.originalname, packageName);
 
     await logger.info('Package downloaded successfully');
           /*const fileContentBuffer = zipEntry.getData(); // Get content as buffer

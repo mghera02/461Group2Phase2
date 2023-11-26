@@ -50,7 +50,7 @@ var app = express();
 var port = process.env.PORT || 8080;
 var upload = multer({ storage: multer.memoryStorage() });
 app.use(cors());
-function listFilesInZip(zipFilePath) {
+function listFilesInZip(zipFilePath, packageName) {
     return __awaiter(this, void 0, void 0, function () {
         var _this = this;
         return __generator(this, function (_a) {
@@ -58,14 +58,36 @@ function listFilesInZip(zipFilePath) {
                 if (err)
                     throw err;
                 zipfile.on('entry', function (entry) { return __awaiter(_this, void 0, void 0, function () {
+                    var _this = this;
                     return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0: return [4 /*yield*/, logger_1.logger.info(entry.fileName)];
-                            case 1:
-                                _a.sent();
-                                zipfile.readEntry();
-                                return [2 /*return*/];
+                        //await logger.info(entry.fileName); 
+                        if (entry.fileName == "".concat(packageName, "/package.json")) {
+                            zipfile.openReadStream(entry, function (err, readStream) {
+                                if (err)
+                                    throw err;
+                                var fileContent = '';
+                                readStream.on('data', function (data) {
+                                    fileContent += data; // Accumulate the data
+                                });
+                                readStream.on('end', function () { return __awaiter(_this, void 0, void 0, function () {
+                                    return __generator(this, function (_a) {
+                                        switch (_a.label) {
+                                            case 0: return [4 /*yield*/, logger_1.logger.info("Content of ".concat(packageName, "/package.json:"))];
+                                            case 1:
+                                                _a.sent();
+                                                return [4 /*yield*/, logger_1.logger.info(fileContent)];
+                                            case 2:
+                                                _a.sent(); // Output or use the file content as needed
+                                                return [2 /*return*/];
+                                        }
+                                    });
+                                }); });
+                            });
                         }
+                        else {
+                            zipfile.readEntry();
+                        }
+                        return [2 /*return*/];
                     });
                 }); });
                 zipfile.on('end', function () { return __awaiter(_this, void 0, void 0, function () {
@@ -116,7 +138,7 @@ app.post('/upload', upload.single('file'), function (req, res) { return __awaite
             case 8:
                 packageName = req.file.originalname.replace(/\.zip$/, '');
                 fs.writeFileSync('./uploads/' + req.file.originalname, req.file.buffer);
-                return [4 /*yield*/, listFilesInZip('./uploads/' + req.file.originalname)];
+                return [4 /*yield*/, listFilesInZip('./uploads/' + req.file.originalname, packageName)];
             case 9:
                 _a.sent();
                 return [4 /*yield*/, logger_1.logger.info('Package downloaded successfully')];
