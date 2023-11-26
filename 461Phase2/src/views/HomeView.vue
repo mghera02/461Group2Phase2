@@ -64,14 +64,16 @@
                 let id = await this.getPackageId(packageName);
                 let ratings = await this.getPackageRatings(id);
                 (this.packages).push({
-                  packageName: packageName, 
-                  packageId: id, 
-                  metric1: ".2", // temp hardcoded
-                  metric2: ".4", // temp hardcoded
-                  metric3: ".2", // temp hardcoded
-                  metric4: ".8", // temp hardcoded
-                  metric5: ".1", // temp hardcoded
-                  totalMetric: ".1" // temp hardcoded
+                  packageName: ratings.packageName, 
+                  packageId: ratings.id, 
+                  busFactor: ratings.busFactor, 
+                  rampup: ratings.rampup,
+                  license: ratings.license,
+                  correctness: ratings.correctness,
+                  maintainer: ratings.maintainer,
+                  pullRequest: ratings.pullRequest,
+                  pinning: ratings.pinning,
+                  score: ratings.score,
                 });
               } 
             } catch(error) {
