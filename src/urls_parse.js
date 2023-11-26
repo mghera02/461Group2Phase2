@@ -1,6 +1,6 @@
 "use strict";
 // this section will take in the urls.txt arguement from the command line and parse it for npm package names and github user/repo names
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 exports.get_npm_package_name = exports.url_list = exports.get_github_info = void 0;
 var fs = require("fs");
 var main_1 = require("./main");

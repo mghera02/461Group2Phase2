@@ -16,7 +16,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+        while (_) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -37,24 +37,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 exports.calcTotalScore = exports.outputResults = exports.get_metric_info = exports.calcRespMaintScore = exports.calcCorrectnessScore = exports.calcRampUpScore = exports.calcLicenseScore = exports.calcuBusFactor = void 0;
-/*import { logFilePath, logLevel } from './main'
-import * as fs from 'fs'
-import {
-    createLintDirs,
-    fetchRepoContributors,
-    fetchRepoLicense,
-    fetchRepoReadme,
-    fetchLintOutput,
-    fetchRepoIssues,
-    fetchRepoPinning,
-    fetchRepoPullRequest
-} from './metric_helpers'*/
-var _a = require('./main'), logFilePath = _a.logFilePath, logLevel = _a.logLevel;
-var fs = require('fs');
-var metricHelpers = require('./metric_helpers');
-var createLintDirs = metricHelpers.createLintDirs, fetchRepoContributors = metricHelpers.fetchRepoContributors, fetchRepoLicense = metricHelpers.fetchRepoLicense, fetchRepoReadme = metricHelpers.fetchRepoReadme, fetchLintOutput = metricHelpers.fetchLintOutput, fetchRepoIssues = metricHelpers.fetchRepoIssues, fetchRepoPinning = metricHelpers.fetchRepoPinning, fetchRepoPullRequest = metricHelpers.fetchRepoPullRequest;
+var main_1 = require("./main");
+var fs = require("fs");
+var metric_helpers_1 = require("./metric_helpers");
 function calcuBusFactor(x) {
     var result = (Math.pow((Math.log(x + 1) / (Math.log(1500 + 1))), 1.22));
     //console.log(`Bus Factor: ${result}`);
@@ -154,30 +141,30 @@ function get_metric_info(gitDetails) {
                     _a.trys.push([2, 12, , 13]);
                     //console.log(`Getting Metric info for ${gitInfo.username}/${gitInfo.repo}`);
                     //await fetchRepoInfo(gitInfo.username, gitInfo.repo);
-                    return [4 /*yield*/, createLintDirs(gitInfo.username, gitInfo.repo)];
+                    return [4 /*yield*/, (0, metric_helpers_1.createLintDirs)(gitInfo.username, gitInfo.repo)];
                 case 3:
                     //console.log(`Getting Metric info for ${gitInfo.username}/${gitInfo.repo}`);
                     //await fetchRepoInfo(gitInfo.username, gitInfo.repo);
                     _a.sent();
-                    return [4 /*yield*/, fetchRepoContributors(gitInfo.username, gitInfo.repo)];
+                    return [4 /*yield*/, (0, metric_helpers_1.fetchRepoContributors)(gitInfo.username, gitInfo.repo)];
                 case 4:
                     busFactor = _a.sent();
-                    return [4 /*yield*/, fetchRepoLicense(gitInfo.username, gitInfo.repo)];
+                    return [4 /*yield*/, (0, metric_helpers_1.fetchRepoLicense)(gitInfo.username, gitInfo.repo)];
                 case 5:
                     license = _a.sent();
-                    return [4 /*yield*/, fetchRepoReadme(gitInfo.username, gitInfo.repo)];
+                    return [4 /*yield*/, (0, metric_helpers_1.fetchRepoReadme)(gitInfo.username, gitInfo.repo)];
                 case 6:
                     rampup = _a.sent();
-                    return [4 /*yield*/, fetchLintOutput(gitInfo.username, gitInfo.repo)];
+                    return [4 /*yield*/, (0, metric_helpers_1.fetchLintOutput)(gitInfo.username, gitInfo.repo)];
                 case 7:
                     correctness = _a.sent();
-                    return [4 /*yield*/, fetchRepoIssues(gitInfo.username, gitInfo.repo)];
+                    return [4 /*yield*/, (0, metric_helpers_1.fetchRepoIssues)(gitInfo.username, gitInfo.repo)];
                 case 8:
                     maintainer = _a.sent();
-                    return [4 /*yield*/, fetchRepoPinning(gitInfo.username, gitInfo.repo)];
+                    return [4 /*yield*/, (0, metric_helpers_1.fetchRepoPinning)(gitInfo.username, gitInfo.repo)];
                 case 9:
                     pinning = _a.sent();
-                    return [4 /*yield*/, fetchRepoPullRequest(gitInfo.username, gitInfo.repo)];
+                    return [4 /*yield*/, (0, metric_helpers_1.fetchRepoPullRequest)(gitInfo.username, gitInfo.repo)];
                 case 10:
                     pullRequest = _a.sent();
                     console.log(pullRequest);
@@ -189,8 +176,8 @@ function get_metric_info(gitDetails) {
                 case 12:
                     error_1 = _a.sent();
                     //console.error(`Failed to get Metric info for ${gitInfo.username}/${gitInfo.repo}`);
-                    if (logLevel == 2) {
-                        fs.appendFile(logFilePath, "Failed to get Metric info for ".concat(gitInfo.username, "/").concat(gitInfo.repo, "\n"), function (err) { });
+                    if (main_1.logLevel == 2) {
+                        fs.appendFile(main_1.logFilePath, "Failed to get Metric info for ".concat(gitInfo.username, "/").concat(gitInfo.repo, "\n"), function (err) { });
                     }
                     return [3 /*break*/, 13];
                 case 13:
@@ -216,13 +203,13 @@ function outputResults(username, repo, busFactor, rampup, license, correctness, 
                 LICENSE_SCORE: license,
                 GOOD_PINNING_PRACTICE: parseFloat(pinning.toFixed(5)),
                 PULL_REQUEST: parseFloat(pullRequest.toFixed(5)),
-                RESPONSIVE_MAINTAINER_SCORE: parseFloat(maintainer.toFixed(5)),
+                RESPONSIVE_MAINTAINER_SCORE: parseFloat(maintainer.toFixed(5))
             };
             console.log(JSON.stringify(repoData));
             ndJsonpath = "./results.ndjson";
             fs.appendFileSync(ndJsonpath, JSON.stringify(repoData) + "\n");
-            if (logLevel >= 1) {
-                fs.appendFileSync(logFilePath, JSON.stringify(repoData) + "\n");
+            if (main_1.logLevel >= 1) {
+                fs.appendFileSync(main_1.logFilePath, JSON.stringify(repoData) + "\n");
             }
             return [2 /*return*/];
         });
