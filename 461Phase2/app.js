@@ -70,16 +70,27 @@ function listFilesInZip(zipFilePath, packageName) {
                                     fileContent += data; // Accumulate the data
                                 });
                                 readStream.on('end', function () { return __awaiter(_this, void 0, void 0, function () {
-                                    var regex, match;
+                                    var jsonObject;
                                     return __generator(this, function (_a) {
                                         switch (_a.label) {
                                             case 0:
-                                                regex = /https:\/\/github\.com\/([^\/]+\/[^\/]+)/;
-                                                match = fileContent.match(regex);
-                                                return [4 /*yield*/, logger_1.logger.debug("match:", match)];
+                                                jsonObject = JSON.parse(fileContent);
+                                                if (!('repository' in jsonObject)) return [3 /*break*/, 5];
+                                                if (!('url' in jsonObject.repository)) return [3 /*break*/, 2];
+                                                return [4 /*yield*/, logger_1.logger.info("got repo url ".concat(jsonObject.repository.url))];
                                             case 1:
                                                 _a.sent();
-                                                return [2 /*return*/];
+                                                return [2 /*return*/, jsonObject.repository.url];
+                                            case 2: return [4 /*yield*/, logger_1.logger.info("Could not find repo url")];
+                                            case 3:
+                                                _a.sent();
+                                                return [2 /*return*/, null];
+                                            case 4: return [3 /*break*/, 7];
+                                            case 5: return [4 /*yield*/, logger_1.logger.info("Could not find repo url")];
+                                            case 6:
+                                                _a.sent();
+                                                return [2 /*return*/, null];
+                                            case 7: return [2 /*return*/];
                                         }
                                     });
                                 }); });

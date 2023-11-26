@@ -37,9 +37,19 @@ async function listFilesInZip(zipFilePath: any, packageName: any) {
           readStream.on('end', async () => {
             //await logger.info(`Content of ${packageName}/package.json:`);
             //await logger.info(fileContent); 
-            const regex = /https:\/\/github\.com\/([^\/]+\/[^\/]+)/;
-            const match = fileContent.match(regex);
-            await logger.debug("match:",match);
+            const jsonObject = JSON.parse(fileContent);
+            if('repository' in jsonObject) {
+              if('url' in jsonObject.repository) {
+                await logger.info(`got repo url ${jsonObject.repository.url}`);
+                return jsonObject.repository.url;
+              } else {
+                await logger.info(`Could not find repo url`);
+                return null;
+              }
+            } else {
+              await logger.info(`Could not find repo url`);
+              return null;
+            }
           });
         });
       } else {
