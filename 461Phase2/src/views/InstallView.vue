@@ -14,12 +14,13 @@
          name: 'Install',
          data() {
              return {
+                ip: "3.22.209.9"
              }
          },
          methods: {
              async getPackageZip() {
                 let id = Number(this.$route.params.packageId);
-                const endpoint = `http://18.118.241.196:8080/download/${id}`;
+                const endpoint = `http://${ip}:8080/download/${id}`;
 
                 try {
                     const response = await fetch(endpoint, {
