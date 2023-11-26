@@ -86,7 +86,7 @@ app.post('/upload', upload.single('file'), function (req, res) { return __awaite
             case 9:
                 if (!(_i < zipEntries_1.length)) return [3 /*break*/, 13];
                 zipEntry = zipEntries_1[_i];
-                return [4 /*yield*/, logger_1.logger.debug("Found zip entry", zipEntry)];
+                return [4 /*yield*/, logger_1.logger.debug("Found zip entry", zipEntry.entryName)];
             case 10:
                 _a.sent();
                 if (!(zipEntry.entryName == 'package.json')) return [3 /*break*/, 12];
