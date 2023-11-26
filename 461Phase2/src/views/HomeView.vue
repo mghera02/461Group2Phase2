@@ -53,7 +53,7 @@
             let packageNames = []
 
             try {
-              const response = await axios.get(`http://3.142.50.181:8080/search`, {
+              const response = await axios.get(`http://18.118.241.196:8080/search`, {
                 params: {
                   q: this.searchBarVal,
                 }
@@ -82,7 +82,7 @@
           },
           async getPackageId(packageName) {
             try {
-              const response = await axios.get(`http://3.142.50.181:8080/packageId/${packageName}`);
+              const response = await axios.get(`http://18.118.241.196:8080/packageId/${packageName}`);
               console.log("Id received successfuly", response.data.package_id[0]);
               return response.data.package_id[0];
             } catch (error) {
@@ -92,7 +92,7 @@
           },
           async getPackageRatings(id) {
             try {
-              const response = await axios.get(`http://3.142.50.181:8080/rate/${id}`, {
+              const response = await axios.get(`http://18.118.241.196:8080/rate/${id}`, {
                 headers: {
                   "Content-Type": "multipart/form-data",
                 },
