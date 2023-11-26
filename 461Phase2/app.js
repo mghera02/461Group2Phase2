@@ -156,7 +156,7 @@ app.post('/upload', upload.single('file'), function (req, res) { return __awaite
                 return [4 /*yield*/, (0, metrics_1.get_metric_info)(gitDetails)];
             case 13:
                 scores = _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("retrieved scores from score calculator: ".concat(scores))];
+                return [4 /*yield*/, logger_1.logger.info("retrieved scores from score calculator: ".concat(scores.busFactor, ", ").concat(scores.rampup, ", ").concat(scores.license, ", ").concat(scores.correctness, ", ").concat(scores.maintainer, ", ").concat(scores.pullRequest, ", ").concat(scores.score))];
             case 14:
                 _a.sent();
                 fs.unlinkSync('./uploads/' + req.file.originalname);
