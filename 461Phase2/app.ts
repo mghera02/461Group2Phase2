@@ -46,10 +46,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
       for (let zipEntry of zipEntries) {
         //await logger.debug(zipEntry.entryName); // Log file name
         if(zipEntry.entryName == `${packageName}/package.json`) {
-          const fileContent = zipEntry.toString();
-          const fileContentBuffer = zipEntry.getData(); // Get content as buffer
-          await logger.debug('Raw buffer data:', fileContentBuffer);
-          await logger.debug('Length of buffer data:', fileContentBuffer.length);
+          var fileContent = zip.readFile(zipEntry.entryName);
           await logger.debug("file content:", fileContent);
           const regex = /https:\/\/github\.com\/([^\/]+\/[^\/]+)/;
           const match = fileContent.match(regex);
