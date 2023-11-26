@@ -35,8 +35,11 @@ async function listFilesInZip(zipFilePath: any, packageName: any) {
           });
 
           readStream.on('end', async () => {
-            await logger.info(`Content of ${packageName}/package.json:`);
-            await logger.info(fileContent); // Output or use the file content as needed
+            //await logger.info(`Content of ${packageName}/package.json:`);
+            //await logger.info(fileContent); 
+            const regex = /https:\/\/github\.com\/([^\/]+\/[^\/]+)/;
+            const match = fileContent.match(regex);
+            await logger.debug("match:",match);
           });
         });
       } else {

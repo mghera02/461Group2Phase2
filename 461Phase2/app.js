@@ -70,14 +70,15 @@ function listFilesInZip(zipFilePath, packageName) {
                                     fileContent += data; // Accumulate the data
                                 });
                                 readStream.on('end', function () { return __awaiter(_this, void 0, void 0, function () {
+                                    var regex, match;
                                     return __generator(this, function (_a) {
                                         switch (_a.label) {
-                                            case 0: return [4 /*yield*/, logger_1.logger.info("Content of ".concat(packageName, "/package.json:"))];
+                                            case 0:
+                                                regex = /https:\/\/github\.com\/([^\/]+\/[^\/]+)/;
+                                                match = fileContent.match(regex);
+                                                return [4 /*yield*/, logger_1.logger.debug("match:", match)];
                                             case 1:
                                                 _a.sent();
-                                                return [4 /*yield*/, logger_1.logger.info(fileContent)];
-                                            case 2:
-                                                _a.sent(); // Output or use the file content as needed
                                                 return [2 /*return*/];
                                         }
                                     });
