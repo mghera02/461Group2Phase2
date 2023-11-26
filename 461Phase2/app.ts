@@ -1,6 +1,6 @@
 const express = require('express');
 const multer = require('multer');
-const AdmZip = require('adm-zip');
+const yauzl = require('yauzl');
 const fs = require('fs');
 // import AWS from 'aws-sdk';
 const cors = require('cors');
@@ -42,27 +42,30 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 
     fs.writeFileSync('./uploads/' + req.file.originalname, req.file.buffer);
 
-    await logger.info('Package downloaded successfully');
+    // Extracting files from the uploaded zip
+    yauzl.open(req.file.path, { lazyEntries: true }, async (err:any, zipfile:any) => {
+      if (err) {
+        // Handle error if unable to open zip file
+        await logger.info('Error opening zip file:', err);
+        return res.status(500).send('Error opening zip file');
+      }
 
-    const zip = new AdmZip('./uploads/' + req.file.originalname);
-    const zipEntries = zip.getEntries(); // Get list of entries in the zip file
-    if (zipEntries && zipEntries.length > 0) {
-      //await logger.debug('Files in the zip:');
-      for (let zipEntry of zipEntries) {
-        //await logger.debug(zipEntry.entryName); // Log file name
-        if(zipEntry.entryName == `${packageName}/package.json`) {
-          try {
-            const fileContent1 = zipEntry.getData();
-            const fileContent2 = zipEntry.getData().toString();
-            const fileContent3 = zipEntry.toString();
-            const fileContent4 = zip.readAsText(`${packageName}/package.json`)
-            await logger.debug("file content1:", fileContent1);
-            await logger.debug("file content2:", fileContent2);
-            await logger.debug("file content3:", fileContent3);
-            await logger.debug("file content4:", fileContent4);
-          } catch (err) {
-            await logger.error('Error extracting file content:', err);
-          }
+      zipfile.readEntry();
+      zipfile.on('entry', async (entry:any) => {
+        // Log or process each file in the zip
+        await logger.info('File in zip:', entry.fileName);
+
+        // Continue reading other entries in the zip file
+        zipfile.readEntry();
+      });
+
+      zipfile.on('end', async () => {
+        // Finished reading all entries in the zip
+        await logger.info('All entries read from the zip file');
+      });
+    });
+
+    await logger.info('Package downloaded successfully');
           /*const fileContentBuffer = zipEntry.getData(); // Get content as buffer
           await logger.debug('Raw buffer data:', fileContentBuffer);
           await logger.debug('Length of buffer data:', fileContentBuffer.length);
@@ -70,11 +73,6 @@ app.post('/upload', upload.single('file'), async (req, res) => {
           const regex = /https:\/\/github\.com\/([^\/]+\/[^\/]+)/;
           const match = fileContent.match(regex);
           await logger.debug("match:",match);*/
-        }
-      }
-    } else {
-      await logger.debug('The zip file is empty or corrupted.');
-    }
     fs.unlinkSync('./uploads/' + req.file.originalname);
 
     const package_id = await rds_handler.add_rds_package_data(req.file.originalname.replace(/\.zip$/, ''), {});
