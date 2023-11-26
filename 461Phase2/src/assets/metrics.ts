@@ -119,7 +119,7 @@ async function calcTotalScore(busFactor: number, rampup: number, license: number
     return score;
 }
 
-async function get_metric_info(gitDetails: { username: string, repo: string }[]): Promise<void> {
+async function get_metric_info(gitDetails: { username: string, repo: string }[]): Promise<any> {
     await logger.info(`Getting metric info: ${gitDetails[0].username}, ${gitDetails[0].repo}`);
     for (let i = 0; i < gitDetails.length; i++) {
         const gitInfo = gitDetails[i];
@@ -136,7 +136,8 @@ async function get_metric_info(gitDetails: { username: string, repo: string }[])
             const pullRequest = await fetchRepoPullRequest(gitInfo.username, gitInfo.repo);
             let score = await calcTotalScore(busFactor, rampup, license, correctness, maintainer, pullRequest, pinning);
             await logger.info(`Calculated score ${score}\n`);
-            outputResults(gitInfo.username, gitInfo.repo, busFactor, rampup, license, correctness, maintainer, pinning, pullRequest, score);
+            return {busFactor: busFactor, rampup: rampup, license: license, correctness: correctness, maintainer: maintainer, pullRequest: pullRequest, score: score};
+            //outputResults(gitInfo.username, gitInfo.repo, busFactor, rampup, license, correctness, maintainer, pinning, pullRequest, score);
             //console.log(`~~~~~~~~~~~~~~~~\n`);
           
         } catch (error) {

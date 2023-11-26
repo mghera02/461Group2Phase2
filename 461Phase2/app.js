@@ -101,11 +101,11 @@ function extractRepoUrl(zipFilePath, packageName) {
     });
 }
 app.post('/upload', upload.single('file'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var packageName, repoUrl, username, repo, regex, matches, gitDetails, package_id, s3_response, error_1;
+    var packageName, repoUrl, username, repo, regex, matches, gitDetails, scores, package_id, s3_response, error_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 25, , 28]);
+                _a.trys.push([0, 26, , 29]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 1:
                 _a.sent();
@@ -155,54 +155,57 @@ app.post('/upload', upload.single('file'), function (req, res) { return __awaite
                 gitDetails = [{ username: username, repo: repo }];
                 return [4 /*yield*/, (0, metrics_1.get_metric_info)(gitDetails)];
             case 13:
+                scores = _a.sent();
+                return [4 /*yield*/, logger_1.logger.info("retrieved scores from score calculator: ".concat(scores))];
+            case 14:
                 _a.sent();
                 fs.unlinkSync('./uploads/' + req.file.originalname);
                 return [4 /*yield*/, rds_handler.add_rds_package_data(req.file.originalname.replace(/\.zip$/, ''), {})];
-            case 14:
-                package_id = _a.sent();
-                if (!(package_id === null)) return [3 /*break*/, 17];
-                return [4 /*yield*/, logger_1.logger.error("Could not upload package data to RDS")];
             case 15:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                package_id = _a.sent();
+                if (!(package_id === null)) return [3 /*break*/, 18];
+                return [4 /*yield*/, logger_1.logger.error("Could not upload package data to RDS")];
             case 16:
                 _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 17:
+                _a.sent();
                 return [2 /*return*/, res.status(400).send('Could not add package metadata')];
-            case 17: return [4 /*yield*/, logger_1.logger.debug("Uploaded package to rds with id: ".concat(package_id))
+            case 18: return [4 /*yield*/, logger_1.logger.debug("Uploaded package to rds with id: ".concat(package_id))
                 // Upload the actual package to s3
             ];
-            case 18:
+            case 19:
                 _a.sent();
                 return [4 /*yield*/, (0, s3_packages_1.upload_package)(package_id, req.file)];
-            case 19:
-                s3_response = _a.sent();
-                if (!(s3_response === null)) return [3 /*break*/, 22];
-                return [4 /*yield*/, logger_1.logger.error("Error uploading package to S3")];
             case 20:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                s3_response = _a.sent();
+                if (!(s3_response === null)) return [3 /*break*/, 23];
+                return [4 /*yield*/, logger_1.logger.error("Error uploading package to S3")];
             case 21:
                 _a.sent();
-                return [2 /*return*/, res.status(400).send('Could not add package data')];
-            case 22: return [4 /*yield*/, logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id))];
-            case 23:
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 22:
                 _a.sent();
-                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
+                return [2 /*return*/, res.status(400).send('Could not add package data')];
+            case 23: return [4 /*yield*/, logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id))];
             case 24:
                 _a.sent();
-                res.status(200).send("Package uploaded successfully");
-                return [3 /*break*/, 28];
+                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
             case 25:
+                _a.sent();
+                res.status(200).send("Package uploaded successfully");
+                return [3 /*break*/, 29];
+            case 26:
                 error_1 = _a.sent();
                 return [4 /*yield*/, logger_1.logger.error('Could not upload package', error_1)];
-            case 26:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 27:
                 _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 28:
+                _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 28];
-            case 28: return [2 /*return*/];
+                return [3 /*break*/, 29];
+            case 29: return [2 /*return*/];
         }
     });
 }); });

@@ -105,7 +105,8 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     }
     await logger.info(`username and repo found successfully: ${username}, ${repo}`);
     let gitDetails = [{username: username, repo: repo}];
-    await get_metric_info(gitDetails);
+    let scores = await get_metric_info(gitDetails);
+    await logger.info(`retrieved scores from score calculator: ${scores}`);
 
     fs.unlinkSync('./uploads/' + req.file.originalname);
 
