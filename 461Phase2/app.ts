@@ -106,11 +106,11 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     await logger.info(`username and repo found successfully: ${username}, ${repo}`);
     let gitDetails = [{username: username, repo: repo}];
     let scores = await get_metric_info(gitDetails);
-    await logger.info(`retrieved scores from score calculator: ${scores.busFactor}, ${scores.rampup}, ${scores.license}, ${scores.correctness}, ${scores.maintainer}, ${scores.pullRequest}, ${scores.score}`);
+    await logger.info(`retrieved scores from score calculator: ${scores.busFactor}, ${scores.rampup}, ${scores.license}, ${scores.correctness}, ${scores.maintainer}, ${scores.pullRequest}, ${scores.pinning}, ${scores.score}`);
 
     fs.unlinkSync('./uploads/' + req.file.originalname);
 
-    const package_id = await rds_handler.add_rds_package_data(req.file.originalname.replace(/\.zip$/, ''), {});
+    const package_id = await rds_handler.add_rds_package_data(req.file.originalname.replace(/\.zip$/, ''), scores);
 
     // Check to see if package metadata was upladed to RDS
     if (package_id === null) {
@@ -155,17 +155,17 @@ app.get('/rate/:packageId', async (req, res) => {
       return res.status(404).json({ error: 'Package not found' });
     }
 
-    const rateData = package_data.rating;
+    const scores = package_data.rating;
     
-    if (!rateData) {
+    if (!scores) {
       await logger.error(`No rate data found for package with id: ${package_id}`)
       await time.error('Error occurred at this time\n');
       return res.status(404).send('Rate data not found.');
     }
 
-    await logger.info(`Rate data found for package with id: ${package_id}, rateData: ${rateData}`)
+    await logger.info(`Rate data found for package with id: ${package_id}, rateData: ${scores.busFactor}, ${scores.rampup}, ${scores.license}, ${scores.correctness}, ${scores.maintainer}, ${scores.pullRequest}, ${scores.pinning}, ${scores.score}`);
     await time.info("Finished at this time\n")
-    res.status(200).json(rateData);
+    res.status(200).json(scores);
   } catch (error) {
     await logger.error('Error rating package:', error);
     await time.error('Error occurred at this time\n')

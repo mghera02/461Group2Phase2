@@ -7,7 +7,16 @@ import { logger, time } from './logger';
 interface PackageData {
     package_id: number,
     package_name: string,
-    rating: object,
+    rating: {
+      busFactor: number;
+      rampup: number;
+      license: number;
+      correctness: number;
+      maintainer: number;
+      pullRequest: number;
+      pinning: number;
+      score: number;
+    },
     num_downloads: number,
     created_at: Date,
 }

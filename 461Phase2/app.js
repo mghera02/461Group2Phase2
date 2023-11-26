@@ -156,11 +156,11 @@ app.post('/upload', upload.single('file'), function (req, res) { return __awaite
                 return [4 /*yield*/, (0, metrics_1.get_metric_info)(gitDetails)];
             case 13:
                 scores = _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("retrieved scores from score calculator: ".concat(scores.busFactor, ", ").concat(scores.rampup, ", ").concat(scores.license, ", ").concat(scores.correctness, ", ").concat(scores.maintainer, ", ").concat(scores.pullRequest, ", ").concat(scores.score))];
+                return [4 /*yield*/, logger_1.logger.info("retrieved scores from score calculator: ".concat(scores.busFactor, ", ").concat(scores.rampup, ", ").concat(scores.license, ", ").concat(scores.correctness, ", ").concat(scores.maintainer, ", ").concat(scores.pullRequest, ", ").concat(scores.pinning, ", ").concat(scores.score))];
             case 14:
                 _a.sent();
                 fs.unlinkSync('./uploads/' + req.file.originalname);
-                return [4 /*yield*/, rds_handler.add_rds_package_data(req.file.originalname.replace(/\.zip$/, ''), {})];
+                return [4 /*yield*/, rds_handler.add_rds_package_data(req.file.originalname.replace(/\.zip$/, ''), scores)];
             case 15:
                 package_id = _a.sent();
                 if (!(package_id === null)) return [3 /*break*/, 18];
@@ -210,7 +210,7 @@ app.post('/upload', upload.single('file'), function (req, res) { return __awaite
     });
 }); });
 app.get('/rate/:packageId', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var package_id, package_data, rateData, error_2;
+    var package_id, package_data, scores, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -237,8 +237,8 @@ app.get('/rate/:packageId', function (req, res) { return __awaiter(void 0, void 
                 _a.sent();
                 return [2 /*return*/, res.status(404).json({ error: 'Package not found' })];
             case 7:
-                rateData = package_data.rating;
-                if (!!rateData) return [3 /*break*/, 10];
+                scores = package_data.rating;
+                if (!!scores) return [3 /*break*/, 10];
                 return [4 /*yield*/, logger_1.logger.error("No rate data found for package with id: ".concat(package_id))];
             case 8:
                 _a.sent();
@@ -246,13 +246,13 @@ app.get('/rate/:packageId', function (req, res) { return __awaiter(void 0, void 
             case 9:
                 _a.sent();
                 return [2 /*return*/, res.status(404).send('Rate data not found.')];
-            case 10: return [4 /*yield*/, logger_1.logger.info("Rate data found for package with id: ".concat(package_id, ", rateData: ").concat(rateData))];
+            case 10: return [4 /*yield*/, logger_1.logger.info("Rate data found for package with id: ".concat(package_id, ", rateData: ").concat(scores.busFactor, ", ").concat(scores.rampup, ", ").concat(scores.license, ", ").concat(scores.correctness, ", ").concat(scores.maintainer, ", ").concat(scores.pullRequest, ", ").concat(scores.pinning, ", ").concat(scores.score))];
             case 11:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
             case 12:
                 _a.sent();
-                res.status(200).json(rateData);
+                res.status(200).json(scores);
                 return [3 /*break*/, 16];
             case 13:
                 error_2 = _a.sent();
