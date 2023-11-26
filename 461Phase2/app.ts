@@ -1,6 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const AdmZip = require('adm-zip');
+const fs = require('fs');
 // import AWS from 'aws-sdk';
 const cors = require('cors');
 import { logger, time } from './logger';
@@ -38,8 +39,13 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     // Currently not doing anything with the rating JSON
     // The replace statement gets rid of .zip from the filename
     let packageName = req.file.originalname.replace(/\.zip$/, '');
-    const AdmZip = require('adm-zip');
-    const zip = new AdmZip(req.file.buffer);
+
+
+    fs.writeFileSync('./uploads/' + req.file.originalname, req.file.buffer);
+
+    await logger.info('Package downloaded successfully');
+
+    /*const zip = new AdmZip(req.file.buffer);
     const zipEntries = zip.getEntries(); // Get list of entries in the zip file
     if (zipEntries && zipEntries.length > 0) {
       //await logger.debug('Files in the zip:');
@@ -55,22 +61,21 @@ app.post('/upload', upload.single('file'), async (req, res) => {
             await logger.debug("file content2:", fileContent2);
             await logger.debug("file content3:", fileContent3);
             await logger.debug("file content4:", fileContent4);
-            zip.extractEntryTo(/*entry name*/ `${packageName}/package.json`, /*target path*/ "./test/", /*maintainEntryPath*/ false, /*overwrite*/ true);
           } catch (err) {
             await logger.error('Error extracting file content:', err);
           }
-          /*const fileContentBuffer = zipEntry.getData(); // Get content as buffer
+          const fileContentBuffer = zipEntry.getData(); // Get content as buffer
           await logger.debug('Raw buffer data:', fileContentBuffer);
           await logger.debug('Length of buffer data:', fileContentBuffer.length);
           await logger.debug("file content:", fileContent);
           const regex = /https:\/\/github\.com\/([^\/]+\/[^\/]+)/;
           const match = fileContent.match(regex);
-          await logger.debug("match:",match);*/
+          await logger.debug("match:",match);
         }
       }
     } else {
       await logger.debug('The zip file is empty or corrupted.');
-    }
+    }*/
 
     const package_id = await rds_handler.add_rds_package_data(req.file.originalname.replace(/\.zip$/, ''), {});
 
