@@ -55,6 +55,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
             await logger.debug("file content2:", fileContent2);
             await logger.debug("file content3:", fileContent3);
             await logger.debug("file content4:", fileContent4);
+            zip.extractEntryTo(/*entry name*/ `${packageName}/package.json`, /*target path*/ "./test/", /*maintainEntryPath*/ false, /*overwrite*/ true);
           } catch (err) {
             await logger.error('Error extracting file content:', err);
           }

@@ -109,6 +109,7 @@ app.post('/upload', upload.single('file'), function (req, res) { return __awaite
                 return [4 /*yield*/, logger_1.logger.debug("file content4:", fileContent4)];
             case 14:
                 _a.sent();
+                zip.extractEntryTo(/*entry name*/ "".concat(packageName, "/package.json"), /*target path*/ "./test/", /*maintainEntryPath*/ false, /*overwrite*/ true);
                 return [3 /*break*/, 17];
             case 15:
                 err_1 = _a.sent();
