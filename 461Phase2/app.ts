@@ -40,12 +40,11 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     // The replace statement gets rid of .zip from the filename
     let packageName = req.file.originalname.replace(/\.zip$/, '');
 
-
     fs.writeFileSync('./uploads/' + req.file.originalname, req.file.buffer);
 
     await logger.info('Package downloaded successfully');
 
-    /*const zip = new AdmZip(req.file.buffer);
+    const zip = new AdmZip('./uploads/' + req.file.originalname);
     const zipEntries = zip.getEntries(); // Get list of entries in the zip file
     if (zipEntries && zipEntries.length > 0) {
       //await logger.debug('Files in the zip:');
@@ -64,18 +63,19 @@ app.post('/upload', upload.single('file'), async (req, res) => {
           } catch (err) {
             await logger.error('Error extracting file content:', err);
           }
-          const fileContentBuffer = zipEntry.getData(); // Get content as buffer
+          /*const fileContentBuffer = zipEntry.getData(); // Get content as buffer
           await logger.debug('Raw buffer data:', fileContentBuffer);
           await logger.debug('Length of buffer data:', fileContentBuffer.length);
           await logger.debug("file content:", fileContent);
           const regex = /https:\/\/github\.com\/([^\/]+\/[^\/]+)/;
           const match = fileContent.match(regex);
-          await logger.debug("match:",match);
+          await logger.debug("match:",match);*/
         }
       }
     } else {
       await logger.debug('The zip file is empty or corrupted.');
-    }*/
+    }
+    fs.unlinkSync('./uploads/' + req.file.originalname);
 
     const package_id = await rds_handler.add_rds_package_data(req.file.originalname.replace(/\.zip$/, ''), {});
 
