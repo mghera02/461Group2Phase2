@@ -12,7 +12,7 @@ import {
   download_package,
   clear_s3_bucket,
 } from './s3_packages';
-import {get_metric_info} from '../src/metrics';
+import {get_metric_info} from '../src/metrics.js';
 
 const app = express();
 const port = process.env.PORT||8080;
@@ -105,8 +105,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     }
     await logger.info(`username and repo found successfully: ${username}, ${repo}`);
     let gitDetails = [{username: username, repo: repo}];
-    let metricScores = await get_metric_info(gitDetails);
-    await logger.info(`metric scores: ${metricScores}`);
+    await get_metric_info(gitDetails);
 
     fs.unlinkSync('./uploads/' + req.file.originalname);
 
