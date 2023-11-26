@@ -46,14 +46,17 @@ var logger_1 = require("./logger");
 var rds_configurator = require("./rds_config");
 var rds_handler = require("./rds_packages");
 var s3_packages_1 = require("./s3_packages");
+var metrics_1 = require("../src/metrics");
 var app = express();
 var port = process.env.PORT || 8080;
 var upload = multer({ storage: multer.memoryStorage() });
 app.use(cors());
 function listFilesInZip(zipFilePath, packageName) {
     return __awaiter(this, void 0, void 0, function () {
+        var out;
         var _this = this;
         return __generator(this, function (_a) {
+            out = "";
             yauzl.open(zipFilePath, { lazyEntries: true }, function (err, zipfile) {
                 if (err)
                     throw err;
@@ -69,7 +72,7 @@ function listFilesInZip(zipFilePath, packageName) {
                                 readStream.on('data', function (data) {
                                     fileContent += data; // Accumulate the data
                                 });
-                                readStream.on('end', function () { return __awaiter(_this, void 0, void 0, function () {
+                                var out = readStream.on('end', function () { return __awaiter(_this, void 0, void 0, function () {
                                     var jsonObject;
                                     return __generator(this, function (_a) {
                                         switch (_a.label) {
@@ -84,12 +87,12 @@ function listFilesInZip(zipFilePath, packageName) {
                                             case 2: return [4 /*yield*/, logger_1.logger.info("Could not find repo url")];
                                             case 3:
                                                 _a.sent();
-                                                return [2 /*return*/, null];
+                                                return [2 /*return*/, ""];
                                             case 4: return [3 /*break*/, 7];
                                             case 5: return [4 /*yield*/, logger_1.logger.info("Could not find repo url")];
                                             case 6:
                                                 _a.sent();
-                                                return [2 /*return*/, null];
+                                                return [2 /*return*/, ""];
                                             case 7: return [2 /*return*/];
                                         }
                                     });
@@ -114,16 +117,16 @@ function listFilesInZip(zipFilePath, packageName) {
                 }); });
                 zipfile.readEntry();
             });
-            return [2 /*return*/];
+            return [2 /*return*/, out];
         });
     });
 }
 app.post('/upload', upload.single('file'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var packageName, package_id, s3_response, error_1;
+    var packageName, repoUrl, username, repo, regex, matches, gitDetails, package_id, s3_response, error_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 22, , 25]);
+                _a.trys.push([0, 23, , 26]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 1:
                 _a.sent();
@@ -150,66 +153,72 @@ app.post('/upload', upload.single('file'), function (req, res) { return __awaite
             case 8:
                 packageName = req.file.originalname.replace(/\.zip$/, '');
                 fs.writeFileSync('./uploads/' + req.file.originalname, req.file.buffer);
-                return [4 /*yield*/, listFilesInZip('./uploads/' + req.file.originalname, packageName)];
+                return [4 /*yield*/, logger_1.logger.info('Package downloaded successfully')];
             case 9:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info('Package downloaded successfully')];
+                return [4 /*yield*/, listFilesInZip('./uploads/' + req.file.originalname, packageName)];
             case 10:
+                repoUrl = _a.sent();
+                username = "";
+                repo = "";
+                regex = /github\.com\/([^/]+)\/([^/]+)\.git/;
+                matches = repoUrl.match(regex);
+                if (matches && matches.length >= 3) {
+                    username = matches[1];
+                    repo = matches[2];
+                }
+                return [4 /*yield*/, logger_1.logger.info("username and repo found successfully: ".concat(username, ", ").concat(repo))];
+            case 11:
                 _a.sent();
-                /*const fileContentBuffer = zipEntry.getData(); // Get content as buffer
-                await logger.debug('Raw buffer data:', fileContentBuffer);
-                await logger.debug('Length of buffer data:', fileContentBuffer.length);
-                await logger.debug("file content:", fileContent);
-                const regex = /https:\/\/github\.com\/([^\/]+\/[^\/]+)/;
-                const match = fileContent.match(regex);
-                await logger.debug("match:",match);*/
+                gitDetails = [{ username: username, repo: repo }];
+                (0, metrics_1.get_metric_info)(gitDetails);
                 fs.unlinkSync('./uploads/' + req.file.originalname);
                 return [4 /*yield*/, rds_handler.add_rds_package_data(req.file.originalname.replace(/\.zip$/, ''), {})];
-            case 11:
-                package_id = _a.sent();
-                if (!(package_id === null)) return [3 /*break*/, 14];
-                return [4 /*yield*/, logger_1.logger.error("Could not upload package data to RDS")];
             case 12:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                package_id = _a.sent();
+                if (!(package_id === null)) return [3 /*break*/, 15];
+                return [4 /*yield*/, logger_1.logger.error("Could not upload package data to RDS")];
             case 13:
                 _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 14:
+                _a.sent();
                 return [2 /*return*/, res.status(400).send('Could not add package metadata')];
-            case 14: return [4 /*yield*/, logger_1.logger.debug("Uploaded package to rds with id: ".concat(package_id))
+            case 15: return [4 /*yield*/, logger_1.logger.debug("Uploaded package to rds with id: ".concat(package_id))
                 // Upload the actual package to s3
             ];
-            case 15:
+            case 16:
                 _a.sent();
                 return [4 /*yield*/, (0, s3_packages_1.upload_package)(package_id, req.file)];
-            case 16:
-                s3_response = _a.sent();
-                if (!(s3_response === null)) return [3 /*break*/, 19];
-                return [4 /*yield*/, logger_1.logger.error("Error uploading package to S3")];
             case 17:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                s3_response = _a.sent();
+                if (!(s3_response === null)) return [3 /*break*/, 20];
+                return [4 /*yield*/, logger_1.logger.error("Error uploading package to S3")];
             case 18:
                 _a.sent();
-                return [2 /*return*/, res.status(400).send('Could not add package data')];
-            case 19: return [4 /*yield*/, logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id))];
-            case 20:
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 19:
                 _a.sent();
-                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
+                return [2 /*return*/, res.status(400).send('Could not add package data')];
+            case 20: return [4 /*yield*/, logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id))];
             case 21:
                 _a.sent();
-                res.status(200).send("Package uploaded successfully");
-                return [3 /*break*/, 25];
+                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
             case 22:
+                _a.sent();
+                res.status(200).send("Package uploaded successfully");
+                return [3 /*break*/, 26];
+            case 23:
                 error_1 = _a.sent();
                 return [4 /*yield*/, logger_1.logger.error('Could not upload package', error_1)];
-            case 23:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 24:
                 _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 25:
+                _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 25];
-            case 25: return [2 /*return*/];
+                return [3 /*break*/, 26];
+            case 26: return [2 /*return*/];
         }
     });
 }); });

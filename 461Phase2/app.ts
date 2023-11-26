@@ -12,6 +12,7 @@ import {
   download_package,
   clear_s3_bucket,
 } from './s3_packages';
+import {get_metric_info} from '../src/metrics';
 
 const app = express();
 const port = process.env.PORT||8080;
@@ -19,7 +20,8 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 app.use(cors());
 
-async function listFilesInZip(zipFilePath: any, packageName: any) {
+async function listFilesInZip(zipFilePath: any, packageName: any): Promise<string> {
+  let out = "";
   yauzl.open(zipFilePath, { lazyEntries: true }, (err: any, zipfile: any) => {
     if (err) throw err;
 
@@ -34,7 +36,7 @@ async function listFilesInZip(zipFilePath: any, packageName: any) {
             fileContent += data; // Accumulate the data
           });
 
-          readStream.on('end', async () => {
+          let out = readStream.on('end', async () => {
             //await logger.info(`Content of ${packageName}/package.json:`);
             //await logger.info(fileContent); 
             const jsonObject = JSON.parse(fileContent);
@@ -44,11 +46,11 @@ async function listFilesInZip(zipFilePath: any, packageName: any) {
                 return jsonObject.repository.url;
               } else {
                 await logger.info(`Could not find repo url`);
-                return null;
+                return "";
               }
             } else {
               await logger.info(`Could not find repo url`);
-              return null;
+              return "";
             }
           });
         });
@@ -63,6 +65,7 @@ async function listFilesInZip(zipFilePath: any, packageName: any) {
 
     zipfile.readEntry();
   });
+  return out;
 }
 
 app.post('/upload', upload.single('file'), async (req, res) => {
@@ -87,16 +90,21 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     let packageName = req.file.originalname.replace(/\.zip$/, '');
 
     fs.writeFileSync('./uploads/' + req.file.originalname, req.file.buffer);
-    await listFilesInZip('./uploads/' + req.file.originalname, packageName);
-
     await logger.info('Package downloaded successfully');
-          /*const fileContentBuffer = zipEntry.getData(); // Get content as buffer
-          await logger.debug('Raw buffer data:', fileContentBuffer);
-          await logger.debug('Length of buffer data:', fileContentBuffer.length);
-          await logger.debug("file content:", fileContent);
-          const regex = /https:\/\/github\.com\/([^\/]+\/[^\/]+)/;
-          const match = fileContent.match(regex);
-          await logger.debug("match:",match);*/
+    
+    let repoUrl: string = await listFilesInZip('./uploads/' + req.file.originalname, packageName);
+    let username: string = ""; 
+    let repo: string = ""; 
+    const regex = /github\.com\/([^/]+)\/([^/]+)\.git/;
+    const matches = repoUrl.match(regex);
+    if (matches && matches.length >= 3) {
+      username = matches[1]; 
+      repo = matches[2];
+    }
+    await logger.info(`username and repo found successfully: ${username}, ${repo}`);
+    let gitDetails = [{username: username, repo: repo}];
+    get_metric_info(gitDetails);
+
     fs.unlinkSync('./uploads/' + req.file.originalname);
 
     const package_id = await rds_handler.add_rds_package_data(req.file.originalname.replace(/\.zip$/, ''), {});
