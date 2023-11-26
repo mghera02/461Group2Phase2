@@ -120,6 +120,7 @@ async function calcTotalScore(busFactor: number, rampup: number, license: number
 }
 
 async function get_metric_info(gitDetails: { username: string, repo: string }[]): Promise<void> {
+    await logger.info(`Getting metric info: ${gitDetails[0].username}, ${gitDetails[0].repo}`);
     for (let i = 0; i < gitDetails.length; i++) {
         const gitInfo = gitDetails[i];
         try {

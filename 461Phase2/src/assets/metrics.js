@@ -128,61 +128,63 @@ function get_metric_info(gitDetails) {
         var i, gitInfo, busFactor, license, rampup, correctness, maintainer, pinning, pullRequest, score, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0:
-                    i = 0;
-                    _a.label = 1;
+                case 0: return [4 /*yield*/, logger_1.logger.info("Getting metric info: ".concat(gitDetails[0].username, ", ").concat(gitDetails[0].repo))];
                 case 1:
-                    if (!(i < gitDetails.length)) return [3 /*break*/, 15];
-                    gitInfo = gitDetails[i];
+                    _a.sent();
+                    i = 0;
                     _a.label = 2;
                 case 2:
-                    _a.trys.push([2, 12, , 14]);
+                    if (!(i < gitDetails.length)) return [3 /*break*/, 16];
+                    gitInfo = gitDetails[i];
+                    _a.label = 3;
+                case 3:
+                    _a.trys.push([3, 13, , 15]);
                     //console.log(`Getting Metric info for ${gitInfo.username}/${gitInfo.repo}`);
                     //await fetchRepoInfo(gitInfo.username, gitInfo.repo);
                     return [4 /*yield*/, createLintDirs(gitInfo.username, gitInfo.repo)];
-                case 3:
+                case 4:
                     //console.log(`Getting Metric info for ${gitInfo.username}/${gitInfo.repo}`);
                     //await fetchRepoInfo(gitInfo.username, gitInfo.repo);
                     _a.sent();
                     return [4 /*yield*/, fetchRepoContributors(gitInfo.username, gitInfo.repo)];
-                case 4:
+                case 5:
                     busFactor = _a.sent();
                     return [4 /*yield*/, fetchRepoLicense(gitInfo.username, gitInfo.repo)];
-                case 5:
+                case 6:
                     license = _a.sent();
                     return [4 /*yield*/, fetchRepoReadme(gitInfo.username, gitInfo.repo)];
-                case 6:
+                case 7:
                     rampup = _a.sent();
                     return [4 /*yield*/, fetchLintOutput(gitInfo.username, gitInfo.repo)];
-                case 7:
+                case 8:
                     correctness = _a.sent();
                     return [4 /*yield*/, fetchRepoIssues(gitInfo.username, gitInfo.repo)];
-                case 8:
+                case 9:
                     maintainer = _a.sent();
                     return [4 /*yield*/, fetchRepoPinning(gitInfo.username, gitInfo.repo)];
-                case 9:
+                case 10:
                     pinning = _a.sent();
                     return [4 /*yield*/, fetchRepoPullRequest(gitInfo.username, gitInfo.repo)];
-                case 10:
+                case 11:
                     pullRequest = _a.sent();
                     console.log(pullRequest);
                     return [4 /*yield*/, calcTotalScore(busFactor, rampup, license, correctness, maintainer, pullRequest, pinning)];
-                case 11:
+                case 12:
                     score = _a.sent();
                     outputResults(gitInfo.username, gitInfo.repo, busFactor, rampup, license, correctness, maintainer, pinning, pullRequest, score);
-                    return [3 /*break*/, 14];
-                case 12:
+                    return [3 /*break*/, 15];
+                case 13:
                     error_1 = _a.sent();
                     //console.error(`Failed to get Metric info for ${gitInfo.username}/${gitInfo.repo}`);
                     return [4 /*yield*/, logger_1.logger.info("Failed to get Metric info for ".concat(gitInfo.username, "/").concat(gitInfo.repo, "\n"))];
-                case 13:
+                case 14:
                     //console.error(`Failed to get Metric info for ${gitInfo.username}/${gitInfo.repo}`);
                     _a.sent();
-                    return [3 /*break*/, 14];
-                case 14:
+                    return [3 /*break*/, 15];
+                case 15:
                     i++;
-                    return [3 /*break*/, 1];
-                case 15: return [2 /*return*/];
+                    return [3 /*break*/, 2];
+                case 16: return [2 /*return*/];
             }
         });
     });
