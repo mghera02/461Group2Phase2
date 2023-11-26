@@ -40,7 +40,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     const zip = new AdmZip(req.file.buffer);
     const zipEntries = zip.getEntries();
     for (let zipEntry of zipEntries) {
-      await logger.debug(`Found zip entry`, zipEntry);
+      await logger.debug(`Found zip entry`, zipEntry.entryName);
       if (zipEntry.entryName == 'package.json') {
         const text = zip.readAsText(zipEntry); 
         const parsedText = JSON.parse(text);
