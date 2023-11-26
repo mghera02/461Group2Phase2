@@ -20,52 +20,52 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 app.use(cors());
 
-let repoUrl = "";
 
-async function listFilesInZip(zipFilePath: any, packageName: any) {
-  yauzl.open(zipFilePath, { lazyEntries: true }, (err: any, zipfile: any) => {
-    if (err) throw err;
-
-    zipfile.on('entry', async (entry: any) => {
-      //await logger.info(entry.fileName); 
-      if(entry.fileName == `${packageName}/package.json`) {
-        zipfile.openReadStream(entry, (err: any, readStream: any) => {
-          if (err) throw err;
-
-          let fileContent = '';
-          readStream.on('data', (data: any) => {
-            fileContent += data; // Accumulate the data
-          });
-
-          readStream.on('end', async () => {
-            //await logger.info(`Content of ${packageName}/package.json:`);
-            //await logger.info(fileContent); 
-            const jsonObject = JSON.parse(fileContent);
-            if('repository' in jsonObject) {
-              if('url' in jsonObject.repository) {
-                await logger.info(`got repo url ${jsonObject.repository.url}`);
-                repoUrl = jsonObject.repository.url;
-                return jsonObject.repository.url;
-              } else {
-                await logger.info(`Could not find repo url`);
-                return "";
-              }
-            } else {
-              await logger.info(`Could not find repo url`);
-              return "";
-            }
-          });
-        });
-      } else {
-        zipfile.readEntry();
+function extractRepoUrl(zipFilePath: string, packageName: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    yauzl.open(zipFilePath, { lazyEntries: true }, (err: Error | null, zipfile: any | null) => {
+      if (err || !zipfile) {
+        reject(err || new Error('Unable to open zip file'));
+        return;
       }
-    });
 
-    zipfile.on('end', async () => {
-      await logger.info('All files extracted');
-    });
+      zipfile.on('entry', async (entry: any) => {
+        if (entry.fileName === `${packageName}/package.json`) {
+          zipfile.openReadStream(entry, (err: Error | null, readStream: NodeJS.ReadableStream | null) => {
+            if (err || !readStream) {
+              reject(err || new Error('Unable to read package.json'));
+              return;
+            }
 
-    zipfile.readEntry();
+            let fileContent = '';
+            readStream.on('data', (data: Buffer) => {
+              fileContent += data;
+            });
+
+            readStream.on('end', () => {
+              try {
+                const jsonObject = JSON.parse(fileContent);
+                if ('repository' in jsonObject && 'url' in jsonObject.repository) {
+                  resolve(jsonObject.repository.url);
+                } else {
+                  reject(new Error('Repository URL not found in package.json'));
+                }
+              } catch (parseError) {
+                reject(new Error('Error parsing package.json'));
+              }
+            });
+          });
+        } else {
+          zipfile.readEntry();
+        }
+      });
+
+      zipfile.on('end', () => {
+        reject(new Error('Package.json not found in the zip'));
+      });
+
+      zipfile.readEntry();
+    });
   });
 }
 
@@ -93,7 +93,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     fs.writeFileSync('./uploads/' + req.file.originalname, req.file.buffer);
     await logger.info('Package downloaded successfully');
     
-    await listFilesInZip('./uploads/' + req.file.originalname, packageName)
+    const repoUrl = await extractRepoUrl('./uploads/' + req.file.originalname, packageName);
     await logger.info(`retrieved repo url: ${repoUrl}`);
     let username: string = ""; 
     let repo: string = ""; 
@@ -101,7 +101,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     const matches = repoUrl.match(regex);
     if (matches) {
       username = matches[1]; 
-      repoUrl = matches[2]; 
+      repo = matches[2]; 
     }
     await logger.info(`username and repo found successfully: ${username}, ${repo}`);
     let gitDetails = [{username: username, repo: repo}];
