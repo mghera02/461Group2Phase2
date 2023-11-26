@@ -43,6 +43,7 @@ async function listFilesInZip(zipFilePath: any, packageName: any): Promise<strin
             if('repository' in jsonObject) {
               if('url' in jsonObject.repository) {
                 await logger.info(`got repo url ${jsonObject.repository.url}`);
+                out = jsonObject.repository.url;
                 return jsonObject.repository.url;
               } else {
                 await logger.info(`Could not find repo url`);
@@ -93,6 +94,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     await logger.info('Package downloaded successfully');
     
     let repoUrl: string = await listFilesInZip('./uploads/' + req.file.originalname, packageName);
+    await logger.info(`retrieved repo url ${repoUrl}`);
     let username: string = ""; 
     let repo: string = ""; 
     const regex = /https:\/\/github\.com\/(\w+)\/(\w+)\.git/;
