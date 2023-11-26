@@ -122,7 +122,7 @@ function listFilesInZip(zipFilePath, packageName) {
     });
 }
 app.post('/upload', upload.single('file'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var packageName, repoUrl, username, repo, regex, matches, gitDetails, package_id, s3_response, error_1;
+    var packageName, repoUrl, username, repo, regex, matches, username_1, repoUrl_1, gitDetails, package_id, s3_response, error_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -161,11 +161,11 @@ app.post('/upload', upload.single('file'), function (req, res) { return __awaite
                 repoUrl = _a.sent();
                 username = "";
                 repo = "";
-                regex = /github\.com\/([^/]+)\/([^/]+)\.git/;
+                regex = /https:\/\/github\.com\/(\w+)\/(\w+)\.git/;
                 matches = repoUrl.match(regex);
-                if (matches && matches.length >= 3) {
-                    username = matches[1];
-                    repo = matches[2];
+                if (matches) {
+                    username_1 = matches[1];
+                    repoUrl_1 = matches[2];
                 }
                 return [4 /*yield*/, logger_1.logger.info("username and repo found successfully: ".concat(username, ", ").concat(repo))];
             case 11:

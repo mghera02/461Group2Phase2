@@ -95,11 +95,11 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     let repoUrl: string = await listFilesInZip('./uploads/' + req.file.originalname, packageName);
     let username: string = ""; 
     let repo: string = ""; 
-    const regex = /github\.com\/([^/]+)\/([^/]+)\.git/;
+    const regex = /https:\/\/github\.com\/(\w+)\/(\w+)\.git/;
     const matches = repoUrl.match(regex);
-    if (matches && matches.length >= 3) {
-      username = matches[1]; 
-      repo = matches[2];
+    if (matches) {
+      const username = matches[1]; 
+      const repoUrl = matches[2]; 
     }
     await logger.info(`username and repo found successfully: ${username}, ${repo}`);
     let gitDetails = [{username: username, repo: repo}];
