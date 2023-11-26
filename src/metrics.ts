@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 // now actual metric score calculations
 
-import { logFilePath, logLevel } from './main'
+/*import { logFilePath, logLevel } from './main'
 import * as fs from 'fs'
 import {
     createLintDirs,
@@ -12,7 +12,20 @@ import {
     fetchRepoIssues,
     fetchRepoPinning,
     fetchRepoPullRequest
-} from './metric_helpers'
+} from './metric_helpers'*/
+const { logFilePath, logLevel } = require('./main');
+const fs = require('fs');
+const metricHelpers = require('./metric_helpers');
+const {
+  createLintDirs,
+  fetchRepoContributors,
+  fetchRepoLicense,
+  fetchRepoReadme,
+  fetchLintOutput,
+  fetchRepoIssues,
+  fetchRepoPinning,
+  fetchRepoPullRequest
+} = metricHelpers;
 
 interface RepoData {
     URL: string;
