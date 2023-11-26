@@ -93,7 +93,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     fs.writeFileSync('./uploads/' + req.file.originalname, req.file.buffer);
     await logger.info('Package downloaded successfully');
     
-    let repoUrl = await listFilesInZip('./uploads/' + req.file.originalname, packageName).then(async () => {
+    listFilesInZip('./uploads/' + req.file.originalname, packageName).then(async repoUrl => {
       await logger.info(`retrieved repo url: ${repoUrl}`);
       let username: string = ""; 
       let repo: string = ""; 
