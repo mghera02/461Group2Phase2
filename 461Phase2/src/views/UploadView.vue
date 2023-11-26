@@ -30,7 +30,7 @@
                 const formData = new FormData();
                 formData.append("file", selectedFile);
                 try {
-                    const response = await axios.post(`http://${ip}:8080/upload`, formData, {
+                    const response = await axios.post(`http://${this.ip}:8080/upload`, formData, {
                         headers: {
                             "Content-Type": "application/zip",
                         },
