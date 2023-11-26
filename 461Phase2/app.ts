@@ -43,7 +43,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     fs.writeFileSync('./uploads/' + req.file.originalname, req.file.buffer);
 
     // Extracting files from the uploaded zip
-    yauzl.open(req.file.path, { lazyEntries: true }, async (err:any, zipfile:any) => {
+    yauzl.open('./uploads/' + req.file.originalname, { lazyEntries: true }, async (err:any, zipfile:any) => {
       if (err) {
         // Handle error if unable to open zip file
         await logger.info('Error opening zip file:', err);

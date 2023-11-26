@@ -83,7 +83,7 @@ app.post('/upload', upload.single('file'), function (req, res) { return __awaite
                 packageName = req.file.originalname.replace(/\.zip$/, '');
                 fs.writeFileSync('./uploads/' + req.file.originalname, req.file.buffer);
                 // Extracting files from the uploaded zip
-                yauzl.open(req.file.path, { lazyEntries: true }, function (err, zipfile) { return __awaiter(void 0, void 0, void 0, function () {
+                yauzl.open('./uploads/' + req.file.originalname, { lazyEntries: true }, function (err, zipfile) { return __awaiter(void 0, void 0, void 0, function () {
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
