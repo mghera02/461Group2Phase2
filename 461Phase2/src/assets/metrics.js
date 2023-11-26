@@ -134,11 +134,11 @@ function get_metric_info(gitDetails) {
                     i = 0;
                     _a.label = 2;
                 case 2:
-                    if (!(i < gitDetails.length)) return [3 /*break*/, 16];
+                    if (!(i < gitDetails.length)) return [3 /*break*/, 17];
                     gitInfo = gitDetails[i];
                     _a.label = 3;
                 case 3:
-                    _a.trys.push([3, 13, , 15]);
+                    _a.trys.push([3, 14, , 16]);
                     //console.log(`Getting Metric info for ${gitInfo.username}/${gitInfo.repo}`);
                     //await fetchRepoInfo(gitInfo.username, gitInfo.repo);
                     return [4 /*yield*/, createLintDirs(gitInfo.username, gitInfo.repo)];
@@ -167,24 +167,26 @@ function get_metric_info(gitDetails) {
                     return [4 /*yield*/, fetchRepoPullRequest(gitInfo.username, gitInfo.repo)];
                 case 11:
                     pullRequest = _a.sent();
-                    console.log(pullRequest);
                     return [4 /*yield*/, calcTotalScore(busFactor, rampup, license, correctness, maintainer, pullRequest, pinning)];
                 case 12:
                     score = _a.sent();
-                    outputResults(gitInfo.username, gitInfo.repo, busFactor, rampup, license, correctness, maintainer, pinning, pullRequest, score);
-                    return [3 /*break*/, 15];
+                    return [4 /*yield*/, logger_1.logger.info("Calculated score ".concat(score, "\n"))];
                 case 13:
+                    _a.sent();
+                    outputResults(gitInfo.username, gitInfo.repo, busFactor, rampup, license, correctness, maintainer, pinning, pullRequest, score);
+                    return [3 /*break*/, 16];
+                case 14:
                     error_1 = _a.sent();
                     //console.error(`Failed to get Metric info for ${gitInfo.username}/${gitInfo.repo}`);
                     return [4 /*yield*/, logger_1.logger.info("Failed to get Metric info for ".concat(gitInfo.username, "/").concat(gitInfo.repo, "\n"))];
-                case 14:
+                case 15:
                     //console.error(`Failed to get Metric info for ${gitInfo.username}/${gitInfo.repo}`);
                     _a.sent();
-                    return [3 /*break*/, 15];
-                case 15:
+                    return [3 /*break*/, 16];
+                case 16:
                     i++;
                     return [3 /*break*/, 2];
-                case 16: return [2 /*return*/];
+                case 17: return [2 /*return*/];
             }
         });
     });
