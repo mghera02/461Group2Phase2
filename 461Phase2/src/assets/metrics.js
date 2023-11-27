@@ -477,20 +477,32 @@ function fetchTsAndJsFiles(username, repo) {
 }
 function createLintDirs(username, repo) {
     return __awaiter(this, void 0, void 0, function () {
-        var appendRepo, subDir, esLintconfig, config;
+        var appendRepo, subDir, esLintconfig, config, e_1;
         return __generator(this, function (_a) {
-            appendRepo = "/".concat(repo);
-            subDir = "./temp_linter_test".concat(appendRepo);
-            esLintconfig = "/* eslint-env node */\nmodule.exports = {\n    extends: ['eslint:recommended'],\n    \"parserOptions\": {\n        \"ecmaVersion\": 5,\n    },\n    \"overrides\": [\n        {\n            \"files\": [\"*.ts\", \"*.tsx\"],\n            \"parser\": \"@typescript-eslint/parser\",\n            \"plugins\": ['@typescript-eslint'],\n            \"extends\": [\n                \"plugin:@typescript-eslint/recommended\",\n            ],\n        }\n    ],\n    root: true,\n};\n    ";
-            config = esLintconfig.trim();
-            try {
-                fs.writeFileSync("".concat(subDir, "/.eslintrc.cjs"), config);
-                return [2 /*return*/, 1];
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, logger_1.logger.info("Creating test linting directory for ".concat(username, "/").concat(repo, " ... \n"))];
+                case 1:
+                    _a.sent();
+                    appendRepo = "/".concat(repo);
+                    subDir = "./temp_linter_test".concat(appendRepo);
+                    esLintconfig = "/* eslint-env node */\nmodule.exports = {\n    extends: ['eslint:recommended'],\n    \"parserOptions\": {\n        \"ecmaVersion\": 5,\n    },\n    \"overrides\": [\n        {\n            \"files\": [\"*.ts\", \"*.tsx\"],\n            \"parser\": \"@typescript-eslint/parser\",\n            \"plugins\": ['@typescript-eslint'],\n            \"extends\": [\n                \"plugin:@typescript-eslint/recommended\",\n            ],\n        }\n    ],\n    root: true,\n};\n    ";
+                    config = esLintconfig.trim();
+                    _a.label = 2;
+                case 2:
+                    _a.trys.push([2, 4, , 6]);
+                    fs.writeFileSync("".concat(subDir, "/.eslintrc.cjs"), config);
+                    return [4 /*yield*/, logger_1.logger.info("Successfuly created test linting directory for ".concat(username, "/").concat(repo, " ... \n"))];
+                case 3:
+                    _a.sent();
+                    return [2 /*return*/, 1];
+                case 4:
+                    e_1 = _a.sent();
+                    return [4 /*yield*/, logger_1.logger.info("Failed to create test linting directory for ".concat(username, "/").concat(repo, "\n"))];
+                case 5:
+                    _a.sent();
+                    return [2 /*return*/, e_1];
+                case 6: return [2 /*return*/];
             }
-            catch (e) {
-                return [2 /*return*/, e];
-            }
-            return [2 /*return*/];
         });
     });
 }

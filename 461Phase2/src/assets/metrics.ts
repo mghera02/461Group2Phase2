@@ -375,6 +375,7 @@ async function fetchTsAndJsFiles(username: string, repo: string)  {
 }
 
 async function createLintDirs(username: string, repo: string) {
+    await logger.info(`Creating test linting directory for ${username}/${repo} ... \n`);
     const appendRepo = `/${repo}`;
     const subDir = `./temp_linter_test${appendRepo}`;
     const esLintconfig = `/* eslint-env node */
@@ -399,8 +400,10 @@ module.exports = {
     const config = esLintconfig.trim(); // remove whitespace
     try {
         fs.writeFileSync(`${subDir}/.eslintrc.cjs`, config);
+        await logger.info(`Successfuly created test linting directory for ${username}/${repo} ... \n`);
         return 1;
     } catch(e) {
+        await logger.info(`Failed to create test linting directory for ${username}/${repo}\n`);
         return e;
     }
 }
