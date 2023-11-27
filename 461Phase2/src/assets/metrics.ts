@@ -438,6 +438,7 @@ async function fetchLintOutput(username: string, repo: string): Promise<number> 
         if (!fs.existsSync(`${subDir}/result.json`)) {
             
             //correctness = 1; // if we dont have a result.json file, we will assume the code is correct
+            await logger.info(`Calculating correctness (no result.json file): ${0}/${fileCount}\n`);
             return calcCorrectnessScore(0,fileCount);
         
         }

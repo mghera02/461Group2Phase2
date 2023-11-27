@@ -521,7 +521,7 @@ function fetchLintOutput(username, repo) {
                     subDir = "./temp_linter_test/".concat(repo);
                     _a.label = 1;
                 case 1:
-                    _a.trys.push([1, 7, , 9]);
+                    _a.trys.push([1, 9, , 11]);
                     return [4 /*yield*/, fetchTsAndJsFiles(username, repo)];
                 case 2:
                     fileCount = _a.sent();
@@ -537,24 +537,28 @@ function fetchLintOutput(username, repo) {
                 case 4: return [4 /*yield*/, runEslint(subDir)];
                 case 5:
                     _a.sent();
-                    if (!fs.existsSync("".concat(subDir, "/result.json"))) {
-                        //correctness = 1; // if we dont have a result.json file, we will assume the code is correct
-                        return [2 /*return*/, calcCorrectnessScore(0, fileCount)];
-                    }
+                    if (!!fs.existsSync("".concat(subDir, "/result.json"))) return [3 /*break*/, 7];
+                    //correctness = 1; // if we dont have a result.json file, we will assume the code is correct
+                    return [4 /*yield*/, logger_1.logger.info("Calculating correctness (no result.json file): ".concat(0, "/").concat(fileCount, "\n"))];
+                case 6:
+                    //correctness = 1; // if we dont have a result.json file, we will assume the code is correct
+                    _a.sent();
+                    return [2 /*return*/, calcCorrectnessScore(0, fileCount)];
+                case 7:
                     errors = getErrorAndWarningCount("".concat(subDir, "/result.json")).errors;
                     return [4 /*yield*/, logger_1.logger.info("Calculating correctness: ".concat(errors, "/").concat(fileCount, "\n"))];
-                case 6:
+                case 8:
                     _a.sent();
                     return [2 /*return*/, calcCorrectnessScore(errors, fileCount)];
-                case 7:
+                case 9:
                     error_7 = _a.sent();
                     //console.error(`Failed to get lint output for ${username}/${repo}: ${error}`);
                     return [4 /*yield*/, logger_1.logger.info("Failed to get lint output for ".concat(username, "/").concat(repo, "\n"))];
-                case 8:
+                case 10:
                     //console.error(`Failed to get lint output for ${username}/${repo}: ${error}`);
                     _a.sent();
                     return [2 /*return*/, 0];
-                case 9: return [2 /*return*/];
+                case 11: return [2 /*return*/];
             }
         });
     });
