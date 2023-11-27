@@ -553,7 +553,7 @@ function fetchLintOutput(username, repo) {
                 case 9:
                     error_7 = _a.sent();
                     //console.error(`Failed to get lint output for ${username}/${repo}: ${error}`);
-                    return [4 /*yield*/, logger_1.logger.info("Failed to get lint output for ".concat(username, "/").concat(repo, "\n"))];
+                    return [4 /*yield*/, logger_1.logger.info("Failed to get lint output for ".concat(username, "/").concat(repo, " : ").concat(error_7, "\n"))];
                 case 10:
                     //console.error(`Failed to get lint output for ${username}/${repo}: ${error}`);
                     _a.sent();

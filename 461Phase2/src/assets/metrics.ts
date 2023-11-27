@@ -449,7 +449,7 @@ async function fetchLintOutput(username: string, repo: string): Promise<number> 
 
     } catch (error) {
         //console.error(`Failed to get lint output for ${username}/${repo}: ${error}`);
-        await logger.info(`Failed to get lint output for ${username}/${repo}\n`);
+        await logger.info(`Failed to get lint output for ${username}/${repo} : ${error}\n`);
         return 0;
     }
 }
