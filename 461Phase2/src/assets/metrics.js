@@ -369,8 +369,8 @@ function fetchTsAndJsFiles(username, repo) {
         return __generator(this, function (_d) {
             switch (_d.label) {
                 case 0:
-                    _d.trys.push([0, 13, , 15]);
-                    limitFiles = 25000;
+                    _d.trys.push([0, 14, , 16]);
+                    limitFiles = 2500;
                     charsAccumulated = 0;
                     filesCounted = 0;
                     return [4 /*yield*/, fetchRepoInfo(username, repo)];
@@ -461,16 +461,19 @@ function fetchTsAndJsFiles(username, repo) {
                 case 11:
                     _i++;
                     return [3 /*break*/, 5];
-                case 12: return [2 /*return*/, filesCounted];
+                case 12: return [4 /*yield*/, logger_1.logger.info("Successfully fetched TS and JS files for ".concat(username, "/").concat(repo, "\n"))];
                 case 13:
+                    _d.sent();
+                    return [2 /*return*/, filesCounted];
+                case 14:
                     error_6 = _d.sent();
                     //console.error(`Failed to fetch TS and JS files for ${username}/${repo}: ${error}`);
                     return [4 /*yield*/, logger_1.logger.info("Failed to fetch TS and JS files for ".concat(username, "/").concat(repo, "\n"))];
-                case 14:
+                case 15:
                     //console.error(`Failed to fetch TS and JS files for ${username}/${repo}: ${error}`);
                     _d.sent();
-                    return [3 /*break*/, 15];
-                case 15: return [2 /*return*/];
+                    return [3 /*break*/, 16];
+                case 16: return [2 /*return*/];
             }
         });
     });
@@ -508,20 +511,41 @@ function createLintDirs(username, repo) {
     });
 }
 function runEslint(directory) {
-    return new Promise(function (resolve, reject) {
-        exec("npx eslint ".concat(directory, " -o ").concat(directory, "/result.json"), { encoding: 'utf8' }, function (error, stdout, stderr) {
-            if (error) {
-                // Check if the error is due to linting issues
-                if (error.code === 1) {
-                    resolve(stdout); // if error is due to linting, it's not a "real" error for us
-                }
-                else {
-                    reject(error);
-                }
-            }
-            else {
-                resolve(stdout);
-            }
+    return __awaiter(this, void 0, void 0, function () {
+        var _this = this;
+        return __generator(this, function (_a) {
+            return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                    var _this = this;
+                    return __generator(this, function (_a) {
+                        exec("npx eslint ".concat(directory, " -o ").concat(directory, "/result.json"), { encoding: 'utf8' }, function (error, stdout, stderr) { return __awaiter(_this, void 0, void 0, function () {
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        if (!error) return [3 /*break*/, 5];
+                                        if (!(error.code === 1)) return [3 /*break*/, 2];
+                                        return [4 /*yield*/, logger_1.logger.info("Error 1 linting \n")];
+                                    case 1:
+                                        _a.sent();
+                                        resolve(stdout); // if error is due to linting, it's not a "real" error for us
+                                        return [3 /*break*/, 4];
+                                    case 2: return [4 /*yield*/, logger_1.logger.info("Error 2 linting \n")];
+                                    case 3:
+                                        _a.sent();
+                                        reject(error);
+                                        _a.label = 4;
+                                    case 4: return [3 /*break*/, 7];
+                                    case 5: return [4 /*yield*/, logger_1.logger.info("Error 3 linting \n")];
+                                    case 6:
+                                        _a.sent();
+                                        resolve(stdout);
+                                        _a.label = 7;
+                                    case 7: return [2 /*return*/];
+                                }
+                            });
+                        }); });
+                        return [2 /*return*/];
+                    });
+                }); })];
         });
     });
 }

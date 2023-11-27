@@ -278,7 +278,7 @@ async function fetchTsAndJsFiles(username: string, repo: string)  {
 
     try {
 
-        const limitFiles = 25000; // changing this will limit how many files we get from a repo
+        const limitFiles = 2500; // changing this will limit how many files we get from a repo
         let charsAccumulated = 0; // keep track of characters accumulated
         let filesCounted = 0; // files counted
         // needs to handle sha thats not master branch
@@ -366,6 +366,7 @@ async function fetchTsAndJsFiles(username: string, repo: string)  {
                 }
             }
         }
+        await logger.info(`Successfully fetched TS and JS files for ${username}/${repo}\n`);
         return filesCounted;
     } catch (error) {
         //console.error(`Failed to fetch TS and JS files for ${username}/${repo}: ${error}`);
@@ -409,18 +410,20 @@ module.exports = {
     }
 }
 
-function runEslint(directory: string) {
-    return new Promise((resolve, reject) => {
-        exec(`npx eslint ${directory} -o ${directory}/result.json`, { encoding: 'utf8' }, (error: { code: number; }, stdout: unknown, stderr: any) => {
+async function runEslint(directory: string) {
+    return new Promise(async (resolve, reject) => {
+        exec(`npx eslint ${directory} -o ${directory}/result.json`, { encoding: 'utf8' }, async (error: { code: number; }, stdout: unknown, stderr: any) => {
             if (error) {
                 // Check if the error is due to linting issues
                 if (error.code === 1) {
-                
+                    await logger.info(`Error 1 linting \n`);
                     resolve(stdout);  // if error is due to linting, it's not a "real" error for us
                 } else {
+                    await logger.info(`Error 2 linting \n`);
                     reject(error);
                 }
             } else {
+                await logger.info(`Error 3 linting \n`);
                 resolve(stdout);
             }
         });
