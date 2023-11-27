@@ -442,6 +442,7 @@ async function fetchLintOutput(username: string, repo: string): Promise<number> 
         
         }
         const {errors} = getErrorAndWarningCount(`${subDir}/result.json`);
+        await logger.info(`Calculating correctness: ${errors}/${fileCount}\n`);
         return calcCorrectnessScore(errors,fileCount);
         
 

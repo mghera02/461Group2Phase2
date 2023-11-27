@@ -521,7 +521,7 @@ function fetchLintOutput(username, repo) {
                     subDir = "./temp_linter_test/".concat(repo);
                     _a.label = 1;
                 case 1:
-                    _a.trys.push([1, 6, , 8]);
+                    _a.trys.push([1, 7, , 9]);
                     return [4 /*yield*/, fetchTsAndJsFiles(username, repo)];
                 case 2:
                     fileCount = _a.sent();
@@ -542,16 +542,19 @@ function fetchLintOutput(username, repo) {
                         return [2 /*return*/, calcCorrectnessScore(0, fileCount)];
                     }
                     errors = getErrorAndWarningCount("".concat(subDir, "/result.json")).errors;
-                    return [2 /*return*/, calcCorrectnessScore(errors, fileCount)];
+                    return [4 /*yield*/, logger_1.logger.info("Calculating correctness: ".concat(errors, "/").concat(fileCount, "\n"))];
                 case 6:
+                    _a.sent();
+                    return [2 /*return*/, calcCorrectnessScore(errors, fileCount)];
+                case 7:
                     error_7 = _a.sent();
                     //console.error(`Failed to get lint output for ${username}/${repo}: ${error}`);
                     return [4 /*yield*/, logger_1.logger.info("Failed to get lint output for ".concat(username, "/").concat(repo, "\n"))];
-                case 7:
+                case 8:
                     //console.error(`Failed to get lint output for ${username}/${repo}: ${error}`);
                     _a.sent();
                     return [2 /*return*/, 0];
-                case 8: return [2 /*return*/];
+                case 9: return [2 /*return*/];
             }
         });
     });
