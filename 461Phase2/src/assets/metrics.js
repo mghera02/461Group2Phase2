@@ -493,9 +493,9 @@ function createLintDirs(username, repo) {
                     _a.label = 2;
                 case 2:
                     _a.trys.push([2, 4, , 6]);
-                    fs.mkdirSync(subDir, { recursive: true }); // Create directory recursively if it doesn't exist
+                    fs.mkdirSync(subDir, { recursive: true });
                     fs.writeFileSync("".concat(subDir, "/.eslintrc.cjs"), config);
-                    return [4 /*yield*/, logger_1.logger.info("Successfuly created test linting directory for ".concat(username, "/").concat(repo, " ... \n"))];
+                    return [4 /*yield*/, logger_1.logger.info("Successfuly created test linting directory for ".concat(username, "/").concat(repo, "\n"))];
                 case 3:
                     _a.sent();
                     return [2 /*return*/, 1];
@@ -528,13 +528,13 @@ function runEslint(directory) {
                                         _a.sent();
                                         resolve(stdout); // if error is due to linting, it's not a "real" error for us
                                         return [3 /*break*/, 4];
-                                    case 2: return [4 /*yield*/, logger_1.logger.info("Error 2 linting \n")];
+                                    case 2: return [4 /*yield*/, logger_1.logger.error("Error ".concat(error.code, " linting: ").concat(JSON.stringify(error), " \n"))];
                                     case 3:
                                         _a.sent();
                                         reject(error);
                                         _a.label = 4;
                                     case 4: return [3 /*break*/, 7];
-                                    case 5: return [4 /*yield*/, logger_1.logger.info("Error 3 linting \n")];
+                                    case 5: return [4 /*yield*/, logger_1.logger.info("Linting successful\n")];
                                     case 6:
                                         _a.sent();
                                         resolve(stdout);

@@ -400,9 +400,9 @@ module.exports = {
     `;
     const config = esLintconfig.trim(); // remove whitespace
     try {
-        fs.mkdirSync(subDir, { recursive: true }); // Create directory recursively if it doesn't exist
+        fs.mkdirSync(subDir, { recursive: true }); 
         fs.writeFileSync(`${subDir}/.eslintrc.cjs`, config);
-        await logger.info(`Successfuly created test linting directory for ${username}/${repo} ... \n`);
+        await logger.info(`Successfuly created test linting directory for ${username}/${repo}\n`);
         return 1;
     } catch(e) {
         await logger.info(`Failed to create test linting directory for ${username}/${repo}\n`);
@@ -419,11 +419,11 @@ async function runEslint(directory: string) {
                     await logger.info(`Error 1 linting \n`);
                     resolve(stdout);  // if error is due to linting, it's not a "real" error for us
                 } else {
-                    await logger.info(`Error 2 linting \n`);
+                    await logger.error(`Error ${error.code} linting: ${JSON.stringify(error)} \n`);
                     reject(error);
                 }
             } else {
-                await logger.info(`Error 3 linting \n`);
+                await logger.info(`Linting successful\n`);
                 resolve(stdout);
             }
         });
