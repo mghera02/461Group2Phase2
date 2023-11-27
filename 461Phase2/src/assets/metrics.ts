@@ -399,6 +399,7 @@ module.exports = {
     `;
     const config = esLintconfig.trim(); // remove whitespace
     try {
+        fs.mkdirSync(subDir, { recursive: true }); // Create directory recursively if it doesn't exist
         fs.writeFileSync(`${subDir}/.eslintrc.cjs`, config);
         await logger.info(`Successfuly created test linting directory for ${username}/${repo} ... \n`);
         return 1;

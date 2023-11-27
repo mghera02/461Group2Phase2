@@ -490,6 +490,7 @@ function createLintDirs(username, repo) {
                     _a.label = 2;
                 case 2:
                     _a.trys.push([2, 4, , 6]);
+                    fs.mkdirSync(subDir, { recursive: true }); // Create directory recursively if it doesn't exist
                     fs.writeFileSync("".concat(subDir, "/.eslintrc.cjs"), config);
                     return [4 /*yield*/, logger_1.logger.info("Successfuly created test linting directory for ".concat(username, "/").concat(repo, " ... \n"))];
                 case 3:
