@@ -39,6 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.get_metric_info = void 0;
 var octokit_1 = require("octokit"); // Octokit v17
 var exec = require('child_process').exec; // to execute shell cmds async version
+var child_process_1 = require("child_process"); // to execute shell cmds
 var fs = require("fs");
 var logger_1 = require("../../logger");
 var gitHubToken = String(process.env.GITHUB_TOKEN);
@@ -512,46 +513,31 @@ function createLintDirs(username, repo) {
 }
 function runEslint(directory) {
     return __awaiter(this, void 0, void 0, function () {
-        var _this = this;
+        var command, output, error_7;
         return __generator(this, function (_a) {
-            return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-                    var _this = this;
-                    return __generator(this, function (_a) {
-                        exec("npx eslint ".concat(directory, " -o ").concat(directory, "/result.json"), { encoding: 'utf8' }, function (error, stdout, stderr) { return __awaiter(_this, void 0, void 0, function () {
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0:
-                                        if (!error) return [3 /*break*/, 5];
-                                        if (!(error.code === 1)) return [3 /*break*/, 2];
-                                        return [4 /*yield*/, logger_1.logger.info("Error 1 linting \n")];
-                                    case 1:
-                                        _a.sent();
-                                        resolve(stdout); // if error is due to linting, it's not a "real" error for us
-                                        return [3 /*break*/, 4];
-                                    case 2: return [4 /*yield*/, logger_1.logger.error("Error ".concat(error.code, " linting: ").concat(JSON.stringify(error), " \n"))];
-                                    case 3:
-                                        _a.sent();
-                                        reject(error);
-                                        _a.label = 4;
-                                    case 4: return [3 /*break*/, 7];
-                                    case 5: return [4 /*yield*/, logger_1.logger.info("Linting successful\n")];
-                                    case 6:
-                                        _a.sent();
-                                        resolve(stdout);
-                                        _a.label = 7;
-                                    case 7: return [2 /*return*/];
-                                }
-                            });
-                        }); });
-                        return [2 /*return*/];
-                    });
-                }); })];
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 4]);
+                    command = "npx eslint ".concat(directory, " -o ").concat(directory, "/result.json");
+                    output = (0, child_process_1.execSync)(command, { encoding: 'utf8' });
+                    return [4 /*yield*/, logger_1.logger.info("Linting successful:\n".concat(output, "\n"))];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/, output];
+                case 2:
+                    error_7 = _a.sent();
+                    return [4 /*yield*/, logger_1.logger.error("Error executing ESLint: ".concat(error_7, "\n"))];
+                case 3:
+                    _a.sent();
+                    throw error_7;
+                case 4: return [2 /*return*/];
+            }
         });
     });
 }
 function fetchLintOutput(username, repo) {
     return __awaiter(this, void 0, void 0, function () {
-        var subDir, fileCount, errors, error_7;
+        var subDir, fileCount, errors, error_8;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -588,9 +574,9 @@ function fetchLintOutput(username, repo) {
                     _a.sent();
                     return [2 /*return*/, calcCorrectnessScore(errors, fileCount)];
                 case 9:
-                    error_7 = _a.sent();
+                    error_8 = _a.sent();
                     //console.error(`Failed to get lint output for ${username}/${repo}: ${error}`);
-                    return [4 /*yield*/, logger_1.logger.info("Failed to get lint output for ".concat(username, "/").concat(repo, " : ").concat(error_7, "\n"))];
+                    return [4 /*yield*/, logger_1.logger.info("Failed to get lint output for ".concat(username, "/").concat(repo, " : ").concat(error_8, "\n"))];
                 case 10:
                     //console.error(`Failed to get lint output for ${username}/${repo}: ${error}`);
                     _a.sent();
@@ -615,7 +601,7 @@ function getErrorAndWarningCount(filepath) {
 }
 function fetchRepoIssues(username, repo) {
     return __awaiter(this, void 0, void 0, function () {
-        var timeDifference_1, response, error_8;
+        var timeDifference_1, response, error_9;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -653,7 +639,7 @@ function fetchRepoIssues(username, repo) {
                     });
                     return [2 /*return*/, calcRespMaintScore(timeDifference_1, username, repo)];
                 case 4:
-                    error_8 = _a.sent();
+                    error_9 = _a.sent();
                     //console.error(`Failed to get issues for ${username}/${repo}`);
                     return [4 /*yield*/, logger_1.logger.info("Failed to get issues for ".concat(username, "/").concat(repo, "\n"))];
                 case 5:
@@ -667,7 +653,7 @@ function fetchRepoIssues(username, repo) {
 }
 function fetchRepoPinning(username, repo) {
     return __awaiter(this, void 0, void 0, function () {
-        var response, content, packageJson_1, totalPackages_1, nonPinnedPackages_1, error_9;
+        var response, content, packageJson_1, totalPackages_1, nonPinnedPackages_1, error_10;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -699,9 +685,9 @@ function fetchRepoPinning(username, repo) {
                     }
                     return [3 /*break*/, 3];
                 case 2:
-                    error_9 = _a.sent();
-                    console.error('Error occurred while fetching data:', error_9);
-                    throw error_9;
+                    error_10 = _a.sent();
+                    console.error('Error occurred while fetching data:', error_10);
+                    throw error_10;
                 case 3: return [2 /*return*/];
             }
         });
@@ -709,7 +695,7 @@ function fetchRepoPinning(username, repo) {
 }
 function fetchRepoPullRequest(username, repo) {
     return __awaiter(this, void 0, void 0, function () {
-        var pullRequests, reviewedLines, totalLines, idx, _i, pullRequests_1, pr, files, _loop_1, _a, files_1, file, fraction, error_10;
+        var pullRequests, reviewedLines, totalLines, idx, _i, pullRequests_1, pr, files, _loop_1, _a, files_1, file, fraction, error_11;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
@@ -791,8 +777,8 @@ function fetchRepoPullRequest(username, repo) {
                     }
                     return [3 /*break*/, 11];
                 case 10:
-                    error_10 = _b.sent();
-                    console.error("An error occurred while fetching data from GitHub API:", error_10);
+                    error_11 = _b.sent();
+                    console.error("An error occurred while fetching data from GitHub API:", error_11);
                     return [2 /*return*/, 0];
                 case 11: return [2 /*return*/];
             }

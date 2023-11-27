@@ -411,23 +411,15 @@ module.exports = {
 }
 
 async function runEslint(directory: string) {
-    return new Promise(async (resolve, reject) => {
-        exec(`npx eslint ${directory} -o ${directory}/result.json`, { encoding: 'utf8' }, async (error: { code: number; }, stdout: unknown, stderr: any) => {
-            if (error) {
-                // Check if the error is due to linting issues
-                if (error.code === 1) {
-                    await logger.info(`Error 1 linting \n`);
-                    resolve(stdout);  // if error is due to linting, it's not a "real" error for us
-                } else {
-                    await logger.error(`Error ${error.code} linting: ${JSON.stringify(error)} \n`);
-                    reject(error);
-                }
-            } else {
-                await logger.info(`Linting successful\n`);
-                resolve(stdout);
-            }
-        });
-    });
+    try {
+        const command = `npx eslint ${directory} -o ${directory}/result.json`;
+        const output = execSync(command, { encoding: 'utf8' });
+        await logger.info(`Linting successful:\n${output}\n`);
+        return output;
+    } catch (error) {
+        await logger.error(`Error executing ESLint: ${error}\n`);
+        throw error;
+    }
 }
 
 async function fetchLintOutput(username: string, repo: string): Promise<number> {
