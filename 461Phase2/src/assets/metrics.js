@@ -173,7 +173,7 @@ function get_metric_info(gitDetails) {
                     return [4 /*yield*/, logger_1.logger.info("Calculated score ".concat(score, "\n"))];
                 case 13:
                     _a.sent();
-                    return [2 /*return*/, { busFactor: busFactor, rampup: rampup, license: license, correctness: correctness, maintainer: maintainer, pullRequest: pullRequest, pinning: pinning, score: score }];
+                    return [2 /*return*/, { busFactor: busFactor.toFixed(5), rampup: rampup.toFixed(5), license: license.toFixed(5), correctness: correctness.toFixed(5), maintainer: maintainer.toFixed(5), pullRequest: pullRequest.toFixed(5), pinning: pinning.toFixed(5), score: score.toFixed(5) }];
                 case 14:
                     error_1 = _a.sent();
                     //console.error(`Failed to get Metric info for ${gitInfo.username}/${gitInfo.repo}`);

@@ -136,7 +136,7 @@ async function get_metric_info(gitDetails: { username: string, repo: string }[])
             const pullRequest = await fetchRepoPullRequest(gitInfo.username, gitInfo.repo);
             let score = await calcTotalScore(busFactor, rampup, license, correctness, maintainer, pullRequest, pinning);
             await logger.info(`Calculated score ${score}\n`);
-            return {busFactor: busFactor, rampup: rampup, license: license, correctness: correctness, maintainer: maintainer, pullRequest: pullRequest, pinning: pinning, score: score};
+            return {busFactor: busFactor.toFixed(5), rampup: rampup.toFixed(5), license: license.toFixed(5), correctness: correctness.toFixed(5), maintainer: maintainer.toFixed(5), pullRequest: pullRequest.toFixed(5), pinning: pinning.toFixed(5), score: score.toFixed(5)};
             //outputResults(gitInfo.username, gitInfo.repo, busFactor, rampup, license, correctness, maintainer, pinning, pullRequest, score);
             //console.log(`~~~~~~~~~~~~~~~~\n`);
           
