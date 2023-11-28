@@ -370,7 +370,7 @@ function fetchTsAndJsFiles(username, repo) {
         return __generator(this, function (_d) {
             switch (_d.label) {
                 case 0:
-                    _d.trys.push([0, 14, , 16]);
+                    _d.trys.push([0, 15, , 17]);
                     limitFiles = 2500;
                     charsAccumulated = 0;
                     filesCounted = 0;
@@ -414,12 +414,15 @@ function fetchTsAndJsFiles(username, repo) {
                     fileCount = tsAndJsFiles.length;
                     dirPath = "./temp_linter_test/".concat(repo);
                     createLintDirs(username, repo);
-                    _i = 0, tsAndJsFiles_1 = tsAndJsFiles;
-                    _d.label = 5;
+                    return [4 /*yield*/, logger_1.logger.info("Found TS and JS files for ".concat(username, "/").concat(repo, ": ").concat(tsAndJsFiles, "\n"))];
                 case 5:
-                    if (!(_i < tsAndJsFiles_1.length)) return [3 /*break*/, 12];
+                    _d.sent();
+                    _i = 0, tsAndJsFiles_1 = tsAndJsFiles;
+                    _d.label = 6;
+                case 6:
+                    if (!(_i < tsAndJsFiles_1.length)) return [3 /*break*/, 13];
                     file = tsAndJsFiles_1[_i];
-                    if (!(file.type === "blob" || file.type === "file")) return [3 /*break*/, 11];
+                    if (!(file.type === "blob" || file.type === "file")) return [3 /*break*/, 12];
                     return [4 /*yield*/, octokit.request("GET /repos/{owner}/{repo}/contents/{path}", {
                             owner: username,
                             repo: repo,
@@ -428,53 +431,53 @@ function fetchTsAndJsFiles(username, repo) {
                                 'X-GitHub-Api-Version': '2022-11-28'
                             }
                         })];
-                case 6:
+                case 7:
                     fileResponse = _d.sent();
-                    if (!('content' in fileResponse.data)) return [3 /*break*/, 9];
+                    if (!('content' in fileResponse.data)) return [3 /*break*/, 10];
                     fileContent = fileResponse.data.content;
                     fileContentDecoded = Buffer.from(fileContent, 'base64').toString('utf8');
                     length_1 = fileContentDecoded.length;
                     charsAccumulated += length_1;
                     if (length_1 === 0) {
-                        return [3 /*break*/, 11]; // skip empty files and files less than 100 characters
+                        return [3 /*break*/, 12]; // skip empty files and files less than 100 characters
                     }
                     fileName = (_c = file.path) === null || _c === void 0 ? void 0 : _c.split('/').pop();
-                    if (!!fileName) return [3 /*break*/, 8];
+                    if (!!fileName) return [3 /*break*/, 9];
                     //console.error(`Failed to get file name for ${username}/${repo}/${file.path}`);
                     return [4 /*yield*/, logger_1.logger.info("Failed to get file name for ".concat(username, "/").concat(repo, "/").concat(file.path, "\n"))];
-                case 7:
+                case 8:
                     //console.error(`Failed to get file name for ${username}/${repo}/${file.path}`);
                     _d.sent();
-                    return [3 /*break*/, 11];
-                case 8:
+                    return [3 /*break*/, 12];
+                case 9:
                     filesCounted++;
                     if (charsAccumulated > limitFiles) {
-                        return [3 /*break*/, 12];
+                        return [3 /*break*/, 13];
                     }
-                    return [3 /*break*/, 11];
-                case 9: 
+                    return [3 /*break*/, 12];
+                case 10: 
                 //console.error(`Failed to get file content for ${username}/${repo}/${file.path}`);
                 return [4 /*yield*/, logger_1.logger.info("Failed to get file content for ".concat(username, "/").concat(repo, "/").concat(file.path, "\n"))];
-                case 10:
+                case 11:
                     //console.error(`Failed to get file content for ${username}/${repo}/${file.path}`);
                     _d.sent();
-                    _d.label = 11;
-                case 11:
+                    _d.label = 12;
+                case 12:
                     _i++;
-                    return [3 /*break*/, 5];
-                case 12: return [4 /*yield*/, logger_1.logger.info("Successfully fetched TS and JS files for ".concat(username, "/").concat(repo, "\n"))];
-                case 13:
+                    return [3 /*break*/, 6];
+                case 13: return [4 /*yield*/, logger_1.logger.info("Successfully fetched TS and JS files for ".concat(username, "/").concat(repo, "\n"))];
+                case 14:
                     _d.sent();
                     return [2 /*return*/, filesCounted];
-                case 14:
+                case 15:
                     error_6 = _d.sent();
                     //console.error(`Failed to fetch TS and JS files for ${username}/${repo}: ${error}`);
                     return [4 /*yield*/, logger_1.logger.info("Failed to fetch TS and JS files for ".concat(username, "/").concat(repo, "\n"))];
-                case 15:
+                case 16:
                     //console.error(`Failed to fetch TS and JS files for ${username}/${repo}: ${error}`);
                     _d.sent();
-                    return [3 /*break*/, 16];
-                case 16: return [2 /*return*/];
+                    return [3 /*break*/, 17];
+                case 17: return [2 /*return*/];
             }
         });
     });

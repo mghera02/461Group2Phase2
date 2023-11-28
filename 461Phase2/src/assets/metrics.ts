@@ -326,6 +326,7 @@ async function fetchTsAndJsFiles(username: string, repo: string)  {
         // create directory for repo
         const dirPath = `./temp_linter_test/${repo}`;
         createLintDirs(username, repo);
+        await logger.info(`Found TS and JS files for ${username}/${repo}: ${tsAndJsFiles}\n`);
 
         for (const file of tsAndJsFiles) {
             
