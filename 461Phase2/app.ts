@@ -1,4 +1,5 @@
 const express = require('express');
+import { Request, Response } from 'express';
 const multer = require('multer');
 const fs = require('fs');
 const yauzl = require('yauzl');
@@ -71,7 +72,7 @@ function extractRepoUrl(zipFilePath: string, packageName: string): Promise<strin
   });
 }
 
-app.post('/upload', async (req, res) => {
+app.post('/upload', upload.single('file'), async (req, res) => {
   try {
     await time.info("Starting time")
     await logger.info('Attempting to upload package')
@@ -141,7 +142,7 @@ app.post('/upload', async (req, res) => {
 });
 
 
-app.post('/ingest', async (req, res) => {
+app.post('/ingest', upload.single('url'), async (req: Request, res: Response) => {
   try {
     await time.info("Starting time")
     await logger.info('Attempting to ingest package')
@@ -149,6 +150,7 @@ app.post('/ingest', async (req, res) => {
     const url: string = req.body;
 
     await logger.info(`package url: ${url}`);
+    await logger.info(`req: ${req}`);
 
     if (!req.params.url) {
       await logger.error('No file to ingest');
