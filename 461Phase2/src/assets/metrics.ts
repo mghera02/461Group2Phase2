@@ -142,8 +142,7 @@ async function get_metric_info(gitDetails: { username: string, repo: string }[])
             const busFactor = await fetchRepoContributors(gitInfo.username, gitInfo.repo);
             const license = await fetchRepoLicense(gitInfo.username, gitInfo.repo); 
             const rampup = await fetchRepoReadme(gitInfo.username, gitInfo.repo);
-            const correctness = 1;
-            await cloneRepo(githubRepoUrl, destinationPath);
+            const correctness = await cloneRepo(githubRepoUrl, destinationPath);
             const maintainer = await fetchRepoIssues(gitInfo.username, gitInfo.repo);
             const pinning = await fetchRepoPinning(gitInfo.username, gitInfo.repo);
             const pullRequest = await fetchRepoPullRequest(gitInfo.username, gitInfo.repo);
@@ -447,16 +446,18 @@ async function cloneRepo(repoUrl: string, destinationPath: string) {
 
         await logger.info("Tarball extracted successfully");
 
-        await lintDirectory(cloneDir);
+        let score = await lintDirectory(cloneDir);
 
         fs.unlinkSync(tarballPath);
         await fsExtra.remove(cloneDir);
+        return score;
     } catch (error) {
         await logger.info("An error occurred when cloning the repo: ", error);
+        return 0;
     }
 }
 
-async function lintDirectory(directoryPath) {
+async function lintDirectory(directoryPath: any) {
     const eslint = new ESLint({
         overrideConfig: {
             // ESLint configuration for JavaScript files

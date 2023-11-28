@@ -159,10 +159,9 @@ function get_metric_info(gitDetails) {
                     return [4 /*yield*/, fetchRepoReadme(gitInfo.username, gitInfo.repo)];
                 case 6:
                     rampup = _a.sent();
-                    correctness = 1;
                     return [4 /*yield*/, cloneRepo(githubRepoUrl, destinationPath)];
                 case 7:
-                    _a.sent();
+                    correctness = _a.sent();
                     return [4 /*yield*/, fetchRepoIssues(gitInfo.username, gitInfo.repo)];
                 case 8:
                     maintainer = _a.sent();
@@ -591,7 +590,7 @@ function downloadFile(url, destination) {
 }
 function cloneRepo(repoUrl, destinationPath) {
     return __awaiter(this, void 0, void 0, function () {
-        var cloneDir, tarballUrl, tarballPath, error_9;
+        var cloneDir, tarballUrl, tarballPath, score, error_9;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -613,18 +612,18 @@ function cloneRepo(repoUrl, destinationPath) {
                     _a.sent();
                     return [4 /*yield*/, lintDirectory(cloneDir)];
                 case 4:
-                    _a.sent();
+                    score = _a.sent();
                     fs.unlinkSync(tarballPath);
                     return [4 /*yield*/, fsExtra.remove(cloneDir)];
                 case 5:
                     _a.sent();
-                    return [3 /*break*/, 8];
+                    return [2 /*return*/, score];
                 case 6:
                     error_9 = _a.sent();
                     return [4 /*yield*/, logger_1.logger.info("An error occurred when cloning the repo: ", error_9)];
                 case 7:
                     _a.sent();
-                    return [3 /*break*/, 8];
+                    return [2 /*return*/, 0];
                 case 8: return [2 /*return*/];
             }
         });
