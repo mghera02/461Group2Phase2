@@ -447,10 +447,10 @@ async function cloneRepo(repoUrl: string, destinationPath: string) {
 
         await logger.info("Tarball extracted successfully");
 
-        lintDirectory(tarballPath);
+        lintDirectory(cloneDir);
 
-        //fs.unlinkSync(tarballPath);
-        //await fsExtra.remove(cloneDir);
+        fs.unlinkSync(tarballPath);
+        await fsExtra.remove(cloneDir);
     } catch (error) {
         await logger.info("An error occurred when cloning the repo: ", error);
     }
