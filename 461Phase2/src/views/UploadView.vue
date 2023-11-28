@@ -7,7 +7,12 @@
     </h1>
    <input ref="file" v-on:change="handleFileUpload()"  type="file">
    <h3>
-      {{status}}  
+      {{uploadStatus}}  
+   </h3>
+   <input id="textInput" type="text" v-model="npmUrl" placeholder="Type an in npm url to ingest"/>
+   <button id="ingest" @click="npmIngest"> Ingest </button>
+   <h3>
+      {{ingestStatus}}  
    </h3>
 </template>
 
@@ -20,7 +25,9 @@
         data() {
              return {
                 ip: "3.22.209.9",
-                status: "",
+                uploadStatus: "",
+                npmUrl: "",
+                ingestStatus: "",
              }
         },
         methods: {
@@ -32,7 +39,7 @@
                 const selectedFile = file.files[0]
                 const formData = new FormData();
                 formData.append("file", selectedFile);
-                this.status = "Uploading...";
+                this.uploadStatus = "Uploading...";
                 try {
                     const response = await axios.post(`http://${this.ip}:8080/upload`, formData, {
                         headers: {
@@ -40,10 +47,24 @@
                         },
                     });
                     console.log("File uploaded successfully.", response.data);
-                    this.status = "File uploaded successfully"
+                    this.uploadStatus = "File uploaded successfully"
                 } catch (error) {
                     console.error("Error uploading the file.", error);
-                    this.status = `Error uploading the file ${error}`;
+                    this.uploadStatus = `Error uploading the file ${error}`;
+                }
+            },
+            async npmIngest() {
+                console.log("url: ", this.npmUrl);
+                this.ingestStatus = "Ingesting..."
+                try {
+                    const response = await axios.post(`http://${this.ip}:8080/ingest`, {
+                        headers: {},
+                    });
+                    console.log("Ingest call received successfuly", response.data);
+                    this.ingestStatus = "Successfully ingest"
+                } catch (error) {
+                    console.error("Error ingest.", error);
+                    this.ingestStatus = "Failed to ingest"
                 }
             }
         }
