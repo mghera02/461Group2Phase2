@@ -141,11 +141,11 @@ function get_metric_info(gitDetails) {
                     i = 0;
                     _a.label = 2;
                 case 2:
-                    if (!(i < gitDetails.length)) return [3 /*break*/, 16];
+                    if (!(i < gitDetails.length)) return [3 /*break*/, 15];
                     gitInfo = gitDetails[i];
                     _a.label = 3;
                 case 3:
-                    _a.trys.push([3, 13, , 15]);
+                    _a.trys.push([3, 12, , 14]);
                     githubRepoUrl = "https://api.github.com/".concat(gitInfo.username, "/").concat(gitInfo.repo);
                     return [4 /*yield*/, fetchRepoContributors(gitInfo.username, gitInfo.repo)];
                 case 4:
@@ -157,37 +157,34 @@ function get_metric_info(gitDetails) {
                 case 6:
                     rampup = _a.sent();
                     correctness = 1;
-                    return [4 /*yield*/, downloadRepo(githubRepoUrl)];
-                case 7:
-                    _a.sent();
                     return [4 /*yield*/, fetchRepoIssues(gitInfo.username, gitInfo.repo)];
-                case 8:
+                case 7:
                     maintainer = _a.sent();
                     return [4 /*yield*/, fetchRepoPinning(gitInfo.username, gitInfo.repo)];
-                case 9:
+                case 8:
                     pinning = _a.sent();
                     return [4 /*yield*/, fetchRepoPullRequest(gitInfo.username, gitInfo.repo)];
-                case 10:
+                case 9:
                     pullRequest = _a.sent();
                     return [4 /*yield*/, calcTotalScore(busFactor, rampup, license, correctness, maintainer, pullRequest, pinning)];
-                case 11:
+                case 10:
                     score = _a.sent();
                     return [4 /*yield*/, logger_1.logger.info("Calculated score ".concat(score, "\n"))];
-                case 12:
+                case 11:
                     _a.sent();
                     return [2 /*return*/, { busFactor: busFactor.toFixed(5), rampup: rampup.toFixed(5), license: license.toFixed(5), correctness: correctness.toFixed(5), maintainer: maintainer.toFixed(5), pullRequest: pullRequest.toFixed(5), pinning: pinning.toFixed(5), score: score.toFixed(5) }];
-                case 13:
+                case 12:
                     error_1 = _a.sent();
                     //console.error(`Failed to get Metric info for ${gitInfo.username}/${gitInfo.repo}`);
                     return [4 /*yield*/, logger_1.logger.info("Failed to get Metric info for ".concat(gitInfo.username, "/").concat(gitInfo.repo, "\n"))];
-                case 14:
+                case 13:
                     //console.error(`Failed to get Metric info for ${gitInfo.username}/${gitInfo.repo}`);
                     _a.sent();
-                    return [3 /*break*/, 15];
-                case 15:
+                    return [3 /*break*/, 14];
+                case 14:
                     i++;
                     return [3 /*break*/, 2];
-                case 16: return [2 /*return*/];
+                case 15: return [2 /*return*/];
             }
         });
     });

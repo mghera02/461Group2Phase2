@@ -138,7 +138,7 @@ async function get_metric_info(gitDetails: { username: string, repo: string }[])
             const license = await fetchRepoLicense(gitInfo.username, gitInfo.repo); 
             const rampup = await fetchRepoReadme(gitInfo.username, gitInfo.repo);
             const correctness = 1;
-            await downloadRepo(githubRepoUrl);
+            //await downloadRepo(githubRepoUrl);
             const maintainer = await fetchRepoIssues(gitInfo.username, gitInfo.repo);
             const pinning = await fetchRepoPinning(gitInfo.username, gitInfo.repo);
             const pullRequest = await fetchRepoPullRequest(gitInfo.username, gitInfo.repo);
