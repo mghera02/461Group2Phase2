@@ -150,7 +150,7 @@ app.post('/ingest', upload.single('url'), async (req: Request, res: Response) =>
     const url: string = req.body;
 
     await logger.info(`package url: ${url}`);
-    await logger.info(`req: ${req}`);
+    await logger.info(`req: ${JSON.stringify(req)}`);
 
     if (!req.params.url) {
       await logger.error('No file to ingest');

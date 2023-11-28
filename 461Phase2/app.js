@@ -227,7 +227,7 @@ app.post('/ingest', upload.single('url'), function (req, res) { return __awaiter
                 return [4 /*yield*/, logger_1.logger.info("package url: ".concat(url))];
             case 3:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("req: ".concat(req))];
+                return [4 /*yield*/, logger_1.logger.info("req: ".concat(JSON.stringify(req)))];
             case 4:
                 _a.sent();
                 if (!!req.params.url) return [3 /*break*/, 7];
