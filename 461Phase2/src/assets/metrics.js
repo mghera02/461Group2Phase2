@@ -632,7 +632,7 @@ function cloneRepo(repoUrl, destinationPath) {
 }
 function lintDirectory(directoryPath) {
     return __awaiter(this, void 0, void 0, function () {
-        var eslint, tsEslint, results, totalWarnings, totalErrors, i, _i, results_1, result, _a, result_1, fileResult, error_10;
+        var eslint, tsEslint, results, totalWarnings, totalErrors, totalLines, _i, results_1, result, _a, result_1, fileResult, fileContent, lines, error_10;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
@@ -681,14 +681,16 @@ function lintDirectory(directoryPath) {
                     results = _b.sent();
                     totalWarnings = 0;
                     totalErrors = 0;
-                    i = 0;
+                    totalLines = 0;
                     for (_i = 0, results_1 = results; _i < results_1.length; _i++) {
                         result = results_1[_i];
                         for (_a = 0, result_1 = result; _a < result_1.length; _a++) {
                             fileResult = result_1[_a];
+                            fileContent = fs.readFileSync(fileResult.filePath, 'utf-8');
+                            lines = fileContent.split('\n').length;
+                            totalLines += lines;
                             totalWarnings += fileResult.warningCount;
                             totalErrors += fileResult.errorCount;
-                            i++;
                         }
                     }
                     return [4 /*yield*/, logger_1.logger.info("Total Warnings: ".concat(totalWarnings))];
@@ -697,10 +699,10 @@ function lintDirectory(directoryPath) {
                     return [4 /*yield*/, logger_1.logger.info("Total Errors: ".concat(totalErrors))];
                 case 4:
                     _b.sent();
-                    return [4 /*yield*/, logger_1.logger.info("i: ".concat(i))];
+                    return [4 /*yield*/, logger_1.logger.info("Total lines: ".concat(totalLines))];
                 case 5:
                     _b.sent();
-                    return [3 /*break*/, 8];
+                    return [2 /*return*/, Math.max(totalLines - 5 * (totalWarnings + totalErrors) / totalLines, 0)];
                 case 6:
                     error_10 = _b.sent();
                     return [4 /*yield*/, logger_1.logger.info('Error while linting:', error_10)];

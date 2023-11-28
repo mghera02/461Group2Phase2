@@ -502,18 +502,21 @@ async function lintDirectory(directoryPath) {
         let totalWarnings = 0;
         let totalErrors = 0;
 
-        let i = 0;
+        let totalLines = 0;
         for (const result of results) {
             for (const fileResult of result) {
+                const fileContent = fs.readFileSync(fileResult.filePath, 'utf-8');
+                const lines = fileContent.split('\n').length; // Count lines
+                totalLines += lines;
                 totalWarnings += fileResult.warningCount;
                 totalErrors += fileResult.errorCount;
-                i++;
             }
         }
 
         await logger.info(`Total Warnings: ${totalWarnings}`);
         await logger.info(`Total Errors: ${totalErrors}`);
-        await logger.info(`i: ${i}`);
+        await logger.info(`Total lines: ${totalLines}`);
+        return Math.max(totalLines - 5 * (totalWarnings + totalErrors) / totalLines, 0);
     } catch (error) {
         await logger.info('Error while linting:', error);
     }
