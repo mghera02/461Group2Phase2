@@ -227,7 +227,7 @@ app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 
                 return [4 /*yield*/, logger_1.logger.info("package url: ".concat(url))];
             case 3:
                 _a.sent();
-                if (!!req.file) return [3 /*break*/, 6];
+                if (!!req.params.url) return [3 /*break*/, 6];
                 return [4 /*yield*/, logger_1.logger.error('No file to ingest')];
             case 4:
                 _a.sent();

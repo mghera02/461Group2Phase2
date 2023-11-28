@@ -150,7 +150,7 @@ app.post('/ingest', async (req, res) => {
 
     await logger.info(`package url: ${url}`);
 
-    if (!req.file) {
+    if (!req.params.url) {
       await logger.error('No file to ingest');
       await time.error('Error occurred at this time\n');
       return res.status(400).send('No file ingest.');
