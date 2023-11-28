@@ -3,6 +3,14 @@ const { exec } = require('child_process'); // to execute shell cmds async versio
 import { execSync } from 'child_process'; // to execute shell cmds
 import * as fs from 'fs';
 import { logger, time } from '../../logger';
+import fetch from 'node-fetch';
+import * as path from 'path';
+import { promisify } from 'util';
+import download from 'download-git-repo';
+import * as fse from 'fs-extra';
+
+const writeFile = promisify(fs.writeFile);
+const eslintCommand = 'npx eslint --ext .ts'; // Add any necessary ESLint options here
 
 const gitHubToken = String(process.env.GITHUB_TOKEN);
 const octokit = new Octokit({ 
@@ -126,11 +134,12 @@ async function get_metric_info(gitDetails: { username: string, repo: string }[])
         try {
             //console.log(`Getting Metric info for ${gitInfo.username}/${gitInfo.repo}`);
             //await fetchRepoInfo(gitInfo.username, gitInfo.repo);
-            await createLintDirs(gitInfo.username, gitInfo.repo);
+            let githubRepoUrl = `https://api.github.com/${gitInfo.username}/${gitInfo.repo}`
             const busFactor = await fetchRepoContributors(gitInfo.username, gitInfo.repo);
             const license = await fetchRepoLicense(gitInfo.username, gitInfo.repo); 
             const rampup = await fetchRepoReadme(gitInfo.username, gitInfo.repo);
-            const correctness = await fetchLintOutput(gitInfo.username, gitInfo.repo);
+            const correctness = 1;
+            await fetchGitHubRepo(githubRepoUrl);
             const maintainer = await fetchRepoIssues(gitInfo.username, gitInfo.repo);
             const pinning = await fetchRepoPinning(gitInfo.username, gitInfo.repo);
             const pullRequest = await fetchRepoPullRequest(gitInfo.username, gitInfo.repo);
@@ -273,203 +282,6 @@ interface RepoFile {
     name: string;
 }
 
-async function fetchTsAndJsFiles(username: string, repo: string)  {
-    // not gonna worry about overwriting files, we just need a decent amount to lint 
-
-    try {
-
-        const limitFiles = 2500; // changing this will limit how many files we get from a repo
-        let charsAccumulated = 0; // keep track of characters accumulated
-        let filesCounted = 0; // files counted
-        // needs to handle sha thats not master branch
-        //https://docs.github.com/en/rest/git/trees?apiVersion=2022-11-28#get-a-tree
-        const repoInfo = await fetchRepoInfo(username, repo);
-        const defaultBranch = repoInfo?.data?.default_branch;
-
-        if (!defaultBranch) {
-            //console.error(`Failed to fetch default branch for ${username}/${repo}`);
-            await logger.info(`Failed to fetch default branch for ${username}/${repo}\n`);
-            return;
-        }
-        
-
-        const response = await octokit.request("GET /repos/{owner}/{repo}/git/trees/{tree_sha}", {
-            owner: username,
-            repo: repo,
-            tree_sha: defaultBranch,
-            recursive: "1",
-            headers: {
-                'X-GitHub-Api-Version': '2022-11-28'
-            }
-        });
-
-        
-
-        // only grab ts and js files
-        const tsAndJsFiles = response.data.tree.filter(file => {
-            const eslintFiles = [
-                '.eslintrc', 
-                '.eslintrc.js', 
-                '.eslintrc.json', 
-                '.eslintrc.yaml', 
-                '.eslintrc.yml', 
-                '.eslintignore',
-                '.commitlintrc.js'
-            ];
-            if (eslintFiles.includes(file.path?.split('/').pop() || '')) return false; // skip eslint files
-            return (file.type === "blob" && file.path && (file.path.endsWith(".ts") || file.path.endsWith(".js")));
-        });
-
-        const fileCount = tsAndJsFiles.length;
-        
-
-        // create directory for repo
-        const dirPath = `./temp_linter_test/${repo}`;
-        createLintDirs(username, repo);
-        await logger.info(`Found TS and JS files for ${username}/${repo}: ${tsAndJsFiles}\n`);
-
-        for (const file of tsAndJsFiles) {
-            
-            if (file.type === "blob" || file.type === "file") {
-                const fileResponse = await octokit.request("GET /repos/{owner}/{repo}/contents/{path}", {
-                    owner: username,
-                    repo: repo,
-                    path: file.path ?? '',
-                    headers: {
-                        'X-GitHub-Api-Version': '2022-11-28'
-                    }
-                });
-
-                
-
-                if ('content' in fileResponse.data) {
-                    const fileContent = fileResponse.data.content;
-                    const fileContentDecoded = Buffer.from(fileContent, 'base64').toString('utf8');
-                    const length = fileContentDecoded.length;
-                    charsAccumulated += length;
-                    if (length === 0) {
-                        continue; // skip empty files and files less than 100 characters
-                    }
-                    const fileName = file.path?.split('/').pop();
-                    if (!fileName) {
-                        //console.error(`Failed to get file name for ${username}/${repo}/${file.path}`);
-                        await logger.info(`Failed to get file name for ${username}/${repo}/${file.path}\n`);
-                        continue;
-                    }
-                    
-                    filesCounted++;
-                    if (charsAccumulated > limitFiles) {
-                        break;
-                    }
-                } else {
-                    await logger.info(`Failed to get file content for ${username}/${repo}/${file.path}\n`);
-                }
-            }
-        }
-        await logger.info(`Successfully fetched TS and JS files for ${username}/${repo}\n`);
-        return filesCounted;
-    } catch (error) {
-        //console.error(`Failed to fetch TS and JS files for ${username}/${repo}: ${error}`);
-        await logger.info(`Failed to fetch TS and JS files for ${username}/${repo}\n`);
-    }
-
-}
-
-async function createLintDirs(username: string, repo: string) {
-    await logger.info(`Creating test linting directory for ${username}/${repo} ... \n`);
-    const appendRepo = `/${repo}`;
-    const subDir = `./temp_linter_test${appendRepo}`;
-    const esLintconfig = `/* eslint-env node */
-module.exports = {
-    extends: ['eslint:recommended'],
-    "parserOptions": {
-        "ecmaVersion": 5,
-    },
-    "overrides": [
-        {
-            "files": ["*.ts", "*.tsx"],
-            "parser": "@typescript-eslint/parser",
-            "plugins": ['@typescript-eslint'],
-            "extends": [
-                "plugin:@typescript-eslint/recommended",
-            ],
-        }
-    ],
-    root: true,
-};
-    `;
-    const config = esLintconfig.trim(); // remove whitespace
-    try {
-        fs.mkdirSync(subDir, { recursive: true }); 
-        fs.writeFileSync(`${subDir}/.eslintrc.cjs`, config);
-        await logger.info(`Successfuly created test linting directory for ${username}/${repo}\n`);
-        return 1;
-    } catch(e) {
-        await logger.info(`Failed to create test linting directory for ${username}/${repo}\n`);
-        return e;
-    }
-}
-
-async function runEslint(directory: string) {
-    try {
-        const command = `npx eslint ${directory} -o ${directory}/result.json`;
-        const output = execSync(command, { encoding: 'utf8' });
-        await logger.info(`Linting successful:\n${output}\n`);
-        return output;
-    } catch (error) {
-        await logger.error(`Error executing ESLint: ${error}\n`);
-        throw error;
-    }
-}
-
-async function fetchLintOutput(username: string, repo: string): Promise<number> {
-
-    const subDir = `./temp_linter_test/${repo}`;
-    try {
-        let fileCount = await fetchTsAndJsFiles(username, repo);
-        if (!fileCount) {
-            fileCount = 0;
-            //console.error(`No TS or JS files found for ${username}/${repo}`);
-            await logger.info(`No TS or JS files found for ${username}/${repo}\n`);
-            process.exit(1);
-        }
-        await runEslint(subDir);
-        if (!fs.existsSync(`${subDir}/result.json`)) {
-            
-            //correctness = 1; // if we dont have a result.json file, we will assume the code is correct
-            await logger.info(`Calculating correctness (no result.json file): ${0}/${fileCount}\n`);
-            return calcCorrectnessScore(0,fileCount);
-        
-        }
-        const {errors} = getErrorAndWarningCount(`${subDir}/result.json`);
-        await logger.info(`Calculating correctness: ${errors}/${fileCount}\n`);
-        return calcCorrectnessScore(errors,fileCount);
-        
-
-    } catch (error) {
-        //console.error(`Failed to get lint output for ${username}/${repo}: ${error}`);
-        await logger.info(`Failed to get lint output for ${username}/${repo} : ${error}\n`);
-        return 0;
-    }
-}
-
-function getErrorAndWarningCount(filepath: fs.PathOrFileDescriptor) {
-
-    const file = fs.readFileSync(filepath, 'utf8');
-    const lines = file.trim().split('\n');
-    for (let i = lines.length - 1; i >= 0; i--) {
-        const line = lines[i];
-        if (line.startsWith('✖')) {
-            const errorMatch = line.match(/(\d+) error/);
-            const errors = errorMatch ? parseInt(errorMatch[1],10) : 0;
-            return {errors};
-        }
-    }
-    return {errors: 0};
-
-}
-
-
 async function fetchRepoIssues(username: string, repo: string) {
 
     try {
@@ -537,7 +349,7 @@ async function fetchRepoPinning(username: string, repo: string) {
             return 1;
         }
     } catch (error) {
-        console.error('Error occurred while fetching data:', error);
+        await logger.info('Error occurred while fetching data:', error);
         throw error;
     }
 }
@@ -592,10 +404,73 @@ async function fetchRepoPullRequest(username: string, repo: string) {
           return fraction;
         }
     } catch (error) {
-        console.error("An error occurred while fetching data from GitHub API:", error);
+        await logger.info("An error occurred while fetching data from GitHub API:", error);
         return 0;
     }
 }
+
+async function fetchGitHubRepo(url: string): Promise<void> {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch repository: ${response.statusText}`);
+      }
+  
+      const repoInfo = await response.json();
+      const cloneUrl = repoInfo;
+  
+      await logger.info('Downloading repository...');
+      await downloadRepo(cloneUrl);
+    } catch (error) {
+        await logger.info('Error fetching repository:', error);
+    }
+  }
+  
+  async function downloadRepo(url: any): Promise<void> {
+    const tempDir = path.join(__dirname, 'temp');
+    const repoDir = path.join(tempDir, 'repo');
+  
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir);
+    }
+  
+    try {
+      await new Promise<void>((resolve, reject) => {
+        download(url, repoDir, (err: any) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
+      });
+  
+      console.log('Linting repository...');
+      await lintRepo(repoDir);
+      console.log('Linting complete! Deleting repository...');
+      await deleteRepo(repoDir);
+    } catch (error) {
+      console.error('Error downloading repository:', error);
+    }
+  }
+  
+  async function lintRepo(repoDir: string): Promise<void> {
+    try {
+      execSync(`${eslintCommand} ${repoDir}`, { stdio: 'inherit' });
+      console.log('Linting complete!');
+    } catch (error) {
+      console.error('Linting error:', error);
+    }
+  }
+  
+  async function deleteRepo(repoDir: string): Promise<void> {
+    try {
+      await fse.remove(repoDir);
+      console.log('Repository deleted.');
+    } catch (error) {
+      console.error('Error deleting repository:', error);
+    }
+  }
 
 export {
     get_metric_info

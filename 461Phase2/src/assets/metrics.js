@@ -42,6 +42,13 @@ var exec = require('child_process').exec; // to execute shell cmds async version
 var child_process_1 = require("child_process"); // to execute shell cmds
 var fs = require("fs");
 var logger_1 = require("../../logger");
+var node_fetch_1 = require("node-fetch");
+var path = require("path");
+var util_1 = require("util");
+var download_git_repo_1 = require("download-git-repo");
+var fse = require("fs-extra");
+var writeFile = (0, util_1.promisify)(fs.writeFile);
+var eslintCommand = 'npx eslint --ext .ts'; // Add any necessary ESLint options here
 var gitHubToken = String(process.env.GITHUB_TOKEN);
 var octokit = new octokit_1.Octokit({
     auth: gitHubToken,
@@ -126,7 +133,7 @@ function calcTotalScore(busFactor, rampup, license, correctness, maintainer, pul
 }
 function get_metric_info(gitDetails) {
     return __awaiter(this, void 0, void 0, function () {
-        var i, gitInfo, busFactor, license, rampup, correctness, maintainer, pinning, pullRequest, score, error_1;
+        var i, gitInfo, githubRepoUrl, busFactor, license, rampup, correctness, maintainer, pinning, pullRequest, score, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, logger_1.logger.info("Getting metric info: ".concat(gitDetails[0].username, ", ").concat(gitDetails[0].repo))];
@@ -135,58 +142,53 @@ function get_metric_info(gitDetails) {
                     i = 0;
                     _a.label = 2;
                 case 2:
-                    if (!(i < gitDetails.length)) return [3 /*break*/, 17];
+                    if (!(i < gitDetails.length)) return [3 /*break*/, 16];
                     gitInfo = gitDetails[i];
                     _a.label = 3;
                 case 3:
-                    _a.trys.push([3, 14, , 16]);
-                    //console.log(`Getting Metric info for ${gitInfo.username}/${gitInfo.repo}`);
-                    //await fetchRepoInfo(gitInfo.username, gitInfo.repo);
-                    return [4 /*yield*/, createLintDirs(gitInfo.username, gitInfo.repo)];
-                case 4:
-                    //console.log(`Getting Metric info for ${gitInfo.username}/${gitInfo.repo}`);
-                    //await fetchRepoInfo(gitInfo.username, gitInfo.repo);
-                    _a.sent();
+                    _a.trys.push([3, 13, , 15]);
+                    githubRepoUrl = "https://api.github.com/".concat(gitInfo.username, "/").concat(gitInfo.repo);
                     return [4 /*yield*/, fetchRepoContributors(gitInfo.username, gitInfo.repo)];
-                case 5:
+                case 4:
                     busFactor = _a.sent();
                     return [4 /*yield*/, fetchRepoLicense(gitInfo.username, gitInfo.repo)];
-                case 6:
+                case 5:
                     license = _a.sent();
                     return [4 /*yield*/, fetchRepoReadme(gitInfo.username, gitInfo.repo)];
-                case 7:
+                case 6:
                     rampup = _a.sent();
-                    return [4 /*yield*/, fetchLintOutput(gitInfo.username, gitInfo.repo)];
-                case 8:
-                    correctness = _a.sent();
+                    correctness = 1;
+                    return [4 /*yield*/, fetchGitHubRepo(githubRepoUrl)];
+                case 7:
+                    _a.sent();
                     return [4 /*yield*/, fetchRepoIssues(gitInfo.username, gitInfo.repo)];
-                case 9:
+                case 8:
                     maintainer = _a.sent();
                     return [4 /*yield*/, fetchRepoPinning(gitInfo.username, gitInfo.repo)];
-                case 10:
+                case 9:
                     pinning = _a.sent();
                     return [4 /*yield*/, fetchRepoPullRequest(gitInfo.username, gitInfo.repo)];
-                case 11:
+                case 10:
                     pullRequest = _a.sent();
                     return [4 /*yield*/, calcTotalScore(busFactor, rampup, license, correctness, maintainer, pullRequest, pinning)];
-                case 12:
+                case 11:
                     score = _a.sent();
                     return [4 /*yield*/, logger_1.logger.info("Calculated score ".concat(score, "\n"))];
-                case 13:
+                case 12:
                     _a.sent();
                     return [2 /*return*/, { busFactor: busFactor.toFixed(5), rampup: rampup.toFixed(5), license: license.toFixed(5), correctness: correctness.toFixed(5), maintainer: maintainer.toFixed(5), pullRequest: pullRequest.toFixed(5), pinning: pinning.toFixed(5), score: score.toFixed(5) }];
-                case 14:
+                case 13:
                     error_1 = _a.sent();
                     //console.error(`Failed to get Metric info for ${gitInfo.username}/${gitInfo.repo}`);
                     return [4 /*yield*/, logger_1.logger.info("Failed to get Metric info for ".concat(gitInfo.username, "/").concat(gitInfo.repo, "\n"))];
-                case 15:
+                case 14:
                     //console.error(`Failed to get Metric info for ${gitInfo.username}/${gitInfo.repo}`);
                     _a.sent();
-                    return [3 /*break*/, 16];
-                case 16:
+                    return [3 /*break*/, 15];
+                case 15:
                     i++;
                     return [3 /*break*/, 2];
-                case 17: return [2 /*return*/];
+                case 16: return [2 /*return*/];
             }
         });
     });
@@ -363,245 +365,9 @@ function fetchRepoReadme(username, repo) {
         });
     });
 }
-function fetchTsAndJsFiles(username, repo) {
-    var _a, _b, _c;
-    return __awaiter(this, void 0, void 0, function () {
-        var limitFiles, charsAccumulated, filesCounted, repoInfo, defaultBranch, response, tsAndJsFiles, fileCount, dirPath, _i, tsAndJsFiles_1, file, fileResponse, fileContent, fileContentDecoded, length_1, fileName, error_6;
-        return __generator(this, function (_d) {
-            switch (_d.label) {
-                case 0:
-                    _d.trys.push([0, 15, , 17]);
-                    limitFiles = 2500;
-                    charsAccumulated = 0;
-                    filesCounted = 0;
-                    return [4 /*yield*/, fetchRepoInfo(username, repo)];
-                case 1:
-                    repoInfo = _d.sent();
-                    defaultBranch = (_a = repoInfo === null || repoInfo === void 0 ? void 0 : repoInfo.data) === null || _a === void 0 ? void 0 : _a.default_branch;
-                    if (!!defaultBranch) return [3 /*break*/, 3];
-                    //console.error(`Failed to fetch default branch for ${username}/${repo}`);
-                    return [4 /*yield*/, logger_1.logger.info("Failed to fetch default branch for ".concat(username, "/").concat(repo, "\n"))];
-                case 2:
-                    //console.error(`Failed to fetch default branch for ${username}/${repo}`);
-                    _d.sent();
-                    return [2 /*return*/];
-                case 3: return [4 /*yield*/, octokit.request("GET /repos/{owner}/{repo}/git/trees/{tree_sha}", {
-                        owner: username,
-                        repo: repo,
-                        tree_sha: defaultBranch,
-                        recursive: "1",
-                        headers: {
-                            'X-GitHub-Api-Version': '2022-11-28'
-                        }
-                    })];
-                case 4:
-                    response = _d.sent();
-                    tsAndJsFiles = response.data.tree.filter(function (file) {
-                        var _a;
-                        var eslintFiles = [
-                            '.eslintrc',
-                            '.eslintrc.js',
-                            '.eslintrc.json',
-                            '.eslintrc.yaml',
-                            '.eslintrc.yml',
-                            '.eslintignore',
-                            '.commitlintrc.js'
-                        ];
-                        if (eslintFiles.includes(((_a = file.path) === null || _a === void 0 ? void 0 : _a.split('/').pop()) || ''))
-                            return false; // skip eslint files
-                        return (file.type === "blob" && file.path && (file.path.endsWith(".ts") || file.path.endsWith(".js")));
-                    });
-                    fileCount = tsAndJsFiles.length;
-                    dirPath = "./temp_linter_test/".concat(repo);
-                    createLintDirs(username, repo);
-                    return [4 /*yield*/, logger_1.logger.info("Found TS and JS files for ".concat(username, "/").concat(repo, ": ").concat(tsAndJsFiles, "\n"))];
-                case 5:
-                    _d.sent();
-                    _i = 0, tsAndJsFiles_1 = tsAndJsFiles;
-                    _d.label = 6;
-                case 6:
-                    if (!(_i < tsAndJsFiles_1.length)) return [3 /*break*/, 13];
-                    file = tsAndJsFiles_1[_i];
-                    if (!(file.type === "blob" || file.type === "file")) return [3 /*break*/, 12];
-                    return [4 /*yield*/, octokit.request("GET /repos/{owner}/{repo}/contents/{path}", {
-                            owner: username,
-                            repo: repo,
-                            path: (_b = file.path) !== null && _b !== void 0 ? _b : '',
-                            headers: {
-                                'X-GitHub-Api-Version': '2022-11-28'
-                            }
-                        })];
-                case 7:
-                    fileResponse = _d.sent();
-                    if (!('content' in fileResponse.data)) return [3 /*break*/, 10];
-                    fileContent = fileResponse.data.content;
-                    fileContentDecoded = Buffer.from(fileContent, 'base64').toString('utf8');
-                    length_1 = fileContentDecoded.length;
-                    charsAccumulated += length_1;
-                    if (length_1 === 0) {
-                        return [3 /*break*/, 12]; // skip empty files and files less than 100 characters
-                    }
-                    fileName = (_c = file.path) === null || _c === void 0 ? void 0 : _c.split('/').pop();
-                    if (!!fileName) return [3 /*break*/, 9];
-                    //console.error(`Failed to get file name for ${username}/${repo}/${file.path}`);
-                    return [4 /*yield*/, logger_1.logger.info("Failed to get file name for ".concat(username, "/").concat(repo, "/").concat(file.path, "\n"))];
-                case 8:
-                    //console.error(`Failed to get file name for ${username}/${repo}/${file.path}`);
-                    _d.sent();
-                    return [3 /*break*/, 12];
-                case 9:
-                    filesCounted++;
-                    if (charsAccumulated > limitFiles) {
-                        return [3 /*break*/, 13];
-                    }
-                    return [3 /*break*/, 12];
-                case 10: return [4 /*yield*/, logger_1.logger.info("Failed to get file content for ".concat(username, "/").concat(repo, "/").concat(file.path, "\n"))];
-                case 11:
-                    _d.sent();
-                    _d.label = 12;
-                case 12:
-                    _i++;
-                    return [3 /*break*/, 6];
-                case 13: return [4 /*yield*/, logger_1.logger.info("Successfully fetched TS and JS files for ".concat(username, "/").concat(repo, "\n"))];
-                case 14:
-                    _d.sent();
-                    return [2 /*return*/, filesCounted];
-                case 15:
-                    error_6 = _d.sent();
-                    //console.error(`Failed to fetch TS and JS files for ${username}/${repo}: ${error}`);
-                    return [4 /*yield*/, logger_1.logger.info("Failed to fetch TS and JS files for ".concat(username, "/").concat(repo, "\n"))];
-                case 16:
-                    //console.error(`Failed to fetch TS and JS files for ${username}/${repo}: ${error}`);
-                    _d.sent();
-                    return [3 /*break*/, 17];
-                case 17: return [2 /*return*/];
-            }
-        });
-    });
-}
-function createLintDirs(username, repo) {
-    return __awaiter(this, void 0, void 0, function () {
-        var appendRepo, subDir, esLintconfig, config, e_1;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, logger_1.logger.info("Creating test linting directory for ".concat(username, "/").concat(repo, " ... \n"))];
-                case 1:
-                    _a.sent();
-                    appendRepo = "/".concat(repo);
-                    subDir = "./temp_linter_test".concat(appendRepo);
-                    esLintconfig = "/* eslint-env node */\nmodule.exports = {\n    extends: ['eslint:recommended'],\n    \"parserOptions\": {\n        \"ecmaVersion\": 5,\n    },\n    \"overrides\": [\n        {\n            \"files\": [\"*.ts\", \"*.tsx\"],\n            \"parser\": \"@typescript-eslint/parser\",\n            \"plugins\": ['@typescript-eslint'],\n            \"extends\": [\n                \"plugin:@typescript-eslint/recommended\",\n            ],\n        }\n    ],\n    root: true,\n};\n    ";
-                    config = esLintconfig.trim();
-                    _a.label = 2;
-                case 2:
-                    _a.trys.push([2, 4, , 6]);
-                    fs.mkdirSync(subDir, { recursive: true });
-                    fs.writeFileSync("".concat(subDir, "/.eslintrc.cjs"), config);
-                    return [4 /*yield*/, logger_1.logger.info("Successfuly created test linting directory for ".concat(username, "/").concat(repo, "\n"))];
-                case 3:
-                    _a.sent();
-                    return [2 /*return*/, 1];
-                case 4:
-                    e_1 = _a.sent();
-                    return [4 /*yield*/, logger_1.logger.info("Failed to create test linting directory for ".concat(username, "/").concat(repo, "\n"))];
-                case 5:
-                    _a.sent();
-                    return [2 /*return*/, e_1];
-                case 6: return [2 /*return*/];
-            }
-        });
-    });
-}
-function runEslint(directory) {
-    return __awaiter(this, void 0, void 0, function () {
-        var command, output, error_7;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    _a.trys.push([0, 2, , 4]);
-                    command = "npx eslint ".concat(directory, " -o ").concat(directory, "/result.json");
-                    output = (0, child_process_1.execSync)(command, { encoding: 'utf8' });
-                    return [4 /*yield*/, logger_1.logger.info("Linting successful:\n".concat(output, "\n"))];
-                case 1:
-                    _a.sent();
-                    return [2 /*return*/, output];
-                case 2:
-                    error_7 = _a.sent();
-                    return [4 /*yield*/, logger_1.logger.error("Error executing ESLint: ".concat(error_7, "\n"))];
-                case 3:
-                    _a.sent();
-                    throw error_7;
-                case 4: return [2 /*return*/];
-            }
-        });
-    });
-}
-function fetchLintOutput(username, repo) {
-    return __awaiter(this, void 0, void 0, function () {
-        var subDir, fileCount, errors, error_8;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    subDir = "./temp_linter_test/".concat(repo);
-                    _a.label = 1;
-                case 1:
-                    _a.trys.push([1, 9, , 11]);
-                    return [4 /*yield*/, fetchTsAndJsFiles(username, repo)];
-                case 2:
-                    fileCount = _a.sent();
-                    if (!!fileCount) return [3 /*break*/, 4];
-                    fileCount = 0;
-                    //console.error(`No TS or JS files found for ${username}/${repo}`);
-                    return [4 /*yield*/, logger_1.logger.info("No TS or JS files found for ".concat(username, "/").concat(repo, "\n"))];
-                case 3:
-                    //console.error(`No TS or JS files found for ${username}/${repo}`);
-                    _a.sent();
-                    process.exit(1);
-                    _a.label = 4;
-                case 4: return [4 /*yield*/, runEslint(subDir)];
-                case 5:
-                    _a.sent();
-                    if (!!fs.existsSync("".concat(subDir, "/result.json"))) return [3 /*break*/, 7];
-                    //correctness = 1; // if we dont have a result.json file, we will assume the code is correct
-                    return [4 /*yield*/, logger_1.logger.info("Calculating correctness (no result.json file): ".concat(0, "/").concat(fileCount, "\n"))];
-                case 6:
-                    //correctness = 1; // if we dont have a result.json file, we will assume the code is correct
-                    _a.sent();
-                    return [2 /*return*/, calcCorrectnessScore(0, fileCount)];
-                case 7:
-                    errors = getErrorAndWarningCount("".concat(subDir, "/result.json")).errors;
-                    return [4 /*yield*/, logger_1.logger.info("Calculating correctness: ".concat(errors, "/").concat(fileCount, "\n"))];
-                case 8:
-                    _a.sent();
-                    return [2 /*return*/, calcCorrectnessScore(errors, fileCount)];
-                case 9:
-                    error_8 = _a.sent();
-                    //console.error(`Failed to get lint output for ${username}/${repo}: ${error}`);
-                    return [4 /*yield*/, logger_1.logger.info("Failed to get lint output for ".concat(username, "/").concat(repo, " : ").concat(error_8, "\n"))];
-                case 10:
-                    //console.error(`Failed to get lint output for ${username}/${repo}: ${error}`);
-                    _a.sent();
-                    return [2 /*return*/, 0];
-                case 11: return [2 /*return*/];
-            }
-        });
-    });
-}
-function getErrorAndWarningCount(filepath) {
-    var file = fs.readFileSync(filepath, 'utf8');
-    var lines = file.trim().split('\n');
-    for (var i = lines.length - 1; i >= 0; i--) {
-        var line = lines[i];
-        if (line.startsWith('✖')) {
-            var errorMatch = line.match(/(\d+) error/);
-            var errors = errorMatch ? parseInt(errorMatch[1], 10) : 0;
-            return { errors: errors };
-        }
-    }
-    return { errors: 0 };
-}
 function fetchRepoIssues(username, repo) {
     return __awaiter(this, void 0, void 0, function () {
-        var timeDifference_1, response, error_9;
+        var timeDifference_1, response, error_6;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -639,7 +405,7 @@ function fetchRepoIssues(username, repo) {
                     });
                     return [2 /*return*/, calcRespMaintScore(timeDifference_1, username, repo)];
                 case 4:
-                    error_9 = _a.sent();
+                    error_6 = _a.sent();
                     //console.error(`Failed to get issues for ${username}/${repo}`);
                     return [4 /*yield*/, logger_1.logger.info("Failed to get issues for ".concat(username, "/").concat(repo, "\n"))];
                 case 5:
@@ -653,11 +419,11 @@ function fetchRepoIssues(username, repo) {
 }
 function fetchRepoPinning(username, repo) {
     return __awaiter(this, void 0, void 0, function () {
-        var response, content, packageJson_1, totalPackages_1, nonPinnedPackages_1, error_10;
+        var response, content, packageJson_1, totalPackages_1, nonPinnedPackages_1, error_7;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 2, , 3]);
+                    _a.trys.push([0, 2, , 4]);
                     return [4 /*yield*/, octokit.request('GET /repos/{owner}/{repo}/contents/package.json', {
                             owner: username,
                             repo: repo,
@@ -683,23 +449,25 @@ function fetchRepoPinning(username, repo) {
                     else {
                         return [2 /*return*/, 1];
                     }
-                    return [3 /*break*/, 3];
+                    return [3 /*break*/, 4];
                 case 2:
-                    error_10 = _a.sent();
-                    console.error('Error occurred while fetching data:', error_10);
-                    throw error_10;
-                case 3: return [2 /*return*/];
+                    error_7 = _a.sent();
+                    return [4 /*yield*/, logger_1.logger.info('Error occurred while fetching data:', error_7)];
+                case 3:
+                    _a.sent();
+                    throw error_7;
+                case 4: return [2 /*return*/];
             }
         });
     });
 }
 function fetchRepoPullRequest(username, repo) {
     return __awaiter(this, void 0, void 0, function () {
-        var pullRequests, reviewedLines, totalLines, idx, _i, pullRequests_1, pr, files, _loop_1, _a, files_1, file, fraction, error_11;
+        var pullRequests, reviewedLines, totalLines, idx, _i, pullRequests_1, pr, files, _loop_1, _a, files_1, file, fraction, error_8;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    _b.trys.push([0, 10, , 11]);
+                    _b.trys.push([0, 10, , 12]);
                     return [4 /*yield*/, octokit.paginate("GET /repos/{owner}/{repo}/pulls", {
                             owner: username,
                             repo: repo,
@@ -775,12 +543,128 @@ function fetchRepoPullRequest(username, repo) {
                         //console.log(`Fraction of code introduced through reviewed pull requests: ${fraction}`);
                         return [2 /*return*/, fraction];
                     }
-                    return [3 /*break*/, 11];
+                    return [3 /*break*/, 12];
                 case 10:
-                    error_11 = _b.sent();
-                    console.error("An error occurred while fetching data from GitHub API:", error_11);
+                    error_8 = _b.sent();
+                    return [4 /*yield*/, logger_1.logger.info("An error occurred while fetching data from GitHub API:", error_8)];
+                case 11:
+                    _b.sent();
                     return [2 /*return*/, 0];
-                case 11: return [2 /*return*/];
+                case 12: return [2 /*return*/];
+            }
+        });
+    });
+}
+function fetchGitHubRepo(url) {
+    return __awaiter(this, void 0, void 0, function () {
+        var response, repoInfo, cloneUrl, error_9;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 5, , 7]);
+                    return [4 /*yield*/, (0, node_fetch_1.default)(url)];
+                case 1:
+                    response = _a.sent();
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch repository: ".concat(response.statusText));
+                    }
+                    return [4 /*yield*/, response.json()];
+                case 2:
+                    repoInfo = _a.sent();
+                    cloneUrl = repoInfo;
+                    return [4 /*yield*/, logger_1.logger.info('Downloading repository...')];
+                case 3:
+                    _a.sent();
+                    return [4 /*yield*/, downloadRepo(cloneUrl)];
+                case 4:
+                    _a.sent();
+                    return [3 /*break*/, 7];
+                case 5:
+                    error_9 = _a.sent();
+                    return [4 /*yield*/, logger_1.logger.info('Error fetching repository:', error_9)];
+                case 6:
+                    _a.sent();
+                    return [3 /*break*/, 7];
+                case 7: return [2 /*return*/];
+            }
+        });
+    });
+}
+function downloadRepo(url) {
+    return __awaiter(this, void 0, void 0, function () {
+        var tempDir, repoDir, error_10;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    tempDir = path.join(__dirname, 'temp');
+                    repoDir = path.join(tempDir, 'repo');
+                    if (!fs.existsSync(tempDir)) {
+                        fs.mkdirSync(tempDir);
+                    }
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 5, , 6]);
+                    return [4 /*yield*/, new Promise(function (resolve, reject) {
+                            (0, download_git_repo_1.default)(url, repoDir, function (err) {
+                                if (err) {
+                                    reject(err);
+                                }
+                                else {
+                                    resolve();
+                                }
+                            });
+                        })];
+                case 2:
+                    _a.sent();
+                    console.log('Linting repository...');
+                    return [4 /*yield*/, lintRepo(repoDir)];
+                case 3:
+                    _a.sent();
+                    console.log('Linting complete! Deleting repository...');
+                    return [4 /*yield*/, deleteRepo(repoDir)];
+                case 4:
+                    _a.sent();
+                    return [3 /*break*/, 6];
+                case 5:
+                    error_10 = _a.sent();
+                    console.error('Error downloading repository:', error_10);
+                    return [3 /*break*/, 6];
+                case 6: return [2 /*return*/];
+            }
+        });
+    });
+}
+function lintRepo(repoDir) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            try {
+                (0, child_process_1.execSync)("".concat(eslintCommand, " ").concat(repoDir), { stdio: 'inherit' });
+                console.log('Linting complete!');
+            }
+            catch (error) {
+                console.error('Linting error:', error);
+            }
+            return [2 /*return*/];
+        });
+    });
+}
+function deleteRepo(repoDir) {
+    return __awaiter(this, void 0, void 0, function () {
+        var error_11;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    return [4 /*yield*/, fse.remove(repoDir)];
+                case 1:
+                    _a.sent();
+                    console.log('Repository deleted.');
+                    return [3 /*break*/, 3];
+                case 2:
+                    error_11 = _a.sent();
+                    console.error('Error deleting repository:', error_11);
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
             }
         });
     });
