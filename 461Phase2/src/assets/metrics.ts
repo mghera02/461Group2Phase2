@@ -447,7 +447,7 @@ async function cloneRepo(repoUrl: string, destinationPath: string) {
 
         await logger.info("Tarball extracted successfully");
 
-        lintDirectory(cloneDir);
+        await lintDirectory(cloneDir);
 
         fs.unlinkSync(tarballPath);
         await fsExtra.remove(cloneDir);
