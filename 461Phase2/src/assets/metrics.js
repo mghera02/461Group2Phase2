@@ -39,11 +39,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.get_metric_info = void 0;
 var octokit_1 = require("octokit"); // Octokit v17
 var exec = require('child_process').exec; // to execute shell cmds async version
-var child_process_1 = require("child_process"); // to execute shell cmds
 var fs = require("fs");
 var logger_1 = require("../../logger");
+var path = require("path");
 var util_1 = require("util");
-var fse = require("fs-extra");
+// For cloning repo
+var BlueBirdPromise = require('bluebird');
+var tar = require('tar');
+var axios_1 = require("axios");
+var fsExtra = require("fs-extra");
 var writeFile = (0, util_1.promisify)(fs.writeFile);
 var eslintCommand = 'npx eslint --ext .ts'; // Add any necessary ESLint options here
 var gitHubToken = String(process.env.GITHUB_TOKEN);
@@ -144,7 +148,7 @@ function get_metric_info(gitDetails) {
                     _a.label = 3;
                 case 3:
                     _a.trys.push([3, 13, , 15]);
-                    githubRepoUrl = "https://github.com/".concat(gitInfo.username, "/").concat(gitInfo.repo, ".git");
+                    githubRepoUrl = "https://github.com/".concat(gitInfo.username, "/").concat(gitInfo.repo);
                     destinationPath = 'temp_linter_test';
                     return [4 /*yield*/, fetchRepoContributors(gitInfo.username, gitInfo.repo)];
                 case 4:
@@ -156,7 +160,7 @@ function get_metric_info(gitDetails) {
                 case 6:
                     rampup = _a.sent();
                     correctness = 1;
-                    return [4 /*yield*/, downloadRepo(githubRepoUrl, destinationPath)];
+                    return [4 /*yield*/, cloneRepo(githubRepoUrl, destinationPath)];
                 case 7:
                     _a.sent();
                     return [4 /*yield*/, fetchRepoIssues(gitInfo.username, gitInfo.repo)];
@@ -553,87 +557,56 @@ function fetchRepoPullRequest(username, repo) {
         });
     });
 }
-function downloadRepo(gitUrl, destinationPath) {
-    var _this = this;
-    return new Promise(function (resolve, reject) {
-        var command = "git clone ".concat(gitUrl, " ").concat(destinationPath);
-        var childProcess = exec(command);
-        childProcess.on('exit', function (code) { return __awaiter(_this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!(code === 0)) return [3 /*break*/, 2];
-                        return [4 /*yield*/, logger_1.logger.info('Repository downloaded successfully!')];
-                    case 1:
-                        _a.sent();
-                        resolve();
-                        return [3 /*break*/, 4];
-                    case 2: return [4 /*yield*/, logger_1.logger.info("Failed to download repository. Exit code: ".concat(code))];
-                    case 3:
-                        _a.sent();
-                        reject(new Error("Failed to download repository. Exit code: ".concat(code)));
-                        _a.label = 4;
-                    case 4: return [2 /*return*/];
-                }
-            });
-        }); });
-        childProcess.on('error', function (error) { return __awaiter(_this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, logger_1.logger.info("Error downloading repository: ".concat(error.message))];
-                    case 1:
-                        _a.sent();
-                        reject(new Error("Error downloading repository: ".concat(error.message)));
-                        return [2 /*return*/];
-                }
-            });
-        }); });
-    });
-}
-function lintRepo(repoDir) {
+function extractTarball(tarballPath, targetDir) {
     return __awaiter(this, void 0, void 0, function () {
-        var error_9;
         return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    _a.trys.push([0, 2, , 4]);
-                    (0, child_process_1.execSync)("".concat(eslintCommand, " ").concat(repoDir), { stdio: 'inherit' });
-                    return [4 /*yield*/, logger_1.logger.info('Linting complete!')];
-                case 1:
-                    _a.sent();
-                    return [3 /*break*/, 4];
-                case 2:
-                    error_9 = _a.sent();
-                    return [4 /*yield*/, logger_1.logger.info('Linting error:', error_9)];
-                case 3:
-                    _a.sent();
-                    return [3 /*break*/, 4];
-                case 4: return [2 /*return*/];
-            }
+            return [2 /*return*/, new Promise(function (resolve, reject) {
+                    fs.createReadStream(tarballPath)
+                        .pipe(tar.extract({ cwd: targetDir, strip: 1 }))
+                        .on('error', reject)
+                        .on('end', resolve);
+                })];
         });
     });
 }
-function deleteRepo(repoDir) {
+function cloneRepo(repoUrl, destinationPath) {
     return __awaiter(this, void 0, void 0, function () {
-        var error_10;
+        var cloneDir, tarballUrl, tarballPath, response_1, error_9;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 3, , 5]);
-                    return [4 /*yield*/, fse.remove(repoDir)];
+                    _a.trys.push([0, 5, , 6]);
+                    cloneDir = path.join(__dirname, destinationPath);
+                    if (!fs.existsSync(cloneDir)) {
+                        fs.mkdirSync(cloneDir);
+                    }
+                    tarballUrl = "".concat(repoUrl, "/archive/master.tar.gz");
+                    tarballPath = path.join(__dirname, 'temp.tar.gz');
+                    return [4 /*yield*/, axios_1.default.get(tarballUrl, { responseType: 'stream' })];
                 case 1:
-                    _a.sent();
-                    return [4 /*yield*/, logger_1.logger.info('Repository deleted.')];
+                    response_1 = _a.sent();
+                    response_1.data.pipe(fs.createWriteStream(tarballPath));
+                    return [4 /*yield*/, new Promise(function (resolve, reject) {
+                            response_1.data.on('end', resolve);
+                            response_1.data.on('error', reject);
+                        })];
                 case 2:
                     _a.sent();
-                    return [3 /*break*/, 5];
+                    // Extract the tarball using the tar library
+                    return [4 /*yield*/, extractTarball(tarballPath, cloneDir)];
                 case 3:
-                    error_10 = _a.sent();
-                    return [4 /*yield*/, logger_1.logger.info('Error deleting repository:', error_10)];
+                    // Extract the tarball using the tar library
+                    _a.sent();
+                    // Clean up the temporary tarball file
+                    fs.unlinkSync(tarballPath);
+                    return [4 /*yield*/, fsExtra.remove(cloneDir)];
                 case 4:
                     _a.sent();
-                    return [3 /*break*/, 5];
-                case 5: return [2 /*return*/];
+                    return [3 /*break*/, 6];
+                case 5:
+                    error_9 = _a.sent();
+                    return [3 /*break*/, 6];
+                case 6: return [2 /*return*/];
             }
         });
     });

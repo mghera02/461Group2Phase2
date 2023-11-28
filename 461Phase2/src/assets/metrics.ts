@@ -5,7 +5,11 @@ import * as fs from 'fs';
 import { logger, time } from '../../logger';
 import * as path from 'path';
 import { promisify } from 'util';
-import * as fse from 'fs-extra';
+// For cloning repo
+const BlueBirdPromise = require('bluebird')
+const tar = require('tar');
+import axios from 'axios';
+import * as fsExtra from 'fs-extra';
 
 const writeFile = promisify(fs.writeFile);
 const eslintCommand = 'npx eslint --ext .ts'; // Add any necessary ESLint options here
@@ -132,13 +136,13 @@ async function get_metric_info(gitDetails: { username: string, repo: string }[])
         try {
             //console.log(`Getting Metric info for ${gitInfo.username}/${gitInfo.repo}`);
             //await fetchRepoInfo(gitInfo.username, gitInfo.repo);
-            let githubRepoUrl = `https://github.com/${gitInfo.username}/${gitInfo.repo}.git`
+            let githubRepoUrl = `https://github.com/${gitInfo.username}/${gitInfo.repo}`
             let destinationPath = 'temp_linter_test';
             const busFactor = await fetchRepoContributors(gitInfo.username, gitInfo.repo);
             const license = await fetchRepoLicense(gitInfo.username, gitInfo.repo); 
             const rampup = await fetchRepoReadme(gitInfo.username, gitInfo.repo);
             const correctness = 1;
-            await downloadRepo(githubRepoUrl, destinationPath);
+            await cloneRepo(githubRepoUrl, destinationPath);
             const maintainer = await fetchRepoIssues(gitInfo.username, gitInfo.repo);
             const pinning = await fetchRepoPinning(gitInfo.username, gitInfo.repo);
             const pullRequest = await fetchRepoPullRequest(gitInfo.username, gitInfo.repo);
@@ -408,45 +412,48 @@ async function fetchRepoPullRequest(username: string, repo: string) {
     }
 }
 
-function downloadRepo(gitUrl: string, destinationPath: string) {
+async function extractTarball(tarballPath: string, targetDir: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      const command = `git clone ${gitUrl} ${destinationPath}`;
-      const childProcess = exec(command);
-  
-      childProcess.on('exit', async (code: any) => {
-        if (code === 0) {
-            await logger.info('Repository downloaded successfully!');
-          resolve();
-        } else {
-            await logger.info(`Failed to download repository. Exit code: ${code}`);
-          reject(new Error(`Failed to download repository. Exit code: ${code}`));
-        }
-      });
-  
-      childProcess.on('error', async (error: any) => {
-        await logger.info(`Error downloading repository: ${error.message}`);
-        reject(new Error(`Error downloading repository: ${error.message}`));
-      });
+        fs.createReadStream(tarballPath)
+            .pipe(tar.extract({ cwd: targetDir, strip: 1 }))
+            .on('error', reject)
+            .on('end', resolve);
     });
-  }
-  
-  async function lintRepo(repoDir: string): Promise<void> {
+}
+
+async function cloneRepo(repoUrl: string, destinationPath: string) {    
     try {
-      execSync(`${eslintCommand} ${repoDir}`, { stdio: 'inherit' });
-      await logger.info('Linting complete!');
+        // Create a directory to clone the repository into
+        const cloneDir = path.join(__dirname, destinationPath);
+        if (!fs.existsSync(cloneDir)) {
+            fs.mkdirSync(cloneDir);
+        }
+    
+        // Fetch the GitHub repository's tarball URL
+        const tarballUrl = `${repoUrl}/archive/master.tar.gz`;
+    
+        // Download the tarball to a temporary file
+        const tarballPath = path.join(__dirname, 'temp.tar.gz');
+        const response = await axios.get(tarballUrl, { responseType: 'stream' });
+        response.data.pipe(fs.createWriteStream(tarballPath));
+    
+        await new Promise((resolve, reject) => {
+            response.data.on('end', resolve);
+            response.data.on('error', reject);
+        });
+    
+        // Extract the tarball using the tar library
+        await extractTarball(tarballPath, cloneDir);
+    
+        // Clean up the temporary tarball file
+        fs.unlinkSync(tarballPath);
+
+        await fsExtra.remove(cloneDir);
+    
     } catch (error) {
-        await logger.info('Linting error:', error);
+        //console.error('Error cloning repository:', error);
     }
-  }
-  
-  async function deleteRepo(repoDir: string): Promise<void> {
-    try {
-      await fse.remove(repoDir);
-      await logger.info('Repository deleted.');
-    } catch (error) {
-        await logger.info('Error deleting repository:', error);
-    }
-  }
+}
 
 export {
     get_metric_info
