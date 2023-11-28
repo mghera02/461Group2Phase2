@@ -455,11 +455,8 @@ function fetchTsAndJsFiles(username, repo) {
                         return [3 /*break*/, 13];
                     }
                     return [3 /*break*/, 12];
-                case 10: 
-                //console.error(`Failed to get file content for ${username}/${repo}/${file.path}`);
-                return [4 /*yield*/, logger_1.logger.info("Failed to get file content for ".concat(username, "/").concat(repo, "/").concat(file.path, "\n"))];
+                case 10: return [4 /*yield*/, logger_1.logger.info("Failed to get file content for ".concat(username, "/").concat(repo, "/").concat(file.path, "\n"))];
                 case 11:
-                    //console.error(`Failed to get file content for ${username}/${repo}/${file.path}`);
                     _d.sent();
                     _d.label = 12;
                 case 12:

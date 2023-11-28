@@ -362,7 +362,6 @@ async function fetchTsAndJsFiles(username: string, repo: string)  {
                         break;
                     }
                 } else {
-                    //console.error(`Failed to get file content for ${username}/${repo}/${file.path}`);
                     await logger.info(`Failed to get file content for ${username}/${repo}/${file.path}\n`);
                 }
             }
