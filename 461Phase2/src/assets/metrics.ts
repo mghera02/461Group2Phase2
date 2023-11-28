@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import { logger, time } from '../../logger';
 import * as path from 'path';
 import { promisify } from 'util';
-import download from 'download-git-repo';
+import { gitClone } from 'git-clone';
 import * as fse from 'fs-extra';
 
 const writeFile = promisify(fs.writeFile);
@@ -134,11 +134,12 @@ async function get_metric_info(gitDetails: { username: string, repo: string }[])
             //console.log(`Getting Metric info for ${gitInfo.username}/${gitInfo.repo}`);
             //await fetchRepoInfo(gitInfo.username, gitInfo.repo);
             let githubRepoUrl = `https://api.github.com/${gitInfo.username}/${gitInfo.repo}`
+            let destinationPath = 'temp_linter_test';
             const busFactor = await fetchRepoContributors(gitInfo.username, gitInfo.repo);
             const license = await fetchRepoLicense(gitInfo.username, gitInfo.repo); 
             const rampup = await fetchRepoReadme(gitInfo.username, gitInfo.repo);
             const correctness = 1;
-            await downloadRepo(githubRepoUrl);
+            await downloadRepo(githubRepoUrl, destinationPath);
             const maintainer = await fetchRepoIssues(gitInfo.username, gitInfo.repo);
             const pinning = await fetchRepoPinning(gitInfo.username, gitInfo.repo);
             const pullRequest = await fetchRepoPullRequest(gitInfo.username, gitInfo.repo);
@@ -408,31 +409,10 @@ async function fetchRepoPullRequest(username: string, repo: string) {
     }
 }
   
-  async function downloadRepo(url: any): Promise<void> {
-    const tempDir = path.join(__dirname, 'temp');
-    const repoDir = path.join(tempDir, 'repo');
-  
-    if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir);
-    }
-  
+async function downloadRepo(gitUrl: string, destinationPath: string) {
     try {
-      await new Promise<void>((resolve, reject) => {
-        download(url, repoDir, async (err: any) => {
-          if (err) {
-            await logger.info(`rejecting err when downloading repo: ${err}`);
-            reject(err);
-          } else {
-            await logger.info(`resolving err when downloading repo: ${err}`);
-            resolve();
-          }
-        });
-      });
-  
-      await logger.info('Linting repository...');
-      await lintRepo(repoDir);
-      await logger.info('Linting complete! Deleting repository...');
-      await deleteRepo(repoDir);
+      await gitClone(gitUrl, destinationPath);
+      await logger.info('Repository downloaded successfully!');
     } catch (error) {
         await logger.info('Error downloading repository:', error);
     }

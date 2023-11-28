@@ -42,9 +42,8 @@ var exec = require('child_process').exec; // to execute shell cmds async version
 var child_process_1 = require("child_process"); // to execute shell cmds
 var fs = require("fs");
 var logger_1 = require("../../logger");
-var path = require("path");
 var util_1 = require("util");
-var download_git_repo_1 = require("download-git-repo");
+var git_clone_1 = require("git-clone");
 var fse = require("fs-extra");
 var writeFile = (0, util_1.promisify)(fs.writeFile);
 var eslintCommand = 'npx eslint --ext .ts'; // Add any necessary ESLint options here
@@ -132,7 +131,7 @@ function calcTotalScore(busFactor, rampup, license, correctness, maintainer, pul
 }
 function get_metric_info(gitDetails) {
     return __awaiter(this, void 0, void 0, function () {
-        var i, gitInfo, githubRepoUrl, busFactor, license, rampup, correctness, maintainer, pinning, pullRequest, score, error_1;
+        var i, gitInfo, githubRepoUrl, destinationPath, busFactor, license, rampup, correctness, maintainer, pinning, pullRequest, score, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, logger_1.logger.info("Getting metric info: ".concat(gitDetails[0].username, ", ").concat(gitDetails[0].repo))];
@@ -147,6 +146,7 @@ function get_metric_info(gitDetails) {
                 case 3:
                     _a.trys.push([3, 13, , 15]);
                     githubRepoUrl = "https://api.github.com/".concat(gitInfo.username, "/").concat(gitInfo.repo);
+                    destinationPath = 'temp_linter_test';
                     return [4 /*yield*/, fetchRepoContributors(gitInfo.username, gitInfo.repo)];
                 case 4:
                     busFactor = _a.sent();
@@ -157,7 +157,7 @@ function get_metric_info(gitDetails) {
                 case 6:
                     rampup = _a.sent();
                     correctness = 1;
-                    return [4 /*yield*/, downloadRepo(githubRepoUrl)];
+                    return [4 /*yield*/, downloadRepo(githubRepoUrl, destinationPath)];
                 case 7:
                     _a.sent();
                     return [4 /*yield*/, fetchRepoIssues(gitInfo.username, gitInfo.repo)];
@@ -554,64 +554,27 @@ function fetchRepoPullRequest(username, repo) {
         });
     });
 }
-function downloadRepo(url) {
+function downloadRepo(gitUrl, destinationPath) {
     return __awaiter(this, void 0, void 0, function () {
-        var tempDir, repoDir, error_9;
-        var _this = this;
+        var error_9;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    tempDir = path.join(__dirname, 'temp');
-                    repoDir = path.join(tempDir, 'repo');
-                    if (!fs.existsSync(tempDir)) {
-                        fs.mkdirSync(tempDir);
-                    }
-                    _a.label = 1;
+                    _a.trys.push([0, 3, , 5]);
+                    return [4 /*yield*/, (0, git_clone_1.gitClone)(gitUrl, destinationPath)];
                 case 1:
-                    _a.trys.push([1, 7, , 9]);
-                    return [4 /*yield*/, new Promise(function (resolve, reject) {
-                            (0, download_git_repo_1.default)(url, repoDir, function (err) { return __awaiter(_this, void 0, void 0, function () {
-                                return __generator(this, function (_a) {
-                                    switch (_a.label) {
-                                        case 0:
-                                            if (!err) return [3 /*break*/, 2];
-                                            return [4 /*yield*/, logger_1.logger.info("rejecting err when downloading repo: ".concat(err))];
-                                        case 1:
-                                            _a.sent();
-                                            reject(err);
-                                            return [3 /*break*/, 4];
-                                        case 2: return [4 /*yield*/, logger_1.logger.info("resolving err when downloading repo: ".concat(err))];
-                                        case 3:
-                                            _a.sent();
-                                            resolve();
-                                            _a.label = 4;
-                                        case 4: return [2 /*return*/];
-                                    }
-                                });
-                            }); });
-                        })];
+                    _a.sent();
+                    return [4 /*yield*/, logger_1.logger.info('Repository downloaded successfully!')];
                 case 2:
                     _a.sent();
-                    return [4 /*yield*/, logger_1.logger.info('Linting repository...')];
+                    return [3 /*break*/, 5];
                 case 3:
-                    _a.sent();
-                    return [4 /*yield*/, lintRepo(repoDir)];
-                case 4:
-                    _a.sent();
-                    return [4 /*yield*/, logger_1.logger.info('Linting complete! Deleting repository...')];
-                case 5:
-                    _a.sent();
-                    return [4 /*yield*/, deleteRepo(repoDir)];
-                case 6:
-                    _a.sent();
-                    return [3 /*break*/, 9];
-                case 7:
                     error_9 = _a.sent();
                     return [4 /*yield*/, logger_1.logger.info('Error downloading repository:', error_9)];
-                case 8:
+                case 4:
                     _a.sent();
-                    return [3 /*break*/, 9];
-                case 9: return [2 /*return*/];
+                    return [3 /*break*/, 5];
+                case 5: return [2 /*return*/];
             }
         });
     });
