@@ -102,7 +102,7 @@ function extractRepoUrl(zipFilePath, packageName) {
         });
     });
 }
-app.post('/upload', upload.single('file'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+app.post('/upload', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var packageName, repoUrl, username, repo, regex, matches, gitDetails, scores, package_id, s3_response, error_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -223,7 +223,7 @@ app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 
                 return [4 /*yield*/, logger_1.logger.info('Attempting to ingest package')];
             case 2:
                 _a.sent();
-                url = req.params.url;
+                url = req.body;
                 return [4 /*yield*/, logger_1.logger.info("package url: ".concat(url))];
             case 3:
                 _a.sent();

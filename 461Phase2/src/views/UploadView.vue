@@ -57,7 +57,7 @@
                 console.log("url: ", this.npmUrl);
                 this.ingestStatus = "Ingesting..."
                 try {
-                    const response = await axios.post(`http://${this.ip}:8080/ingest`, this.npmUrl,{
+                    const response = await axios.post(`http://${this.ip}:8080/ingest`, this.npmUrl, {
                         headers: {},
                     });
                     console.log("Ingest call received successfuly", response.data);

@@ -71,7 +71,7 @@ function extractRepoUrl(zipFilePath: string, packageName: string): Promise<strin
   });
 }
 
-app.post('/upload', upload.single('file'), async (req, res) => {
+app.post('/upload', async (req, res) => {
   try {
     await time.info("Starting time")
     await logger.info('Attempting to upload package')
@@ -146,7 +146,7 @@ app.post('/ingest', async (req, res) => {
     await time.info("Starting time")
     await logger.info('Attempting to ingest package')
 
-    const url: string = req.params.url;
+    const url: string = req.body;
 
     await logger.info(`package url: ${url}`);
 
