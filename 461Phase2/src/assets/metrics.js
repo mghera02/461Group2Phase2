@@ -157,7 +157,7 @@ function get_metric_info(gitDetails) {
                 case 6:
                     rampup = _a.sent();
                     correctness = 1;
-                    return [4 /*yield*/, fetchGitHubRepo(githubRepoUrl)];
+                    return [4 /*yield*/, downloadRepo(githubRepoUrl)];
                 case 7:
                     _a.sent();
                     return [4 /*yield*/, fetchRepoIssues(gitInfo.username, gitInfo.repo)];
@@ -554,44 +554,9 @@ function fetchRepoPullRequest(username, repo) {
         });
     });
 }
-function fetchGitHubRepo(url) {
-    return __awaiter(this, void 0, void 0, function () {
-        var response, repoInfo, cloneUrl, error_9;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    _a.trys.push([0, 5, , 7]);
-                    return [4 /*yield*/, fetch(url)];
-                case 1:
-                    response = _a.sent();
-                    if (!response.ok) {
-                        throw new Error("Failed to fetch repository: ".concat(response.statusText));
-                    }
-                    return [4 /*yield*/, response.json()];
-                case 2:
-                    repoInfo = _a.sent();
-                    cloneUrl = repoInfo;
-                    return [4 /*yield*/, logger_1.logger.info('Downloading repository...')];
-                case 3:
-                    _a.sent();
-                    return [4 /*yield*/, downloadRepo(cloneUrl)];
-                case 4:
-                    _a.sent();
-                    return [3 /*break*/, 7];
-                case 5:
-                    error_9 = _a.sent();
-                    return [4 /*yield*/, logger_1.logger.info('Error fetching repository:', error_9)];
-                case 6:
-                    _a.sent();
-                    return [3 /*break*/, 7];
-                case 7: return [2 /*return*/];
-            }
-        });
-    });
-}
 function downloadRepo(url) {
     return __awaiter(this, void 0, void 0, function () {
-        var tempDir, repoDir, error_10;
+        var tempDir, repoDir, error_9;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -625,8 +590,8 @@ function downloadRepo(url) {
                     _a.sent();
                     return [3 /*break*/, 6];
                 case 5:
-                    error_10 = _a.sent();
-                    console.error('Error downloading repository:', error_10);
+                    error_9 = _a.sent();
+                    console.error('Error downloading repository:', error_9);
                     return [3 /*break*/, 6];
                 case 6: return [2 /*return*/];
             }
@@ -649,7 +614,7 @@ function lintRepo(repoDir) {
 }
 function deleteRepo(repoDir) {
     return __awaiter(this, void 0, void 0, function () {
-        var error_11;
+        var error_10;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -660,8 +625,8 @@ function deleteRepo(repoDir) {
                     console.log('Repository deleted.');
                     return [3 /*break*/, 3];
                 case 2:
-                    error_11 = _a.sent();
-                    console.error('Error deleting repository:', error_11);
+                    error_10 = _a.sent();
+                    console.error('Error deleting repository:', error_10);
                     return [3 /*break*/, 3];
                 case 3: return [2 /*return*/];
             }

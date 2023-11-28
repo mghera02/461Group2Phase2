@@ -138,7 +138,7 @@ async function get_metric_info(gitDetails: { username: string, repo: string }[])
             const license = await fetchRepoLicense(gitInfo.username, gitInfo.repo); 
             const rampup = await fetchRepoReadme(gitInfo.username, gitInfo.repo);
             const correctness = 1;
-            await fetchGitHubRepo(githubRepoUrl);
+            await downloadRepo(githubRepoUrl);
             const maintainer = await fetchRepoIssues(gitInfo.username, gitInfo.repo);
             const pinning = await fetchRepoPinning(gitInfo.username, gitInfo.repo);
             const pullRequest = await fetchRepoPullRequest(gitInfo.username, gitInfo.repo);
@@ -407,23 +407,6 @@ async function fetchRepoPullRequest(username: string, repo: string) {
         return 0;
     }
 }
-
-async function fetchGitHubRepo(url: string): Promise<void> {
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch repository: ${response.statusText}`);
-      }
-  
-      const repoInfo = await response.json();
-      const cloneUrl = repoInfo;
-  
-      await logger.info('Downloading repository...');
-      await downloadRepo(cloneUrl);
-    } catch (error) {
-        await logger.info('Error fetching repository:', error);
-    }
-  }
   
   async function downloadRepo(url: any): Promise<void> {
     const tempDir = path.join(__dirname, 'temp');
