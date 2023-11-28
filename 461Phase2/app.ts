@@ -142,7 +142,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 });
 
 
-app.post('/ingest', upload.single('url'), async (req: Request, res: Response) => {
+app.post('/ingest', async (req: Request, res: Response) => {
   try {
     await time.info("Starting time")
     await logger.info('Attempting to ingest package')

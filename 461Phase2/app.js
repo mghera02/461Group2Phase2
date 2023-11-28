@@ -211,7 +211,7 @@ app.post('/upload', upload.single('file'), function (req, res) { return __awaite
         }
     });
 }); });
-app.post('/ingest', upload.single('url'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var url, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zippedFile, username, repo, gitInfo, gitDetails, scores, package_id, s3_response, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
