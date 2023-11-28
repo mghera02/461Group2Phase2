@@ -502,15 +502,18 @@ async function lintDirectory(directoryPath) {
         let totalWarnings = 0;
         let totalErrors = 0;
 
+        let i = 0;
         for (const result of results) {
             for (const fileResult of result) {
                 totalWarnings += fileResult.warningCount;
                 totalErrors += fileResult.errorCount;
+                i++;
             }
         }
 
         await logger.info(`Total Warnings: ${totalWarnings}`);
         await logger.info(`Total Errors: ${totalErrors}`);
+        await logger.info(`i: ${i}`);
     } catch (error) {
         await logger.info('Error while linting:', error);
     }
