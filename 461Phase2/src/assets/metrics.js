@@ -46,7 +46,6 @@ var util_1 = require("util");
 var BlueBirdPromise = require('bluebird');
 var tar = require('tar');
 var axios_1 = require("axios");
-var fsExtra = require("fs-extra");
 var ESLint = require('eslint').ESLint;
 var writeFile = (0, util_1.promisify)(fs.writeFile);
 var eslintCommand = 'npx eslint --ext .ts'; // Add any necessary ESLint options here
@@ -595,7 +594,7 @@ function cloneRepo(repoUrl, destinationPath) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 5, , 7]);
+                    _a.trys.push([0, 4, , 6]);
                     cloneDir = path.join(__dirname, destinationPath);
                     if (!fs.existsSync(cloneDir)) {
                         fs.mkdirSync(cloneDir);
@@ -612,18 +611,14 @@ function cloneRepo(repoUrl, destinationPath) {
                 case 3:
                     _a.sent();
                     lintDirectory(tarballPath);
-                    fs.unlinkSync(tarballPath);
-                    return [4 /*yield*/, fsExtra.remove(cloneDir)];
+                    return [3 /*break*/, 6];
                 case 4:
-                    _a.sent();
-                    return [3 /*break*/, 7];
-                case 5:
                     error_9 = _a.sent();
                     return [4 /*yield*/, logger_1.logger.info("An error occurred when cloning the repo: ", error_9)];
-                case 6:
+                case 5:
                     _a.sent();
-                    return [3 /*break*/, 7];
-                case 7: return [2 /*return*/];
+                    return [3 /*break*/, 6];
+                case 6: return [2 /*return*/];
             }
         });
     });
