@@ -223,7 +223,7 @@ app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 
                 return [4 /*yield*/, logger_1.logger.info('Attempting to ingest package')];
             case 2:
                 _a.sent();
-                url = req.body;
+                url = req.body.url;
                 return [4 /*yield*/, logger_1.logger.info("package url: ".concat(url))];
             case 3:
                 _a.sent();

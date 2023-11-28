@@ -147,7 +147,7 @@ app.post('/ingest', async (req: Request, res: Response) => {
     await time.info("Starting time")
     await logger.info('Attempting to ingest package')
 
-    const url: string = req.body;
+    const { url } = req.body;
 
     await logger.info(`package url: ${url}`);
     await logger.info(`req: ${JSON.stringify(req)}`);

@@ -57,16 +57,26 @@
                 console.log("url: ", this.npmUrl);
                 this.ingestStatus = "Ingesting..."
                 fetch(`http://${this.ip}:8080/ingest`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ url: this.npmUrl }),
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url: this.npmUrl }),
                 })
-                .then(response => response.json())
-                .then(data => console.log(data))
-                .then(this.ingestStatus = "Successfully ingested")
-                .catch(error => this.ingestStatus = `Failed to ingest: ${error}`);
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                    this.ingestStatus = "Successfully ingested";
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                    this.ingestStatus = `Failed to ingest: ${error}`;
+                });
             }
         }
     }
