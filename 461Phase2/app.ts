@@ -7,12 +7,14 @@ const cors = require('cors');
 import { logger, time } from './logger';
 import * as rds_configurator from './rds_config';
 import * as rds_handler from './rds_packages';
+import * as fsExtra from 'fs-extra';
+import { execSync } from 'child_process';
 import {
   upload_package,
   download_package,
   clear_s3_bucket,
 } from './s3_packages';
-import {get_metric_info} from './src/assets/metrics';
+import {get_metric_info, cloneRepo, check_npm_for_open_source, get_github_info, get_npm_package_name, zipDirectory} from './src/assets/metrics';
 
 const app = express();
 const port = process.env.PORT||8080;
@@ -85,8 +87,6 @@ app.post('/upload', upload.single('file'), async (req, res) => {
       return res.status(400).send('Invalid file format. Please upload a zip file.');
     }
 
-    // The package name and rating may eventually change
-    // Currently not doing anything with the rating JSON
     // The replace statement gets rid of .zip from the filename
     let packageName = req.file.originalname.replace(/\.zip$/, '');
 
@@ -139,6 +139,75 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     res.status(500).send('An error occurred.');
   }
 });
+
+
+app.post('/ingest', async (req, res) => {
+  try {
+    await time.info("Starting time")
+    await logger.info('Attempting to ingest package')
+
+    const url: string = req.params.url;
+
+    await logger.info(`package url: ${url}`);
+
+    if (!req.file) {
+      await logger.error('No file to ingest');
+      await time.error('Error occurred at this time\n');
+      return res.status(400).send('No file ingest.');
+    }
+
+    const npmPackageName: string = get_npm_package_name(url);
+    await logger.info(`package name: ${npmPackageName}`);
+
+    const output = execSync(`npm view ${npmPackageName} --json --silent`, { encoding: 'utf8' }); // shell cmd to get json
+    fs.writeFileSync(`./temp_npm_json/${npmPackageName}_info.json`, output); // write json to file
+    const file = `./temp_npm_json/${npmPackageName}_info.json`; // file path
+    const gitUrl:string = await check_npm_for_open_source(file);
+    let destinationPath = 'temp_linter_test';
+    const cloneRepoOut = await cloneRepo(gitUrl, destinationPath);
+    const zippedFile: any = await zipDirectory(cloneRepoOut[1], `./tempZip.zip`);
+
+    let username: string = ""; 
+    let repo: string = ""; 
+    const gitInfo = get_github_info(gitUrl);
+    username = gitInfo.username;
+    repo = gitInfo.repo;
+    await logger.info(`username and repo found successfully: ${username}, ${repo}`);
+    let gitDetails = [{username: username, repo: repo}];
+    let scores = await get_metric_info(gitDetails);
+    await logger.info(`retrieved scores from score calculator: ${scores.busFactor}, ${scores.rampup}, ${scores.license}, ${scores.correctness}, ${scores.maintainer}, ${scores.pullRequest}, ${scores.pinning}, ${scores.score}`);
+    
+    const package_id = await rds_handler.add_rds_package_data(npmPackageName, scores);
+
+    // Check to see if package metadata was upladed to RDS
+    if (package_id === null) {
+      await logger.error("Could not ingest package data to RDS")
+      await time.error('Error occurred at this time\n');
+      return res.status(400).send('Could not add package metadata');
+    }
+    await logger.debug(`ingest package to rds with id: ${package_id}`)
+
+    // Upload the actual package to s3
+    const s3_response = await upload_package(package_id, zippedFile);
+    await fsExtra.remove(cloneRepoOut[1]);
+
+    // Check to see if package data was uploaded to S3
+    if (s3_response === null) {
+      await logger.error("Error uploading package to S3")
+      await time.error('Error occurred at this time\n');
+      return res.status(400).send('Could not add package data');
+    }
+
+    await logger.info(`Successfully uploaded package with id: ${package_id}`)
+    await time.info("Finished at this time\n")
+    res.status(200).send("Package uploaded successfully")
+  } catch (error) {
+    await logger.error('Could not upload package', error);
+    await time.error('Error occurred at this time\n')
+    res.status(500).send('An error occurred.');
+  }
+});
+
 
 app.get('/rate/:packageId', async (req, res) => {
   try {

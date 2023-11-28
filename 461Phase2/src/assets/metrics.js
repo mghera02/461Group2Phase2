@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.get_metric_info = void 0;
+exports.zipDirectory = exports.get_npm_package_name = exports.get_github_info = exports.check_npm_for_open_source = exports.cloneRepo = exports.get_metric_info = void 0;
 var octokit_1 = require("octokit"); // Octokit v17
 var exec = require('child_process').exec; // to execute shell cmds async version
 var fs = require("fs");
@@ -48,6 +48,7 @@ var tar = require('tar');
 var axios_1 = require("axios");
 var fsExtra = require("fs-extra");
 var ESLint = require('eslint').ESLint;
+var archiver = require('archiver');
 var writeFile = (0, util_1.promisify)(fs.writeFile);
 var eslintCommand = 'npx eslint --ext .ts'; // Add any necessary ESLint options here
 var gitHubToken = String(process.env.GITHUB_TOKEN);
@@ -134,7 +135,7 @@ function calcTotalScore(busFactor, rampup, license, correctness, maintainer, pul
 }
 function get_metric_info(gitDetails) {
     return __awaiter(this, void 0, void 0, function () {
-        var i, gitInfo, githubRepoUrl, destinationPath, busFactor, license, rampup, correctness, maintainer, pinning, pullRequest, score, error_1;
+        var i, gitInfo, githubRepoUrl, destinationPath, busFactor, license, rampup, cloneRepoOut, correctness, maintainer, pinning, pullRequest, score, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, logger_1.logger.info("Getting metric info: ".concat(gitDetails[0].username, ", ").concat(gitDetails[0].repo))];
@@ -143,11 +144,11 @@ function get_metric_info(gitDetails) {
                     i = 0;
                     _a.label = 2;
                 case 2:
-                    if (!(i < gitDetails.length)) return [3 /*break*/, 16];
+                    if (!(i < gitDetails.length)) return [3 /*break*/, 17];
                     gitInfo = gitDetails[i];
                     _a.label = 3;
                 case 3:
-                    _a.trys.push([3, 13, , 15]);
+                    _a.trys.push([3, 14, , 16]);
                     githubRepoUrl = "https://github.com/".concat(gitInfo.username, "/").concat(gitInfo.repo);
                     destinationPath = 'temp_linter_test';
                     return [4 /*yield*/, fetchRepoContributors(gitInfo.username, gitInfo.repo)];
@@ -161,35 +162,39 @@ function get_metric_info(gitDetails) {
                     rampup = _a.sent();
                     return [4 /*yield*/, cloneRepo(githubRepoUrl, destinationPath)];
                 case 7:
-                    correctness = _a.sent();
-                    return [4 /*yield*/, fetchRepoIssues(gitInfo.username, gitInfo.repo)];
+                    cloneRepoOut = _a.sent();
+                    return [4 /*yield*/, fsExtra.remove(cloneRepoOut[1])];
                 case 8:
+                    _a.sent();
+                    correctness = cloneRepoOut[0];
+                    return [4 /*yield*/, fetchRepoIssues(gitInfo.username, gitInfo.repo)];
+                case 9:
                     maintainer = _a.sent();
                     return [4 /*yield*/, fetchRepoPinning(gitInfo.username, gitInfo.repo)];
-                case 9:
+                case 10:
                     pinning = _a.sent();
                     return [4 /*yield*/, fetchRepoPullRequest(gitInfo.username, gitInfo.repo)];
-                case 10:
+                case 11:
                     pullRequest = _a.sent();
                     return [4 /*yield*/, calcTotalScore(busFactor, rampup, license, correctness, maintainer, pullRequest, pinning)];
-                case 11:
+                case 12:
                     score = _a.sent();
                     return [4 /*yield*/, logger_1.logger.info("Calculated score ".concat(score, "\n"))];
-                case 12:
+                case 13:
                     _a.sent();
                     return [2 /*return*/, { busFactor: busFactor.toFixed(5), rampup: rampup.toFixed(5), license: license.toFixed(5), correctness: correctness.toFixed(5), maintainer: maintainer.toFixed(5), pullRequest: pullRequest.toFixed(5), pinning: pinning.toFixed(5), score: score.toFixed(5) }];
-                case 13:
+                case 14:
                     error_1 = _a.sent();
                     //console.error(`Failed to get Metric info for ${gitInfo.username}/${gitInfo.repo}`);
                     return [4 /*yield*/, logger_1.logger.info("Failed to get Metric info for ".concat(gitInfo.username, "/").concat(gitInfo.repo, "\n"))];
-                case 14:
+                case 15:
                     //console.error(`Failed to get Metric info for ${gitInfo.username}/${gitInfo.repo}`);
                     _a.sent();
-                    return [3 /*break*/, 15];
-                case 15:
+                    return [3 /*break*/, 16];
+                case 16:
                     i++;
                     return [3 /*break*/, 2];
-                case 16: return [2 /*return*/];
+                case 17: return [2 /*return*/];
             }
         });
     });
@@ -594,7 +599,7 @@ function cloneRepo(repoUrl, destinationPath) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 6, , 8]);
+                    _a.trys.push([0, 5, , 7]);
                     cloneDir = path.join(__dirname, destinationPath);
                     if (!fs.existsSync(cloneDir)) {
                         fs.mkdirSync(cloneDir);
@@ -614,21 +619,19 @@ function cloneRepo(repoUrl, destinationPath) {
                 case 4:
                     score = _a.sent();
                     fs.unlinkSync(tarballPath);
-                    return [4 /*yield*/, fsExtra.remove(cloneDir)];
+                    return [2 /*return*/, [score, cloneDir]];
                 case 5:
-                    _a.sent();
-                    return [2 /*return*/, score];
-                case 6:
                     error_9 = _a.sent();
                     return [4 /*yield*/, logger_1.logger.info("An error occurred when cloning the repo: ", error_9)];
-                case 7:
+                case 6:
                     _a.sent();
-                    return [2 /*return*/, 0];
-                case 8: return [2 /*return*/];
+                    return [2 /*return*/, [0, ""]];
+                case 7: return [2 /*return*/];
             }
         });
     });
 }
+exports.cloneRepo = cloneRepo;
 function lintDirectory(directoryPath) {
     return __awaiter(this, void 0, void 0, function () {
         var eslint, tsEslint, totalWarnings, totalErrors, totalLines, results, _i, results_1, result, _a, result_1, fileResult, fileContent, lines, error_10, results, totalWarnings_1, totalErrors_1, totalLines_1, _b, results_2, result, _c, result_2, fileResult, fileContent, lines, error_11;
@@ -740,3 +743,143 @@ function lintDirectory(directoryPath) {
         });
     });
 }
+var readJSON = function (jsonPath, callback) {
+    fs.readFile(jsonPath, 'utf-8', function (err, data) { return __awaiter(void 0, void 0, void 0, function () {
+        var jsonData, parseError_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (!err) return [3 /*break*/, 2];
+                    return [4 /*yield*/, logger_1.logger.info('Error reading file:', err)];
+                case 1:
+                    _a.sent();
+                    callback(null); // Pass null to the callback to indicate an error
+                    return [2 /*return*/];
+                case 2:
+                    _a.trys.push([2, 3, , 5]);
+                    jsonData = JSON.parse(data);
+                    callback(jsonData); // Pass the parsed JSON data to the callback
+                    return [3 /*break*/, 5];
+                case 3:
+                    parseError_1 = _a.sent();
+                    return [4 /*yield*/, logger_1.logger.info('Error parsing JSON:', parseError_1)];
+                case 4:
+                    _a.sent();
+                    callback(null); // Pass null to the callback to indicate an error
+                    return [3 /*break*/, 5];
+                case 5: return [2 /*return*/];
+            }
+        });
+    }); });
+};
+function check_npm_for_open_source(filePath) {
+    return __awaiter(this, void 0, void 0, function () {
+        var _this = this;
+        return __generator(this, function (_a) {
+            return [2 /*return*/, new Promise(function (resolve) {
+                    readJSON(filePath, function (jsonData) { return __awaiter(_this, void 0, void 0, function () {
+                        var repository, gitUrl;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    if (!(jsonData !== null)) return [3 /*break*/, 4];
+                                    repository = jsonData.repository;
+                                    if (!(repository.type == 'git')) return [3 /*break*/, 1];
+                                    gitUrl = repository.url;
+                                    if (gitUrl.startsWith('git+ssh://git@')) {
+                                        // Convert SSH URL to HTTPS URL
+                                        gitUrl = gitUrl.replace('git+ssh://git@', 'https://');
+                                    }
+                                    else if (gitUrl.startsWith('git+https://')) {
+                                        gitUrl = gitUrl.replace('git+https://', 'https://');
+                                    }
+                                    if (gitUrl.endsWith('.git')) {
+                                        gitUrl = gitUrl.substring(0, gitUrl.length - 4);
+                                    }
+                                    return [2 /*return*/, gitUrl];
+                                case 1: return [4 /*yield*/, logger_1.logger.info('No git repository found.')];
+                                case 2:
+                                    _a.sent();
+                                    resolve("Invalid");
+                                    _a.label = 3;
+                                case 3: return [3 /*break*/, 6];
+                                case 4: return [4 /*yield*/, logger_1.logger.info('Failed to read or parse JSON.')];
+                                case 5:
+                                    _a.sent();
+                                    return [2 /*return*/, ""];
+                                case 6: return [2 /*return*/];
+                            }
+                        });
+                    }); });
+                })];
+        });
+    });
+}
+exports.check_npm_for_open_source = check_npm_for_open_source;
+var get_github_info = function (gitUrl) {
+    var gitRegex = /https:\/\/github\.com\/([^/]+)\/([^/]+)/i; // regex to get user/repo name  from git url
+    var gitMatch = gitUrl.match(gitRegex);
+    if (gitMatch) {
+        return {
+            username: gitMatch[1],
+            repo: gitMatch[2]
+        };
+    }
+    return {
+        username: "",
+        repo: ""
+    };
+};
+exports.get_github_info = get_github_info;
+var get_npm_package_name = function (npmUrl) {
+    var npmRegex = /https:\/\/www\.npmjs\.com\/package\/([\w-]+)/i; // regex to get package name from npm url
+    var npm_match = npmUrl.match(npmRegex);
+    if (npm_match) { // if url is found with proper regex (package identifier)
+        return npm_match[1]; // return this package name
+    }
+    return "";
+};
+exports.get_npm_package_name = get_npm_package_name;
+function zipDirectory(directoryPath, outputZipPath) {
+    return __awaiter(this, void 0, void 0, function () {
+        var _this = this;
+        return __generator(this, function (_a) {
+            return [2 /*return*/, new Promise(function (resolve, reject) {
+                    var output = fs.createWriteStream(outputZipPath);
+                    var archive = archiver('zip', { zlib: { level: 9 } });
+                    output.on('close', function () { return __awaiter(_this, void 0, void 0, function () {
+                        var zippedFile;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0: return [4 /*yield*/, logger_1.logger.info('Directory has been zipped successfully.')];
+                                case 1:
+                                    _a.sent();
+                                    zippedFile = {
+                                        path: outputZipPath,
+                                        originalname: 'zipped_directory.zip',
+                                        mimetype: 'application/zip' // Set the appropriate mimetype
+                                    };
+                                    resolve(zippedFile);
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); });
+                    archive.on('error', function (err) { return __awaiter(_this, void 0, void 0, function () {
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0: return [4 /*yield*/, logger_1.logger.info('Error zipping directory:', err)];
+                                case 1:
+                                    _a.sent();
+                                    reject(err);
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); });
+                    archive.pipe(output);
+                    archive.directory(directoryPath, false);
+                    archive.finalize();
+                })];
+        });
+    });
+}
+exports.zipDirectory = zipDirectory;

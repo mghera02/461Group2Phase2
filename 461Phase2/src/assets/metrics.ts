@@ -11,6 +11,7 @@ const tar = require('tar');
 import axios from 'axios';
 import * as fsExtra from 'fs-extra';
 const { ESLint } = require('eslint');
+const archiver = require('archiver');
 
 const writeFile = promisify(fs.writeFile);
 const eslintCommand = 'npx eslint --ext .ts'; // Add any necessary ESLint options here
@@ -142,7 +143,9 @@ async function get_metric_info(gitDetails: { username: string, repo: string }[])
             const busFactor = await fetchRepoContributors(gitInfo.username, gitInfo.repo);
             const license = await fetchRepoLicense(gitInfo.username, gitInfo.repo); 
             const rampup = await fetchRepoReadme(gitInfo.username, gitInfo.repo);
-            const correctness = await cloneRepo(githubRepoUrl, destinationPath);
+            const cloneRepoOut = await cloneRepo(githubRepoUrl, destinationPath);
+            await fsExtra.remove(cloneRepoOut[1]);
+            const correctness:number = cloneRepoOut[0];
             const maintainer = await fetchRepoIssues(gitInfo.username, gitInfo.repo);
             const pinning = await fetchRepoPinning(gitInfo.username, gitInfo.repo);
             const pullRequest = await fetchRepoPullRequest(gitInfo.username, gitInfo.repo);
@@ -431,7 +434,7 @@ async function downloadFile(url: string, destination: string) {
     });
 }
 
-async function cloneRepo(repoUrl: string, destinationPath: string) {
+async function cloneRepo(repoUrl: string, destinationPath: string): Promise<[number, string]> {
     try {
         const cloneDir = path.join(__dirname, destinationPath);
         if (!fs.existsSync(cloneDir)) {
@@ -449,11 +452,10 @@ async function cloneRepo(repoUrl: string, destinationPath: string) {
         let score = await lintDirectory(cloneDir);
 
         fs.unlinkSync(tarballPath);
-        await fsExtra.remove(cloneDir);
-        return score;
+        return [score, cloneDir];
     } catch (error) {
         await logger.info("An error occurred when cloning the repo: ", error);
-        return 0;
+        return [0,""];
     }
 }
 
@@ -544,7 +546,107 @@ async function lintDirectory(directoryPath: any) {
     return Math.max((totalLines - 5 * (totalWarnings + totalErrors)) / totalLines, 0);
 }
 
+const readJSON = (jsonPath: string, callback: (data: Record<string, unknown> | null) => void) => {
+    fs.readFile(jsonPath, 'utf-8', async (err, data) => {
+        if (err) {
+        await logger.info('Error reading file:', err);
+        callback(null); // Pass null to the callback to indicate an error
+        return;
+        }
+    
+        try {
+        const jsonData = JSON.parse(data);
+        callback(jsonData); // Pass the parsed JSON data to the callback
+        }catch (parseError) {
+        await logger.info('Error parsing JSON:', parseError);
+        callback(null); // Pass null to the callback to indicate an error
+        }
+    });
+    };
+    
+
+async function check_npm_for_open_source(filePath: string): Promise<string> {
+    return new Promise((resolve) => {
+        readJSON(filePath, async (jsonData) => {
+        if (jsonData !== null) {
+            const repository = jsonData.repository as Record<string, unknown>;
+            if (repository.type == 'git') {
+            let gitUrl: string = repository.url as string;
+            if (gitUrl.startsWith('git+ssh://git@')) {
+                // Convert SSH URL to HTTPS URL
+                gitUrl = gitUrl.replace('git+ssh://git@', 'https://');
+            } else if (gitUrl.startsWith('git+https://')) {
+                gitUrl = gitUrl.replace('git+https://', 'https://');
+            }
+
+            if (gitUrl.endsWith('.git')) { 
+                gitUrl = gitUrl.substring(0, gitUrl.length - 4);
+            }
+                
+            return gitUrl
+        } else {
+            await logger.info('No git repository found.');
+            resolve("Invalid");
+            }
+        } else {
+            await logger.info('Failed to read or parse JSON.');
+            return "";
+        }
+        });
+
+    });
+    }
+
+    const get_github_info = (gitUrl: string): { username: string, repo: string}  => {
+        const gitRegex = /https:\/\/github\.com\/([^/]+)\/([^/]+)/i; // regex to get user/repo name  from git url
+        const gitMatch = gitUrl.match(gitRegex);
+        if (gitMatch) { 
+            return {
+                username: gitMatch[1],
+                repo: gitMatch[2]
+            };
+        }
+        return {
+            username: "",
+            repo: ""
+        };
+    }
+
+    const get_npm_package_name = (npmUrl: string): string  => { 
+        const npmRegex = /https:\/\/www\.npmjs\.com\/package\/([\w-]+)/i; // regex to get package name from npm url
+        const npm_match = npmUrl.match(npmRegex);
+        if (npm_match) { // if url is found with proper regex (package identifier)
+            return npm_match[1]; // return this package name
+        }
+        return "";  
+    }
+
+    async function zipDirectory(directoryPath: any, outputZipPath: any) {
+        return new Promise((resolve, reject) => {
+            const output = fs.createWriteStream(outputZipPath);
+            const archive = archiver('zip', { zlib: { level: 9 } });
+    
+            output.on('close', async () => {
+                await logger.info('Directory has been zipped successfully.');
+                const zippedFile = {
+                    path: outputZipPath,
+                    originalname: 'zipped_directory.zip', // Set the desired filename
+                    mimetype: 'application/zip' // Set the appropriate mimetype
+                };
+                resolve(zippedFile);
+            });
+    
+            archive.on('error', async (err: any) => {
+                await logger.info('Error zipping directory:', err);
+                reject(err);
+            });
+    
+            archive.pipe(output);
+            archive.directory(directoryPath, false);
+            archive.finalize();
+        });
+    }
 
 export {
-    get_metric_info
+    get_metric_info, cloneRepo, check_npm_for_open_source, get_github_info, get_npm_package_name, zipDirectory
 }

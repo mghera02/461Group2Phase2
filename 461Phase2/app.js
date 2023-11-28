@@ -45,6 +45,8 @@ var cors = require('cors');
 var logger_1 = require("./logger");
 var rds_configurator = require("./rds_config");
 var rds_handler = require("./rds_packages");
+var fsExtra = require("fs-extra");
+var child_process_1 = require("child_process");
 var s3_packages_1 = require("./s3_packages");
 var metrics_1 = require("./src/assets/metrics");
 var app = express();
@@ -209,8 +211,117 @@ app.post('/upload', upload.single('file'), function (req, res) { return __awaite
         }
     });
 }); });
+app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var url, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zippedFile, username, repo, gitInfo, gitDetails, scores, package_id, s3_response, error_2;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 26, , 29]);
+                return [4 /*yield*/, logger_1.time.info("Starting time")];
+            case 1:
+                _a.sent();
+                return [4 /*yield*/, logger_1.logger.info('Attempting to ingest package')];
+            case 2:
+                _a.sent();
+                url = req.params.url;
+                return [4 /*yield*/, logger_1.logger.info("package url: ".concat(url))];
+            case 3:
+                _a.sent();
+                if (!!req.file) return [3 /*break*/, 6];
+                return [4 /*yield*/, logger_1.logger.error('No file to ingest')];
+            case 4:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 5:
+                _a.sent();
+                return [2 /*return*/, res.status(400).send('No file ingest.')];
+            case 6:
+                npmPackageName = (0, metrics_1.get_npm_package_name)(url);
+                return [4 /*yield*/, logger_1.logger.info("package name: ".concat(npmPackageName))];
+            case 7:
+                _a.sent();
+                output = (0, child_process_1.execSync)("npm view ".concat(npmPackageName, " --json --silent"), { encoding: 'utf8' });
+                fs.writeFileSync("./temp_npm_json/".concat(npmPackageName, "_info.json"), output); // write json to file
+                file = "./temp_npm_json/".concat(npmPackageName, "_info.json");
+                return [4 /*yield*/, (0, metrics_1.check_npm_for_open_source)(file)];
+            case 8:
+                gitUrl = _a.sent();
+                destinationPath = 'temp_linter_test';
+                return [4 /*yield*/, (0, metrics_1.cloneRepo)(gitUrl, destinationPath)];
+            case 9:
+                cloneRepoOut = _a.sent();
+                return [4 /*yield*/, (0, metrics_1.zipDirectory)(cloneRepoOut[1], "./tempZip.zip")];
+            case 10:
+                zippedFile = _a.sent();
+                username = "";
+                repo = "";
+                gitInfo = (0, metrics_1.get_github_info)(gitUrl);
+                username = gitInfo.username;
+                repo = gitInfo.repo;
+                return [4 /*yield*/, logger_1.logger.info("username and repo found successfully: ".concat(username, ", ").concat(repo))];
+            case 11:
+                _a.sent();
+                gitDetails = [{ username: username, repo: repo }];
+                return [4 /*yield*/, (0, metrics_1.get_metric_info)(gitDetails)];
+            case 12:
+                scores = _a.sent();
+                return [4 /*yield*/, logger_1.logger.info("retrieved scores from score calculator: ".concat(scores.busFactor, ", ").concat(scores.rampup, ", ").concat(scores.license, ", ").concat(scores.correctness, ", ").concat(scores.maintainer, ", ").concat(scores.pullRequest, ", ").concat(scores.pinning, ", ").concat(scores.score))];
+            case 13:
+                _a.sent();
+                return [4 /*yield*/, rds_handler.add_rds_package_data(npmPackageName, scores)];
+            case 14:
+                package_id = _a.sent();
+                if (!(package_id === null)) return [3 /*break*/, 17];
+                return [4 /*yield*/, logger_1.logger.error("Could not ingest package data to RDS")];
+            case 15:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 16:
+                _a.sent();
+                return [2 /*return*/, res.status(400).send('Could not add package metadata')];
+            case 17: return [4 /*yield*/, logger_1.logger.debug("ingest package to rds with id: ".concat(package_id))
+                // Upload the actual package to s3
+            ];
+            case 18:
+                _a.sent();
+                return [4 /*yield*/, (0, s3_packages_1.upload_package)(package_id, zippedFile)];
+            case 19:
+                s3_response = _a.sent();
+                return [4 /*yield*/, fsExtra.remove(cloneRepoOut[1])];
+            case 20:
+                _a.sent();
+                if (!(s3_response === null)) return [3 /*break*/, 23];
+                return [4 /*yield*/, logger_1.logger.error("Error uploading package to S3")];
+            case 21:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 22:
+                _a.sent();
+                return [2 /*return*/, res.status(400).send('Could not add package data')];
+            case 23: return [4 /*yield*/, logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id))];
+            case 24:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
+            case 25:
+                _a.sent();
+                res.status(200).send("Package uploaded successfully");
+                return [3 /*break*/, 29];
+            case 26:
+                error_2 = _a.sent();
+                return [4 /*yield*/, logger_1.logger.error('Could not upload package', error_2)];
+            case 27:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 28:
+                _a.sent();
+                res.status(500).send('An error occurred.');
+                return [3 /*break*/, 29];
+            case 29: return [2 /*return*/];
+        }
+    });
+}); });
 app.get('/rate/:packageId', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var package_id, package_data, scores, error_2;
+    var package_id, package_data, scores, error_3;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -255,8 +366,8 @@ app.get('/rate/:packageId', function (req, res) { return __awaiter(void 0, void 
                 res.status(200).json(scores);
                 return [3 /*break*/, 16];
             case 13:
-                error_2 = _a.sent();
-                return [4 /*yield*/, logger_1.logger.error('Error rating package:', error_2)];
+                error_3 = _a.sent();
+                return [4 /*yield*/, logger_1.logger.error('Error rating package:', error_3)];
             case 14:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
@@ -269,7 +380,7 @@ app.get('/rate/:packageId', function (req, res) { return __awaiter(void 0, void 
     });
 }); });
 app.get('/download/:packageId', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var package_id, package_data, package_name, package_buffer, error_3;
+    var package_id, package_data, package_name, package_buffer, error_4;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -319,8 +430,8 @@ app.get('/download/:packageId', function (req, res) { return __awaiter(void 0, v
                 res.status(200).send(package_buffer);
                 return [3 /*break*/, 17];
             case 14:
-                error_3 = _a.sent();
-                return [4 /*yield*/, logger_1.logger.error('Error downloading package:', error_3)];
+                error_4 = _a.sent();
+                return [4 /*yield*/, logger_1.logger.error('Error downloading package:', error_4)];
             case 15:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
@@ -339,7 +450,7 @@ app.get('/packages', function (req, res) { return __awaiter(void 0, void 0, void
 }); });
 // Sends the a list of package names that match the regex
 app.get('/search', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var searchString, searchResults, package_names, error_4;
+    var searchString, searchResults, package_names, error_5;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -372,8 +483,8 @@ app.get('/search', function (req, res) { return __awaiter(void 0, void 0, void 0
                 res.status(200).json(package_names);
                 return [3 /*break*/, 12];
             case 9:
-                error_4 = _a.sent();
-                return [4 /*yield*/, logger_1.logger.error('Error searching packages:', error_4)];
+                error_5 = _a.sent();
+                return [4 /*yield*/, logger_1.logger.error('Error searching packages:', error_5)];
             case 10:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
@@ -387,7 +498,7 @@ app.get('/search', function (req, res) { return __awaiter(void 0, void 0, void 0
 }); });
 // Resets RDS and S3
 app.post('/reset', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var error_5;
+    var error_6;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -416,8 +527,8 @@ app.post('/reset', function (req, res) { return __awaiter(void 0, void 0, void 0
                 res.status(200).send('Successfully reset system to original state');
                 return [3 /*break*/, 11];
             case 8:
-                error_5 = _a.sent();
-                return [4 /*yield*/, logger_1.logger.error('Error resetting system:', error_5)];
+                error_6 = _a.sent();
+                return [4 /*yield*/, logger_1.logger.error('Error resetting system:', error_6)];
             case 9:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
@@ -430,7 +541,7 @@ app.post('/reset', function (req, res) { return __awaiter(void 0, void 0, void 0
     });
 }); });
 app.get('/packageId/:packageName', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var packageName, searchResults, package_id, error_6;
+    var packageName, searchResults, package_id, error_7;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -464,8 +575,8 @@ app.get('/packageId/:packageName', function (req, res) { return __awaiter(void 0
                 res.status(200).json({ package_id: package_id });
                 return [3 /*break*/, 12];
             case 9:
-                error_6 = _a.sent();
-                return [4 /*yield*/, logger_1.logger.error('Error getting package ID by name:', error_6)];
+                error_7 = _a.sent();
+                return [4 /*yield*/, logger_1.logger.error('Error getting package ID by name:', error_7)];
             case 10:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
