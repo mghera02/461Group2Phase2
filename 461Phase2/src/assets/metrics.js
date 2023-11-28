@@ -567,7 +567,7 @@ function downloadRepo(url) {
                     }
                     _a.label = 1;
                 case 1:
-                    _a.trys.push([1, 5, , 6]);
+                    _a.trys.push([1, 7, , 9]);
                     return [4 /*yield*/, new Promise(function (resolve, reject) {
                             (0, download_git_repo_1.default)(url, repoDir, function (err) {
                                 if (err) {
@@ -580,55 +580,74 @@ function downloadRepo(url) {
                         })];
                 case 2:
                     _a.sent();
-                    console.log('Linting repository...');
-                    return [4 /*yield*/, lintRepo(repoDir)];
+                    return [4 /*yield*/, logger_1.logger.info('Linting repository...')];
                 case 3:
                     _a.sent();
-                    console.log('Linting complete! Deleting repository...');
-                    return [4 /*yield*/, deleteRepo(repoDir)];
+                    return [4 /*yield*/, lintRepo(repoDir)];
                 case 4:
                     _a.sent();
-                    return [3 /*break*/, 6];
+                    return [4 /*yield*/, logger_1.logger.info('Linting complete! Deleting repository...')];
                 case 5:
+                    _a.sent();
+                    return [4 /*yield*/, deleteRepo(repoDir)];
+                case 6:
+                    _a.sent();
+                    return [3 /*break*/, 9];
+                case 7:
                     error_9 = _a.sent();
-                    console.error('Error downloading repository:', error_9);
-                    return [3 /*break*/, 6];
-                case 6: return [2 /*return*/];
+                    return [4 /*yield*/, logger_1.logger.info('Error downloading repository:', error_9)];
+                case 8:
+                    _a.sent();
+                    return [3 /*break*/, 9];
+                case 9: return [2 /*return*/];
             }
         });
     });
 }
 function lintRepo(repoDir) {
     return __awaiter(this, void 0, void 0, function () {
+        var error_10;
         return __generator(this, function (_a) {
-            try {
-                (0, child_process_1.execSync)("".concat(eslintCommand, " ").concat(repoDir), { stdio: 'inherit' });
-                console.log('Linting complete!');
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 4]);
+                    (0, child_process_1.execSync)("".concat(eslintCommand, " ").concat(repoDir), { stdio: 'inherit' });
+                    return [4 /*yield*/, logger_1.logger.info('Linting complete!')];
+                case 1:
+                    _a.sent();
+                    return [3 /*break*/, 4];
+                case 2:
+                    error_10 = _a.sent();
+                    return [4 /*yield*/, logger_1.logger.info('Linting error:', error_10)];
+                case 3:
+                    _a.sent();
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
             }
-            catch (error) {
-                console.error('Linting error:', error);
-            }
-            return [2 /*return*/];
         });
     });
 }
 function deleteRepo(repoDir) {
     return __awaiter(this, void 0, void 0, function () {
-        var error_10;
+        var error_11;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 2, , 3]);
+                    _a.trys.push([0, 3, , 5]);
                     return [4 /*yield*/, fse.remove(repoDir)];
                 case 1:
                     _a.sent();
-                    console.log('Repository deleted.');
-                    return [3 /*break*/, 3];
+                    return [4 /*yield*/, logger_1.logger.info('Repository deleted.')];
                 case 2:
-                    error_10 = _a.sent();
-                    console.error('Error deleting repository:', error_10);
-                    return [3 /*break*/, 3];
-                case 3: return [2 /*return*/];
+                    _a.sent();
+                    return [3 /*break*/, 5];
+                case 3:
+                    error_11 = _a.sent();
+                    return [4 /*yield*/, logger_1.logger.info('Error deleting repository:', error_11)];
+                case 4:
+                    _a.sent();
+                    return [3 /*break*/, 5];
+                case 5: return [2 /*return*/];
             }
         });
     });

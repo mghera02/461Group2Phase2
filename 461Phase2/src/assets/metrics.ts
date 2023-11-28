@@ -427,30 +427,30 @@ async function fetchRepoPullRequest(username: string, repo: string) {
         });
       });
   
-      console.log('Linting repository...');
+      await logger.info('Linting repository...');
       await lintRepo(repoDir);
-      console.log('Linting complete! Deleting repository...');
+      await logger.info('Linting complete! Deleting repository...');
       await deleteRepo(repoDir);
     } catch (error) {
-      console.error('Error downloading repository:', error);
+        await logger.info('Error downloading repository:', error);
     }
   }
   
   async function lintRepo(repoDir: string): Promise<void> {
     try {
       execSync(`${eslintCommand} ${repoDir}`, { stdio: 'inherit' });
-      console.log('Linting complete!');
+      await logger.info('Linting complete!');
     } catch (error) {
-      console.error('Linting error:', error);
+        await logger.info('Linting error:', error);
     }
   }
   
   async function deleteRepo(repoDir: string): Promise<void> {
     try {
       await fse.remove(repoDir);
-      console.log('Repository deleted.');
+      await logger.info('Repository deleted.');
     } catch (error) {
-      console.error('Error deleting repository:', error);
+        await logger.info('Error deleting repository:', error);
     }
   }
 
