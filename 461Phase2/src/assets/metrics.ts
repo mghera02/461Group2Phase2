@@ -5,11 +5,12 @@ import * as fs from 'fs';
 import { logger, time } from '../../logger';
 import * as path from 'path';
 import { promisify } from 'util';
-// For cloning repo
+
 const BlueBirdPromise = require('bluebird')
 const tar = require('tar');
 import axios from 'axios';
 import * as fsExtra from 'fs-extra';
+const { ESLint } = require('eslint');
 
 const writeFile = promisify(fs.writeFile);
 const eslintCommand = 'npx eslint --ext .ts'; // Add any necessary ESLint options here
@@ -412,8 +413,8 @@ async function fetchRepoPullRequest(username: string, repo: string) {
     }
 }
 
-async function extractTarball(tarballPath: string, targetDir: string): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
+async function extractTarball(tarballPath: string, targetDir: any) {
+    return new Promise((resolve, reject) => {
         fs.createReadStream(tarballPath)
             .pipe(tar.extract({ cwd: targetDir, strip: 1 }))
             .on('error', reject)
@@ -421,37 +422,95 @@ async function extractTarball(tarballPath: string, targetDir: string): Promise<v
     });
 }
 
-async function cloneRepo(repoUrl: string, destinationPath: string) {    
+async function downloadFile(url: string, destination: string) {
+    const response = await axios.get(url, { responseType: 'stream' });
+    response.data.pipe(fs.createWriteStream(destination));
+
+    await new Promise((resolve, reject) => {
+        response.data.on('end', resolve);
+        response.data.on('error', reject);
+    });
+}
+
+async function cloneRepo(repoUrl: string, destinationPath: string) {
     try {
-        // Create a directory to clone the repository into
         const cloneDir = path.join(__dirname, destinationPath);
         if (!fs.existsSync(cloneDir)) {
             fs.mkdirSync(cloneDir);
         }
-    
-        // Fetch the GitHub repository's tarball URL
-        const tarballUrl = `${repoUrl}/archive/master.tar.gz`;
-    
-        // Download the tarball to a temporary file
-        const tarballPath = path.join(__dirname, 'temp.tar.gz');
-        const response = await axios.get(tarballUrl, { responseType: 'stream' });
-        response.data.pipe(fs.createWriteStream(tarballPath));
-    
-        await new Promise((resolve, reject) => {
-            response.data.on('end', resolve);
-            response.data.on('error', reject);
-        });
-    
-        // Extract the tarball using the tar library
-        await extractTarball(tarballPath, cloneDir);
-    
-        // Clean up the temporary tarball file
-        fs.unlinkSync(tarballPath);
 
+        const tarballUrl = `${repoUrl}/archive/master.tar.gz`;
+        const tarballPath = path.join(__dirname, 'temp.tar.gz');
+
+        await downloadFile(tarballUrl, tarballPath);
+        await extractTarball(tarballPath, cloneDir);
+
+        lintDirectory(tarballPath);
+
+        fs.unlinkSync(tarballPath);
         await fsExtra.remove(cloneDir);
-    
     } catch (error) {
-        //console.error('Error cloning repository:', error);
+        await logger.info("An error occurred when cloning the repo: ", error);
+    }
+}
+
+async function lintDirectory(directoryPath:any) {
+    const eslint = new ESLint({
+        overrideConfig: {
+            // ESLint configuration for JavaScript files
+            files: ['**/*.js'],
+            parserOptions: {
+                ecmaVersion: 2021,
+            },
+            rules: {
+                // Add your JavaScript ESLint rules here
+                // Example: 'semi': ['error', 'always']
+            },
+        },
+        useEslintrc: false,
+    });
+
+    const tsEslint = new ESLint({
+        overrideConfig: {
+            // ESLint configuration for TypeScript files
+            files: ['**/*.ts'],
+            parser: '@typescript-eslint/parser',
+            parserOptions: {
+                ecmaVersion: 2021,
+                sourceType: 'module',
+                project: './tsconfig.json', // Path to your tsconfig.json file
+            },
+            plugins: ['@typescript-eslint'],
+            extends: [
+                'plugin:@typescript-eslint/recommended',
+                'plugin:@typescript-eslint/recommended-requiring-type-checking',
+            ],
+            rules: {
+            },
+        },
+        useEslintrc: false,
+    });
+
+    try {
+        const results = await Promise.all([
+            eslint.lintFiles([path.join(directoryPath, '**/*.js')]),
+            tsEslint.lintFiles([path.join(directoryPath, '**/*.ts')]),
+        ]);
+
+        let totalWarnings = 0;
+        let totalErrors = 0;
+
+        for (const result of results) {
+            for (const fileResult of result) {
+                totalWarnings += fileResult.warningCount;
+                totalErrors += fileResult.errorCount;
+            }
+        }
+
+        await logger.info(`Total Warnings: ${totalWarnings}`);
+        await logger.info(`Total Errors: ${totalErrors}`);
+    } catch (error) {
+        await logger.info('Error while linting:', error);
     }
 }
 

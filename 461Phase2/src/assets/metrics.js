@@ -43,11 +43,11 @@ var fs = require("fs");
 var logger_1 = require("../../logger");
 var path = require("path");
 var util_1 = require("util");
-// For cloning repo
 var BlueBirdPromise = require('bluebird');
 var tar = require('tar');
 var axios_1 = require("axios");
 var fsExtra = require("fs-extra");
+var ESLint = require('eslint').ESLint;
 var writeFile = (0, util_1.promisify)(fs.writeFile);
 var eslintCommand = 'npx eslint --ext .ts'; // Add any necessary ESLint options here
 var gitHubToken = String(process.env.GITHUB_TOKEN);
@@ -569,44 +569,134 @@ function extractTarball(tarballPath, targetDir) {
         });
     });
 }
+function downloadFile(url, destination) {
+    return __awaiter(this, void 0, void 0, function () {
+        var response;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, axios_1.default.get(url, { responseType: 'stream' })];
+                case 1:
+                    response = _a.sent();
+                    response.data.pipe(fs.createWriteStream(destination));
+                    return [4 /*yield*/, new Promise(function (resolve, reject) {
+                            response.data.on('end', resolve);
+                            response.data.on('error', reject);
+                        })];
+                case 2:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
 function cloneRepo(repoUrl, destinationPath) {
     return __awaiter(this, void 0, void 0, function () {
-        var cloneDir, tarballUrl, tarballPath, response_1, error_9;
+        var cloneDir, tarballUrl, tarballPath, error_9;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 5, , 6]);
+                    _a.trys.push([0, 4, , 6]);
                     cloneDir = path.join(__dirname, destinationPath);
                     if (!fs.existsSync(cloneDir)) {
                         fs.mkdirSync(cloneDir);
                     }
                     tarballUrl = "".concat(repoUrl, "/archive/master.tar.gz");
                     tarballPath = path.join(__dirname, 'temp.tar.gz');
-                    return [4 /*yield*/, axios_1.default.get(tarballUrl, { responseType: 'stream' })];
+                    return [4 /*yield*/, downloadFile(tarballUrl, tarballPath)];
                 case 1:
-                    response_1 = _a.sent();
-                    response_1.data.pipe(fs.createWriteStream(tarballPath));
-                    return [4 /*yield*/, new Promise(function (resolve, reject) {
-                            response_1.data.on('end', resolve);
-                            response_1.data.on('error', reject);
-                        })];
+                    _a.sent();
+                    return [4 /*yield*/, extractTarball(tarballPath, cloneDir)];
                 case 2:
                     _a.sent();
-                    // Extract the tarball using the tar library
-                    return [4 /*yield*/, extractTarball(tarballPath, cloneDir)];
-                case 3:
-                    // Extract the tarball using the tar library
-                    _a.sent();
-                    // Clean up the temporary tarball file
+                    lintDirectory(tarballPath);
                     fs.unlinkSync(tarballPath);
                     return [4 /*yield*/, fsExtra.remove(cloneDir)];
-                case 4:
+                case 3:
                     _a.sent();
                     return [3 /*break*/, 6];
-                case 5:
+                case 4:
                     error_9 = _a.sent();
+                    return [4 /*yield*/, logger_1.logger.info("An error occurred when cloning the repo: ", error_9)];
+                case 5:
+                    _a.sent();
                     return [3 /*break*/, 6];
                 case 6: return [2 /*return*/];
+            }
+        });
+    });
+}
+function lintDirectory(directoryPath) {
+    return __awaiter(this, void 0, void 0, function () {
+        var eslint, tsEslint, results, totalWarnings, totalErrors, _i, results_1, result, _a, result_1, fileResult, error_10;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    eslint = new ESLint({
+                        overrideConfig: {
+                            // ESLint configuration for JavaScript files
+                            files: ['**/*.js'],
+                            parserOptions: {
+                                ecmaVersion: 2021,
+                            },
+                            rules: {
+                            // Add your JavaScript ESLint rules here
+                            // Example: 'semi': ['error', 'always']
+                            },
+                        },
+                        useEslintrc: false,
+                    });
+                    tsEslint = new ESLint({
+                        overrideConfig: {
+                            // ESLint configuration for TypeScript files
+                            files: ['**/*.ts'],
+                            parser: '@typescript-eslint/parser',
+                            parserOptions: {
+                                ecmaVersion: 2021,
+                                sourceType: 'module',
+                                project: './tsconfig.json', // Path to your tsconfig.json file
+                            },
+                            plugins: ['@typescript-eslint'],
+                            extends: [
+                                'plugin:@typescript-eslint/recommended',
+                                'plugin:@typescript-eslint/recommended-requiring-type-checking',
+                            ],
+                            rules: {},
+                        },
+                        useEslintrc: false,
+                    });
+                    _b.label = 1;
+                case 1:
+                    _b.trys.push([1, 5, , 7]);
+                    return [4 /*yield*/, Promise.all([
+                            eslint.lintFiles([path.join(directoryPath, '**/*.js')]),
+                            tsEslint.lintFiles([path.join(directoryPath, '**/*.ts')]),
+                        ])];
+                case 2:
+                    results = _b.sent();
+                    totalWarnings = 0;
+                    totalErrors = 0;
+                    for (_i = 0, results_1 = results; _i < results_1.length; _i++) {
+                        result = results_1[_i];
+                        for (_a = 0, result_1 = result; _a < result_1.length; _a++) {
+                            fileResult = result_1[_a];
+                            totalWarnings += fileResult.warningCount;
+                            totalErrors += fileResult.errorCount;
+                        }
+                    }
+                    return [4 /*yield*/, logger_1.logger.info("Total Warnings: ".concat(totalWarnings))];
+                case 3:
+                    _b.sent();
+                    return [4 /*yield*/, logger_1.logger.info("Total Errors: ".concat(totalErrors))];
+                case 4:
+                    _b.sent();
+                    return [3 /*break*/, 7];
+                case 5:
+                    error_10 = _b.sent();
+                    return [4 /*yield*/, logger_1.logger.info('Error while linting:', error_10)];
+                case 6:
+                    _b.sent();
+                    return [3 /*break*/, 7];
+                case 7: return [2 /*return*/];
             }
         });
     });
