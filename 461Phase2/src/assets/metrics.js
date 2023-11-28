@@ -701,7 +701,7 @@ function lintDirectory(directoryPath) {
                     return [4 /*yield*/, logger_1.logger.info("Total lines: ".concat(totalLines))];
                 case 5:
                     _b.sent();
-                    return [2 /*return*/, Math.max(totalLines - 5 * (totalWarnings + totalErrors) / totalLines, 0)];
+                    return [2 /*return*/, Math.max((totalLines - 5 * (totalWarnings + totalErrors)) / totalLines, 0)];
                 case 6:
                     error_10 = _b.sent();
                     return [4 /*yield*/, logger_1.logger.info('Error while linting:', error_10)];

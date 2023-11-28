@@ -517,7 +517,7 @@ async function lintDirectory(directoryPath: any) {
         await logger.info(`Total Warnings: ${totalWarnings}`);
         await logger.info(`Total Errors: ${totalErrors}`);
         await logger.info(`Total lines: ${totalLines}`);
-        return Math.max(totalLines - 5 * (totalWarnings + totalErrors) / totalLines, 0);
+        return Math.max((totalLines - 5 * (totalWarnings + totalErrors)) / totalLines, 0);
     } catch (error) {
         await logger.info('Error while linting:', error);
     }
