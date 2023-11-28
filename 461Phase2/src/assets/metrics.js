@@ -639,7 +639,6 @@ function lintDirectory(directoryPath) {
                     eslint = new ESLint({
                         overrideConfig: {
                             // ESLint configuration for JavaScript files
-                            files: ['**/*.js'],
                             parserOptions: {
                                 ecmaVersion: 2021,
                             },
@@ -653,7 +652,6 @@ function lintDirectory(directoryPath) {
                     tsEslint = new ESLint({
                         overrideConfig: {
                             // ESLint configuration for TypeScript files
-                            files: ['**/*.ts'],
                             parser: '@typescript-eslint/parser',
                             parserOptions: {
                                 ecmaVersion: 2021,
@@ -665,7 +663,10 @@ function lintDirectory(directoryPath) {
                                 'plugin:@typescript-eslint/recommended',
                                 'plugin:@typescript-eslint/recommended-requiring-type-checking',
                             ],
-                            rules: {},
+                            rules: {
+                            // Add your TypeScript ESLint rules here
+                            // Example: '@typescript-eslint/explicit-module-boundary-types': 'error'
+                            },
                         },
                         useEslintrc: false,
                     });

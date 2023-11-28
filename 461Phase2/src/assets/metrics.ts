@@ -456,11 +456,10 @@ async function cloneRepo(repoUrl: string, destinationPath: string) {
     }
 }
 
-async function lintDirectory(directoryPath:any) {
+async function lintDirectory(directoryPath) {
     const eslint = new ESLint({
         overrideConfig: {
             // ESLint configuration for JavaScript files
-            files: ['**/*.js'],
             parserOptions: {
                 ecmaVersion: 2021,
             },
@@ -475,7 +474,6 @@ async function lintDirectory(directoryPath:any) {
     const tsEslint = new ESLint({
         overrideConfig: {
             // ESLint configuration for TypeScript files
-            files: ['**/*.ts'],
             parser: '@typescript-eslint/parser',
             parserOptions: {
                 ecmaVersion: 2021,
@@ -488,6 +486,8 @@ async function lintDirectory(directoryPath:any) {
                 'plugin:@typescript-eslint/recommended-requiring-type-checking',
             ],
             rules: {
+                // Add your TypeScript ESLint rules here
+                // Example: '@typescript-eslint/explicit-module-boundary-types': 'error'
             },
         },
         useEslintrc: false,
@@ -515,6 +515,7 @@ async function lintDirectory(directoryPath:any) {
         await logger.info('Error while linting:', error);
     }
 }
+
 
 export {
     get_metric_info
