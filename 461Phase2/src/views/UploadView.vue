@@ -56,16 +56,17 @@
             async npmIngest() {
                 console.log("url: ", this.npmUrl);
                 this.ingestStatus = "Ingesting..."
-                try {
-                    const response = await axios.post(`http://${this.ip}:8080/ingest`, this.npmUrl, {
-                        headers: {},
-                    });
-                    console.log("Ingest call received successfuly", response.data);
-                    this.ingestStatus = "Successfully ingest"
-                } catch (error) {
-                    console.error("Error ingest.", error);
-                    this.ingestStatus = "Failed to ingest"
-                }
+                fetch(`http://${this.ip}:8080/ingest`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ url: this.npmUrl }),
+                })
+                .then(response => response.json())
+                .then(data => console.log(data))
+                .then(this.ingestStatus = "Successfully ingested")
+                .catch(error => this.ingestStatus = `Failed to ingest: ${error}`);
             }
         }
     }
