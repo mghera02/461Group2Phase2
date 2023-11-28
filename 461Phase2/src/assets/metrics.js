@@ -43,7 +43,6 @@ var child_process_1 = require("child_process"); // to execute shell cmds
 var fs = require("fs");
 var logger_1 = require("../../logger");
 var util_1 = require("util");
-var git_clone_1 = require("git-clone");
 var fse = require("fs-extra");
 var writeFile = (0, util_1.promisify)(fs.writeFile);
 var eslintCommand = 'npx eslint --ext .ts'; // Add any necessary ESLint options here
@@ -555,33 +554,45 @@ function fetchRepoPullRequest(username, repo) {
     });
 }
 function downloadRepo(gitUrl, destinationPath) {
-    return __awaiter(this, void 0, void 0, function () {
-        var error_9;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    _a.trys.push([0, 3, , 5]);
-                    return [4 /*yield*/, (0, git_clone_1.gitClone)(gitUrl, destinationPath)];
-                case 1:
-                    _a.sent();
-                    return [4 /*yield*/, logger_1.logger.info('Repository downloaded successfully!')];
-                case 2:
-                    _a.sent();
-                    return [3 /*break*/, 5];
-                case 3:
-                    error_9 = _a.sent();
-                    return [4 /*yield*/, logger_1.logger.info('Error downloading repository:', error_9)];
-                case 4:
-                    _a.sent();
-                    return [3 /*break*/, 5];
-                case 5: return [2 /*return*/];
-            }
-        });
+    var _this = this;
+    return new Promise(function (resolve, reject) {
+        var command = "git clone ".concat(gitUrl, " ").concat(destinationPath);
+        var childProcess = exec(command);
+        childProcess.on('exit', function (code) { return __awaiter(_this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!(code === 0)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, logger_1.logger.info('Repository downloaded successfully!')];
+                    case 1:
+                        _a.sent();
+                        resolve();
+                        return [3 /*break*/, 4];
+                    case 2: return [4 /*yield*/, logger_1.logger.info("Failed to download repository. Exit code: ".concat(code))];
+                    case 3:
+                        _a.sent();
+                        reject(new Error("Failed to download repository. Exit code: ".concat(code)));
+                        _a.label = 4;
+                    case 4: return [2 /*return*/];
+                }
+            });
+        }); });
+        childProcess.on('error', function (error) { return __awaiter(_this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, logger_1.logger.info("Error downloading repository: ".concat(error.message))];
+                    case 1:
+                        _a.sent();
+                        reject(new Error("Error downloading repository: ".concat(error.message)));
+                        return [2 /*return*/];
+                }
+            });
+        }); });
     });
 }
 function lintRepo(repoDir) {
     return __awaiter(this, void 0, void 0, function () {
-        var error_10;
+        var error_9;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -592,8 +603,8 @@ function lintRepo(repoDir) {
                     _a.sent();
                     return [3 /*break*/, 4];
                 case 2:
-                    error_10 = _a.sent();
-                    return [4 /*yield*/, logger_1.logger.info('Linting error:', error_10)];
+                    error_9 = _a.sent();
+                    return [4 /*yield*/, logger_1.logger.info('Linting error:', error_9)];
                 case 3:
                     _a.sent();
                     return [3 /*break*/, 4];
@@ -604,7 +615,7 @@ function lintRepo(repoDir) {
 }
 function deleteRepo(repoDir) {
     return __awaiter(this, void 0, void 0, function () {
-        var error_11;
+        var error_10;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -617,8 +628,8 @@ function deleteRepo(repoDir) {
                     _a.sent();
                     return [3 /*break*/, 5];
                 case 3:
-                    error_11 = _a.sent();
-                    return [4 /*yield*/, logger_1.logger.info('Error deleting repository:', error_11)];
+                    error_10 = _a.sent();
+                    return [4 /*yield*/, logger_1.logger.info('Error deleting repository:', error_10)];
                 case 4:
                     _a.sent();
                     return [3 /*break*/, 5];

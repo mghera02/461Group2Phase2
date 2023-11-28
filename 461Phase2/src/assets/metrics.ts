@@ -5,7 +5,6 @@ import * as fs from 'fs';
 import { logger, time } from '../../logger';
 import * as path from 'path';
 import { promisify } from 'util';
-import { gitClone } from 'git-clone';
 import * as fse from 'fs-extra';
 
 const writeFile = promisify(fs.writeFile);
@@ -408,14 +407,27 @@ async function fetchRepoPullRequest(username: string, repo: string) {
         return 0;
     }
 }
+
+function downloadRepo(gitUrl: string, destinationPath: string) {
+    return new Promise<void>((resolve, reject) => {
+      const command = `git clone ${gitUrl} ${destinationPath}`;
+      const childProcess = exec(command);
   
-async function downloadRepo(gitUrl: string, destinationPath: string) {
-    try {
-      await gitClone(gitUrl, destinationPath);
-      await logger.info('Repository downloaded successfully!');
-    } catch (error) {
-        await logger.info('Error downloading repository:', error);
-    }
+      childProcess.on('exit', async (code: any) => {
+        if (code === 0) {
+            await logger.info('Repository downloaded successfully!');
+          resolve();
+        } else {
+            await logger.info(`Failed to download repository. Exit code: ${code}`);
+          reject(new Error(`Failed to download repository. Exit code: ${code}`));
+        }
+      });
+  
+      childProcess.on('error', async (error: any) => {
+        await logger.info(`Error downloading repository: ${error.message}`);
+        reject(new Error(`Error downloading repository: ${error.message}`));
+      });
+    });
   }
   
   async function lintRepo(repoDir: string): Promise<void> {
