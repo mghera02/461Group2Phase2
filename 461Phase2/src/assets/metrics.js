@@ -42,7 +42,6 @@ var exec = require('child_process').exec; // to execute shell cmds async version
 var child_process_1 = require("child_process"); // to execute shell cmds
 var fs = require("fs");
 var logger_1 = require("../../logger");
-var node_fetch_1 = require("node-fetch");
 var path = require("path");
 var util_1 = require("util");
 var download_git_repo_1 = require("download-git-repo");
@@ -562,7 +561,7 @@ function fetchGitHubRepo(url) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 5, , 7]);
-                    return [4 /*yield*/, (0, node_fetch_1.default)(url)];
+                    return [4 /*yield*/, fetch(url)];
                 case 1:
                     response = _a.sent();
                     if (!response.ok) {

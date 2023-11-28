@@ -3,7 +3,6 @@ const { exec } = require('child_process'); // to execute shell cmds async versio
 import { execSync } from 'child_process'; // to execute shell cmds
 import * as fs from 'fs';
 import { logger, time } from '../../logger';
-import fetch from 'node-fetch';
 import * as path from 'path';
 import { promisify } from 'util';
 import download from 'download-git-repo';
