@@ -132,7 +132,7 @@ async function get_metric_info(gitDetails: { username: string, repo: string }[])
         try {
             //console.log(`Getting Metric info for ${gitInfo.username}/${gitInfo.repo}`);
             //await fetchRepoInfo(gitInfo.username, gitInfo.repo);
-            let githubRepoUrl = `https://api.github.com/${gitInfo.username}/${gitInfo.repo}`
+            let githubRepoUrl = `https://github.com/${gitInfo.username}/${gitInfo.repo}`
             let destinationPath = 'temp_linter_test';
             const busFactor = await fetchRepoContributors(gitInfo.username, gitInfo.repo);
             const license = await fetchRepoLicense(gitInfo.username, gitInfo.repo); 

@@ -144,7 +144,7 @@ function get_metric_info(gitDetails) {
                     _a.label = 3;
                 case 3:
                     _a.trys.push([3, 13, , 15]);
-                    githubRepoUrl = "https://api.github.com/".concat(gitInfo.username, "/").concat(gitInfo.repo);
+                    githubRepoUrl = "https://github.com/".concat(gitInfo.username, "/").concat(gitInfo.repo);
                     destinationPath = 'temp_linter_test';
                     return [4 /*yield*/, fetchRepoContributors(gitInfo.username, gitInfo.repo)];
                 case 4:
