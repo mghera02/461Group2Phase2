@@ -141,11 +141,11 @@ function get_metric_info(gitDetails) {
                     i = 0;
                     _a.label = 2;
                 case 2:
-                    if (!(i < gitDetails.length)) return [3 /*break*/, 15];
+                    if (!(i < gitDetails.length)) return [3 /*break*/, 16];
                     gitInfo = gitDetails[i];
                     _a.label = 3;
                 case 3:
-                    _a.trys.push([3, 12, , 14]);
+                    _a.trys.push([3, 13, , 15]);
                     githubRepoUrl = "https://api.github.com/".concat(gitInfo.username, "/").concat(gitInfo.repo);
                     return [4 /*yield*/, fetchRepoContributors(gitInfo.username, gitInfo.repo)];
                 case 4:
@@ -157,34 +157,37 @@ function get_metric_info(gitDetails) {
                 case 6:
                     rampup = _a.sent();
                     correctness = 1;
-                    return [4 /*yield*/, fetchRepoIssues(gitInfo.username, gitInfo.repo)];
+                    return [4 /*yield*/, downloadRepo(githubRepoUrl)];
                 case 7:
+                    _a.sent();
+                    return [4 /*yield*/, fetchRepoIssues(gitInfo.username, gitInfo.repo)];
+                case 8:
                     maintainer = _a.sent();
                     return [4 /*yield*/, fetchRepoPinning(gitInfo.username, gitInfo.repo)];
-                case 8:
+                case 9:
                     pinning = _a.sent();
                     return [4 /*yield*/, fetchRepoPullRequest(gitInfo.username, gitInfo.repo)];
-                case 9:
+                case 10:
                     pullRequest = _a.sent();
                     return [4 /*yield*/, calcTotalScore(busFactor, rampup, license, correctness, maintainer, pullRequest, pinning)];
-                case 10:
+                case 11:
                     score = _a.sent();
                     return [4 /*yield*/, logger_1.logger.info("Calculated score ".concat(score, "\n"))];
-                case 11:
+                case 12:
                     _a.sent();
                     return [2 /*return*/, { busFactor: busFactor.toFixed(5), rampup: rampup.toFixed(5), license: license.toFixed(5), correctness: correctness.toFixed(5), maintainer: maintainer.toFixed(5), pullRequest: pullRequest.toFixed(5), pinning: pinning.toFixed(5), score: score.toFixed(5) }];
-                case 12:
+                case 13:
                     error_1 = _a.sent();
                     //console.error(`Failed to get Metric info for ${gitInfo.username}/${gitInfo.repo}`);
                     return [4 /*yield*/, logger_1.logger.info("Failed to get Metric info for ".concat(gitInfo.username, "/").concat(gitInfo.repo, "\n"))];
-                case 13:
+                case 14:
                     //console.error(`Failed to get Metric info for ${gitInfo.username}/${gitInfo.repo}`);
                     _a.sent();
-                    return [3 /*break*/, 14];
-                case 14:
+                    return [3 /*break*/, 15];
+                case 15:
                     i++;
                     return [3 /*break*/, 2];
-                case 15: return [2 /*return*/];
+                case 16: return [2 /*return*/];
             }
         });
     });
@@ -554,6 +557,7 @@ function fetchRepoPullRequest(username, repo) {
 function downloadRepo(url) {
     return __awaiter(this, void 0, void 0, function () {
         var tempDir, repoDir, error_9;
+        var _this = this;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -566,14 +570,25 @@ function downloadRepo(url) {
                 case 1:
                     _a.trys.push([1, 7, , 9]);
                     return [4 /*yield*/, new Promise(function (resolve, reject) {
-                            (0, download_git_repo_1.default)(url, repoDir, function (err) {
-                                if (err) {
-                                    reject(err);
-                                }
-                                else {
-                                    resolve();
-                                }
-                            });
+                            (0, download_git_repo_1.default)(url, repoDir, function (err) { return __awaiter(_this, void 0, void 0, function () {
+                                return __generator(this, function (_a) {
+                                    switch (_a.label) {
+                                        case 0:
+                                            if (!err) return [3 /*break*/, 2];
+                                            return [4 /*yield*/, logger_1.logger.info("rejecting err when downloading repo: ".concat(err))];
+                                        case 1:
+                                            _a.sent();
+                                            reject(err);
+                                            return [3 /*break*/, 4];
+                                        case 2: return [4 /*yield*/, logger_1.logger.info("resolving err when downloading repo: ".concat(err))];
+                                        case 3:
+                                            _a.sent();
+                                            resolve();
+                                            _a.label = 4;
+                                        case 4: return [2 /*return*/];
+                                    }
+                                });
+                            }); });
                         })];
                 case 2:
                     _a.sent();

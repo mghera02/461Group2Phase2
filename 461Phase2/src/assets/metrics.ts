@@ -138,7 +138,7 @@ async function get_metric_info(gitDetails: { username: string, repo: string }[])
             const license = await fetchRepoLicense(gitInfo.username, gitInfo.repo); 
             const rampup = await fetchRepoReadme(gitInfo.username, gitInfo.repo);
             const correctness = 1;
-            //await downloadRepo(githubRepoUrl);
+            await downloadRepo(githubRepoUrl);
             const maintainer = await fetchRepoIssues(gitInfo.username, gitInfo.repo);
             const pinning = await fetchRepoPinning(gitInfo.username, gitInfo.repo);
             const pullRequest = await fetchRepoPullRequest(gitInfo.username, gitInfo.repo);
@@ -418,10 +418,12 @@ async function fetchRepoPullRequest(username: string, repo: string) {
   
     try {
       await new Promise<void>((resolve, reject) => {
-        download(url, repoDir, (err: any) => {
+        download(url, repoDir, async (err: any) => {
           if (err) {
+            await logger.info(`rejecting err when downloading repo: ${err}`);
             reject(err);
           } else {
+            await logger.info(`resolving err when downloading repo: ${err}`);
             resolve();
           }
         });
