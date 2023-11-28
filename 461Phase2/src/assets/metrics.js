@@ -631,9 +631,9 @@ function cloneRepo(repoUrl, destinationPath) {
 }
 function lintDirectory(directoryPath) {
     return __awaiter(this, void 0, void 0, function () {
-        var eslint, tsEslint, results, totalWarnings, totalErrors, totalLines, _i, results_1, result, _a, result_1, fileResult, fileContent, lines, error_10;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
+        var eslint, tsEslint, totalWarnings, totalErrors, totalLines, results, _i, results_1, result, _a, result_1, fileResult, fileContent, lines, error_10, results, totalWarnings_1, totalErrors_1, totalLines_1, _b, results_2, result, _c, result_2, fileResult, fileContent, lines, error_11;
+        return __generator(this, function (_d) {
+            switch (_d.label) {
                 case 0:
                     eslint = new ESLint({
                         overrideConfig: {
@@ -669,18 +669,17 @@ function lintDirectory(directoryPath) {
                         },
                         useEslintrc: false,
                     });
-                    _b.label = 1;
-                case 1:
-                    _b.trys.push([1, 6, , 8]);
-                    return [4 /*yield*/, Promise.all([
-                            eslint.lintFiles([path.join(directoryPath, '**/*.js')]),
-                            tsEslint.lintFiles([path.join(directoryPath, '**/*.ts')]),
-                        ])];
-                case 2:
-                    results = _b.sent();
                     totalWarnings = 0;
                     totalErrors = 0;
                     totalLines = 0;
+                    _d.label = 1;
+                case 1:
+                    _d.trys.push([1, 3, , 5]);
+                    return [4 /*yield*/, Promise.all([
+                            eslint.lintFiles([path.join(directoryPath, '**/*.js')]),
+                        ])];
+                case 2:
+                    results = _d.sent();
                     for (_i = 0, results_1 = results; _i < results_1.length; _i++) {
                         result = results_1[_i];
                         for (_a = 0, result_1 = result; _a < result_1.length; _a++) {
@@ -692,23 +691,51 @@ function lintDirectory(directoryPath) {
                             totalErrors += fileResult.errorCount;
                         }
                     }
-                    return [4 /*yield*/, logger_1.logger.info("Total Warnings: ".concat(totalWarnings))];
+                    return [3 /*break*/, 5];
                 case 3:
-                    _b.sent();
-                    return [4 /*yield*/, logger_1.logger.info("Total Errors: ".concat(totalErrors))];
+                    error_10 = _d.sent();
+                    return [4 /*yield*/, logger_1.logger.info('Error while linting (js):', error_10)];
                 case 4:
-                    _b.sent();
-                    return [4 /*yield*/, logger_1.logger.info("Total lines: ".concat(totalLines))];
+                    _d.sent();
+                    return [3 /*break*/, 5];
                 case 5:
-                    _b.sent();
-                    return [2 /*return*/, Math.max((totalLines - 5 * (totalWarnings + totalErrors)) / totalLines, 0)];
+                    _d.trys.push([5, 7, , 9]);
+                    return [4 /*yield*/, Promise.all([
+                            tsEslint.lintFiles([path.join(directoryPath, '**/*.ts')]),
+                        ])];
                 case 6:
-                    error_10 = _b.sent();
-                    return [4 /*yield*/, logger_1.logger.info('Error while linting:', error_10)];
+                    results = _d.sent();
+                    totalWarnings_1 = 0;
+                    totalErrors_1 = 0;
+                    totalLines_1 = 0;
+                    for (_b = 0, results_2 = results; _b < results_2.length; _b++) {
+                        result = results_2[_b];
+                        for (_c = 0, result_2 = result; _c < result_2.length; _c++) {
+                            fileResult = result_2[_c];
+                            fileContent = fs.readFileSync(fileResult.filePath, 'utf-8');
+                            lines = fileContent.split('\n').length;
+                            totalLines_1 += lines;
+                            totalWarnings_1 += fileResult.warningCount;
+                            totalErrors_1 += fileResult.errorCount;
+                        }
+                    }
+                    return [3 /*break*/, 9];
                 case 7:
-                    _b.sent();
-                    return [3 /*break*/, 8];
-                case 8: return [2 /*return*/];
+                    error_11 = _d.sent();
+                    return [4 /*yield*/, logger_1.logger.info('Error while linting (ts):', error_11)];
+                case 8:
+                    _d.sent();
+                    return [3 /*break*/, 9];
+                case 9: return [4 /*yield*/, logger_1.logger.info("Total Warnings: ".concat(totalWarnings))];
+                case 10:
+                    _d.sent();
+                    return [4 /*yield*/, logger_1.logger.info("Total Errors: ".concat(totalErrors))];
+                case 11:
+                    _d.sent();
+                    return [4 /*yield*/, logger_1.logger.info("Total lines: ".concat(totalLines))];
+                case 12:
+                    _d.sent();
+                    return [2 /*return*/, Math.max((totalLines - 5 * (totalWarnings + totalErrors)) / totalLines, 0)];
             }
         });
     });

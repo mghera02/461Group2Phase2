@@ -494,9 +494,30 @@ async function lintDirectory(directoryPath: any) {
         useEslintrc: false,
     });
 
+    let totalWarnings = 0;
+    let totalErrors = 0;
+    let totalLines = 0;
+
     try {
         const results = await Promise.all([
             eslint.lintFiles([path.join(directoryPath, '**/*.js')]),
+        ]);
+
+        for (const result of results) {
+            for (const fileResult of result) {
+                const fileContent = fs.readFileSync(fileResult.filePath, 'utf-8');
+                const lines = fileContent.split('\n').length; // Count lines
+                totalLines += lines;
+                totalWarnings += fileResult.warningCount;
+                totalErrors += fileResult.errorCount;
+            }
+        }
+    } catch (error) {
+        await logger.info('Error while linting (js):', error);
+    }
+
+    try {
+        const results = await Promise.all([
             tsEslint.lintFiles([path.join(directoryPath, '**/*.ts')]),
         ]);
 
@@ -513,14 +534,14 @@ async function lintDirectory(directoryPath: any) {
                 totalErrors += fileResult.errorCount;
             }
         }
-
-        await logger.info(`Total Warnings: ${totalWarnings}`);
-        await logger.info(`Total Errors: ${totalErrors}`);
-        await logger.info(`Total lines: ${totalLines}`);
-        return Math.max((totalLines - 5 * (totalWarnings + totalErrors)) / totalLines, 0);
     } catch (error) {
-        await logger.info('Error while linting:', error);
+        await logger.info('Error while linting (ts):', error);
     }
+
+    await logger.info(`Total Warnings: ${totalWarnings}`);
+    await logger.info(`Total Errors: ${totalErrors}`);
+    await logger.info(`Total lines: ${totalLines}`);
+    return Math.max((totalLines - 5 * (totalWarnings + totalErrors)) / totalLines, 0);
 }
 
 
