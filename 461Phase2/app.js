@@ -217,7 +217,7 @@ app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 32, , 35]);
+                _a.trys.push([0, 34, , 37]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 1:
                 _a.sent();
@@ -281,6 +281,7 @@ app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 
                 return [4 /*yield*/, logger_1.logger.info("retrieved scores from score calculator: ".concat(scores.busFactor, ", ").concat(scores.rampup, ", ").concat(scores.license, ", ").concat(scores.correctness, ", ").concat(scores.maintainer, ", ").concat(scores.pullRequest, ", ").concat(scores.pinning, ", ").concat(scores.score))];
             case 17:
                 _a.sent();
+                if (!(scores.score > 0.5)) return [3 /*break*/, 32];
                 return [4 /*yield*/, rds_handler.add_rds_package_data(npmPackageName, scores)];
             case 18:
                 package_id = _a.sent();
@@ -337,18 +338,22 @@ app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 
             case 31:
                 _a.sent();
                 res.status(200).send("Package ingested successfully");
-                return [3 /*break*/, 35];
+                return [3 /*break*/, 33];
             case 32:
+                res.status(424).send("Package is not uploaded due to the disqualified rating.");
+                _a.label = 33;
+            case 33: return [3 /*break*/, 37];
+            case 34:
                 error_2 = _a.sent();
                 return [4 /*yield*/, logger_1.logger.error('Could not ingest package', error_2)];
-            case 33:
+            case 35:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
-            case 34:
+            case 36:
                 _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 35];
-            case 35: return [2 /*return*/];
+                return [3 /*break*/, 37];
+            case 37: return [2 /*return*/];
         }
     });
 }); });
@@ -618,6 +623,12 @@ app.get('/packageId/:packageName', function (req, res) { return __awaiter(void 0
                 return [3 /*break*/, 12];
             case 12: return [2 /*return*/];
         }
+    });
+}); });
+app.put('/authenticate', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        res.status(500).send('This system does not support authentication.');
+        return [2 /*return*/];
     });
 }); });
 app.listen(port, function () { return __awaiter(void 0, void 0, void 0, function () {
