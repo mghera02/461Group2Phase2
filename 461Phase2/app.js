@@ -227,7 +227,7 @@ app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 
                 _a.sent();
                 //const { url } = req.body;
                 //await logger.info(`package url: ${url}`);
-                return [4 /*yield*/, logger_1.logger.info("req: ".concat(req.body))];
+                return [4 /*yield*/, logger_1.logger.info("req: ".concat(JSON.stringify(req.body)))];
             case 3:
                 //const { url } = req.body;
                 //await logger.info(`package url: ${url}`);
@@ -333,7 +333,7 @@ app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 
             
                 await logger.info(`Successfully uploaded package with id: ${package_id}`)*/
                 _a.sent();
-                res.status(200).send("Package uploaded successfully");
+                res.status(200).send("Package ingested successfully");
                 return [3 /*break*/, 8];
             case 5:
                 error_2 = _a.sent();
