@@ -164,7 +164,8 @@ app.post('/ingest', async (req: any, res: any) => {
     fs.writeFileSync(`./temp_npm_json/${npmPackageName}_info.json`, output); // write json to file
     const file = `./temp_npm_json/${npmPackageName}_info.json`; // file path
     const gitUrl:string = await check_npm_for_open_source(file);
-    let destinationPath = 'temp_linter_test';
+    await logger.info(`gitUrl: ${gitUrl}`);
+    /*let destinationPath = 'temp_linter_test';
     const cloneRepoOut = await cloneRepo(gitUrl, destinationPath);
     const zippedFile: any = await zipDirectory(cloneRepoOut[1], `./tempZip.zip`);
 
@@ -199,7 +200,7 @@ app.post('/ingest', async (req: any, res: any) => {
       return res.status(400).send('Could not add package data');
     }
 
-    await logger.info(`Successfully uploaded package with id: ${package_id}`)
+    await logger.info(`Successfully uploaded package with id: ${package_id}`)*/
     await time.info("Finished at this time\n")
     res.status(200).send("Package ingested successfully")
   } catch (error) {
