@@ -61,7 +61,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ url: this.npmUrl }),
+                    body: { url: this.npmUrl },
                 })
                 .then(response => {
                     if (!response.ok) {
