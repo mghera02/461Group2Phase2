@@ -168,7 +168,8 @@ app.post('/ingest', async (req: any, res: any) => {
     await logger.info(`gitUrl: ${gitUrl}`);
     let destinationPath = 'temp_linter_test';
     const cloneRepoOut = await cloneRepo(gitUrl, destinationPath);
-    const zippedFile: any = await zipDirectory(cloneRepoOut[1], `./tempZip.zip`);
+    await logger.info(`finished cloning`);
+    const zipFilePath: any = await zipDirectory(cloneRepoOut[1], `./tempZip.zip`);
 
     let username: string = ""; 
     let repo: string = ""; 
@@ -191,15 +192,34 @@ app.post('/ingest', async (req: any, res: any) => {
     await logger.debug(`ingest package to rds with id: ${package_id}`)
 
     // Upload the actual package to s3
-    const s3_response = await upload_package(package_id, zippedFile);
-    await fsExtra.remove(cloneRepoOut[1]);
+    // Read the zipped file content
+    const zippedFileContent = fs.readFileSync(zipFilePath);
 
-    // Check to see if package data was uploaded to S3
-    if (s3_response === null) {
-      await logger.error("Error uploading package to S3")
-      await time.error('Error occurred at this time\n');
-      return res.status(400).send('Could not add package data');
-    }
+    // Create Express.Multer.File object
+    const zippedFile = {
+        fieldname: 'file',
+        originalname: 'zipped_directory.zip',
+        encoding: '7bit',
+        mimetype: 'application/zip',
+        buffer: zippedFileContent // Buffer of the zipped file content
+    };
+
+    // Use multer's single() method to parse the file
+    upload.single('file')(null, null, async (err: any) => {
+        if (err) {
+            logger.error('Error parsing zipped file:', err);
+            return;
+        }
+        // Use zippedFile as Express.Multer.File
+        const s3_response = await upload_package(package_id, zippedFile); // Call your S3 upload function here
+        // Check to see if package data was uploaded to S3
+        if (s3_response === null) {
+          await logger.error("Error uploading package to S3")
+          await time.error('Error occurred at this time\n');
+          return res.status(400).send('Could not add package data');
+        }
+    });
+    await fsExtra.remove(cloneRepoOut[1]);
 
     await logger.info(`Successfully uploaded package with id: ${package_id}`)
     await time.info("Finished at this time\n")
