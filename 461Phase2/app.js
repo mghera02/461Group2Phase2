@@ -304,7 +304,7 @@ app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 
                 return [2 /*return*/, res.status(400).send('Could not add package data')];
             case 24: return [4 /*yield*/, logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id))];
             case 25:
-                (_a.sent()) * /;
+                _a.sent();
                 return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
             case 26:
                 _a.sent();
