@@ -216,7 +216,7 @@ app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 12, , 15]);
+                _a.trys.push([0, 13, , 16]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 1:
                 _a.sent();
@@ -245,12 +245,15 @@ app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 
                 _a.sent();
                 output = (0, child_process_1.execSync)("npm view ".concat(npmPackageName, " --json --silent"), { encoding: 'utf8' });
                 fs.writeFileSync("./temp_npm_json/".concat(npmPackageName, "_info.json"), output); // write json to file
+                return [4 /*yield*/, logger_1.logger.info("wrote json file")];
+            case 9:
+                _a.sent();
                 file = "./temp_npm_json/".concat(npmPackageName, "_info.json");
                 return [4 /*yield*/, (0, metrics_1.check_npm_for_open_source)(file)];
-            case 9:
+            case 10:
                 gitUrl = _a.sent();
                 return [4 /*yield*/, logger_1.logger.info("gitUrl: ".concat(gitUrl))];
-            case 10:
+            case 11:
                 _a.sent();
                 /*let destinationPath = 'temp_linter_test';
                 const cloneRepoOut = await cloneRepo(gitUrl, destinationPath);
@@ -289,7 +292,7 @@ app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 
             
                 await logger.info(`Successfully uploaded package with id: ${package_id}`)*/
                 return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
-            case 11:
+            case 12:
                 /*let destinationPath = 'temp_linter_test';
                 const cloneRepoOut = await cloneRepo(gitUrl, destinationPath);
                 const zippedFile: any = await zipDirectory(cloneRepoOut[1], `./tempZip.zip`);
@@ -328,18 +331,18 @@ app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 
                 await logger.info(`Successfully uploaded package with id: ${package_id}`)*/
                 _a.sent();
                 res.status(200).send("Package ingested successfully");
-                return [3 /*break*/, 15];
-            case 12:
+                return [3 /*break*/, 16];
+            case 13:
                 error_2 = _a.sent();
                 return [4 /*yield*/, logger_1.logger.error('Could not ingest package', error_2)];
-            case 13:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 14:
                 _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 15:
+                _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 15];
-            case 15: return [2 /*return*/];
+                return [3 /*break*/, 16];
+            case 16: return [2 /*return*/];
         }
     });
 }); });

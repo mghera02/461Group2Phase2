@@ -569,6 +569,7 @@ async function check_npm_for_open_source(filePath: string): Promise<string> {
     return new Promise((resolve) => {
         readJSON(filePath, async (jsonData) => {
         if (jsonData !== null) {
+            await logger.info(`reading json (not null)...`);
             const repository = jsonData.repository as Record<string, unknown>;
             if (repository.type == 'git') {
             let gitUrl: string = repository.url as string;

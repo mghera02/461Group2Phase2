@@ -782,9 +782,12 @@ function check_npm_for_open_source(filePath) {
                         return __generator(this, function (_a) {
                             switch (_a.label) {
                                 case 0:
-                                    if (!(jsonData !== null)) return [3 /*break*/, 4];
+                                    if (!(jsonData !== null)) return [3 /*break*/, 5];
+                                    return [4 /*yield*/, logger_1.logger.info("reading json (not null)...")];
+                                case 1:
+                                    _a.sent();
                                     repository = jsonData.repository;
-                                    if (!(repository.type == 'git')) return [3 /*break*/, 1];
+                                    if (!(repository.type == 'git')) return [3 /*break*/, 2];
                                     gitUrl = repository.url;
                                     if (gitUrl.startsWith('git+ssh://git@')) {
                                         // Convert SSH URL to HTTPS URL
@@ -797,17 +800,17 @@ function check_npm_for_open_source(filePath) {
                                         gitUrl = gitUrl.substring(0, gitUrl.length - 4);
                                     }
                                     return [2 /*return*/, gitUrl];
-                                case 1: return [4 /*yield*/, logger_1.logger.info('No git repository found.')];
-                                case 2:
+                                case 2: return [4 /*yield*/, logger_1.logger.info('No git repository found.')];
+                                case 3:
                                     _a.sent();
                                     resolve("Invalid");
-                                    _a.label = 3;
-                                case 3: return [3 /*break*/, 6];
-                                case 4: return [4 /*yield*/, logger_1.logger.info('Failed to read or parse JSON.')];
-                                case 5:
+                                    _a.label = 4;
+                                case 4: return [3 /*break*/, 7];
+                                case 5: return [4 /*yield*/, logger_1.logger.info('Failed to read or parse JSON.')];
+                                case 6:
                                     _a.sent();
                                     return [2 /*return*/, ""];
-                                case 6: return [2 /*return*/];
+                                case 7: return [2 /*return*/];
                             }
                         });
                     }); });
