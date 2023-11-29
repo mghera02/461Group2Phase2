@@ -152,7 +152,7 @@ app.post('/ingest', async (req: Request, res: Response) => {
     await logger.info(`package url: ${url}`);
     await logger.info(`req: ${JSON.stringify(req)}`);
 
-    if (!req.params.url) {
+    /*if (!req.params.url) {
       await logger.error('No file to ingest');
       await time.error('Error occurred at this time\n');
       return res.status(400).send('No file ingest.');
@@ -200,11 +200,11 @@ app.post('/ingest', async (req: Request, res: Response) => {
       return res.status(400).send('Could not add package data');
     }
 
-    await logger.info(`Successfully uploaded package with id: ${package_id}`)
+    await logger.info(`Successfully uploaded package with id: ${package_id}`)*/
     await time.info("Finished at this time\n")
     res.status(200).send("Package uploaded successfully")
   } catch (error) {
-    await logger.error('Could not upload package', error);
+    await logger.error('Could not ingest package', error);
     await time.error('Error occurred at this time\n')
     res.status(500).send('An error occurred.');
   }
