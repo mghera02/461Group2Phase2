@@ -217,7 +217,7 @@ app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 26, , 29]);
+                _a.trys.push([0, 27, , 30]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 1:
                 _a.sent();
@@ -299,6 +299,11 @@ app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 
             case 22:
                 _a.sent();
                 zippedFileContent = fs.readFileSync(zipFilePath);
+                return [4 /*yield*/, logger_1.logger.debug("got zipped file content")
+                    // Create Express.Multer.File object
+                ];
+            case 23:
+                _a.sent();
                 zippedFile_1 = {
                     fieldname: 'file',
                     originalname: 'zipped_directory.zip',
@@ -319,40 +324,45 @@ app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 
                                 return [4 /*yield*/, (0, s3_packages_1.upload_package)(package_id_1, zippedFile_1)];
                             case 1:
                                 s3_response = _a.sent();
-                                if (!(s3_response === null)) return [3 /*break*/, 4];
-                                return [4 /*yield*/, logger_1.logger.error("Error uploading package to S3")];
+                                return [4 /*yield*/, logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id_1))
+                                    // Check to see if package data was uploaded to S3
+                                ];
                             case 2:
                                 _a.sent();
-                                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                                if (!(s3_response === null)) return [3 /*break*/, 5];
+                                return [4 /*yield*/, logger_1.logger.error("Error uploading package to S3")];
                             case 3:
                                 _a.sent();
+                                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                            case 4:
+                                _a.sent();
                                 return [2 /*return*/, res.status(400).send('Could not add package data')];
-                            case 4: return [2 /*return*/];
+                            case 5: return [2 /*return*/];
                         }
                     });
                 }); });
                 return [4 /*yield*/, fsExtra.remove(cloneRepoOut[1])];
-            case 23:
-                _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id_1))];
             case 24:
                 _a.sent();
-                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
+                return [4 /*yield*/, logger_1.logger.debug("removed clone repo")];
             case 25:
                 _a.sent();
-                res.status(200).send("Package ingested successfully");
-                return [3 /*break*/, 29];
+                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
             case 26:
+                _a.sent();
+                res.status(200).send("Package ingested successfully");
+                return [3 /*break*/, 30];
+            case 27:
                 error_2 = _a.sent();
                 return [4 /*yield*/, logger_1.logger.error('Could not ingest package', error_2)];
-            case 27:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 28:
                 _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 29:
+                _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 29];
-            case 29: return [2 /*return*/];
+                return [3 /*break*/, 30];
+            case 30: return [2 /*return*/];
         }
     });
 }); });
