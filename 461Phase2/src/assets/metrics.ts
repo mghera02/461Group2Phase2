@@ -629,18 +629,13 @@ async function check_npm_for_open_source(filePath: string): Promise<string> {
             const output = fs.createWriteStream(outputZipPath);
             const archive = archiver('zip', { zlib: { level: 9 } });
     
-            output.on('close', async () => {
-                await logger.info('Directory has been zipped successfully.');
-                const zippedFile = {
-                    path: outputZipPath,
-                    originalname: 'zipped_directory.zip', // Set the desired filename
-                    mimetype: 'application/zip' // Set the appropriate mimetype
-                };
-                resolve(zippedFile);
+            output.on('close', () => {
+                logger.info('Directory has been zipped successfully.');
+                resolve(outputZipPath);
             });
     
-            archive.on('error', async (err: any) => {
-                await logger.info('Error zipping directory:', err);
+            archive.on('error', (err: any) => {
+                logger.error('Error zipping directory:', err);
                 reject(err);
             });
     
@@ -648,7 +643,7 @@ async function check_npm_for_open_source(filePath: string): Promise<string> {
             archive.directory(directoryPath, false);
             archive.finalize();
         });
-    }
+    }    
 
 export {
     get_metric_info, cloneRepo, check_npm_for_open_source, get_github_info, get_npm_package_name, zipDirectory

@@ -852,39 +852,18 @@ var get_npm_package_name = function (npmUrl) {
 exports.get_npm_package_name = get_npm_package_name;
 function zipDirectory(directoryPath, outputZipPath) {
     return __awaiter(this, void 0, void 0, function () {
-        var _this = this;
         return __generator(this, function (_a) {
             return [2 /*return*/, new Promise(function (resolve, reject) {
                     var output = fs.createWriteStream(outputZipPath);
                     var archive = archiver('zip', { zlib: { level: 9 } });
-                    output.on('close', function () { return __awaiter(_this, void 0, void 0, function () {
-                        var zippedFile;
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0: return [4 /*yield*/, logger_1.logger.info('Directory has been zipped successfully.')];
-                                case 1:
-                                    _a.sent();
-                                    zippedFile = {
-                                        path: outputZipPath,
-                                        originalname: 'zipped_directory.zip',
-                                        mimetype: 'application/zip' // Set the appropriate mimetype
-                                    };
-                                    resolve(zippedFile);
-                                    return [2 /*return*/];
-                            }
-                        });
-                    }); });
-                    archive.on('error', function (err) { return __awaiter(_this, void 0, void 0, function () {
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0: return [4 /*yield*/, logger_1.logger.info('Error zipping directory:', err)];
-                                case 1:
-                                    _a.sent();
-                                    reject(err);
-                                    return [2 /*return*/];
-                            }
-                        });
-                    }); });
+                    output.on('close', function () {
+                        logger_1.logger.info('Directory has been zipped successfully.');
+                        resolve(outputZipPath);
+                    });
+                    archive.on('error', function (err) {
+                        logger_1.logger.error('Error zipping directory:', err);
+                        reject(err);
+                    });
                     archive.pipe(output);
                     archive.directory(directoryPath, false);
                     archive.finalize();

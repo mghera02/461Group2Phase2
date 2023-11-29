@@ -169,7 +169,7 @@ app.post('/ingest', async (req: any, res: any) => {
     let destinationPath = 'temp_linter_test';
     const cloneRepoOut = await cloneRepo(gitUrl, destinationPath);
     await logger.info(`finished cloning`);
-    const zipFilePath: any = await zipDirectory(cloneRepoOut[1], `./tempZip.zip`);
+    const zipFilePath = await zipDirectory(cloneRepoOut[1], `./tempZip.zip`);
 
     let username: string = ""; 
     let repo: string = ""; 
