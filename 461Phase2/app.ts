@@ -162,6 +162,7 @@ app.post('/ingest', async (req: any, res: any) => {
 
     const output = execSync(`npm view ${npmPackageName} --json --silent`, { encoding: 'utf8' }); // shell cmd to get json
     fs.writeFileSync(`./temp_npm_json/${npmPackageName}_info.json`, output); // write json to file
+    await logger.info(`wrote json file`);
     const file = `./temp_npm_json/${npmPackageName}_info.json`; // file path
     const gitUrl:string = await check_npm_for_open_source(file);
     await logger.info(`gitUrl: ${gitUrl}`);
