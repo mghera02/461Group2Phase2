@@ -45,6 +45,7 @@ var cors = require('cors');
 var logger_1 = require("./logger");
 var rds_configurator = require("./rds_config");
 var rds_handler = require("./rds_packages");
+var fsExtra = require("fs-extra");
 var child_process_1 = require("child_process");
 var s3_packages_1 = require("./s3_packages");
 var metrics_1 = require("./src/assets/metrics");
@@ -212,11 +213,11 @@ app.post('/upload', upload.single('file'), function (req, res) { return __awaite
     });
 }); });
 app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var url, npmPackageName, output, file, gitUrl, error_2;
+    var url, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zippedFile, username, repo, gitInfo, gitDetails, scores, package_id, s3_response, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 13, , 16]);
+                _a.trys.push([0, 29, , 32]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 1:
                 _a.sent();
@@ -255,94 +256,77 @@ app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 
                 return [4 /*yield*/, logger_1.logger.info("gitUrl: ".concat(gitUrl))];
             case 11:
                 _a.sent();
-                /*let destinationPath = 'temp_linter_test';
-                const cloneRepoOut = await cloneRepo(gitUrl, destinationPath);
-                const zippedFile: any = await zipDirectory(cloneRepoOut[1], `./tempZip.zip`);
-            
-                let username: string = "";
-                let repo: string = "";
-                const gitInfo = get_github_info(gitUrl);
-                username = gitInfo.username;
-                repo = gitInfo.repo;
-                await logger.info(`username and repo found successfully: ${username}, ${repo}`);
-                let gitDetails = [{username: username, repo: repo}];
-                let scores = await get_metric_info(gitDetails);
-                await logger.info(`retrieved scores from score calculator: ${scores.busFactor}, ${scores.rampup}, ${scores.license}, ${scores.correctness}, ${scores.maintainer}, ${scores.pullRequest}, ${scores.pinning}, ${scores.score}`);
-                
-                const package_id = await rds_handler.add_rds_package_data(npmPackageName, scores);
-            
-                // Check to see if package metadata was upladed to RDS
-                if (package_id === null) {
-                  await logger.error("Could not ingest package data to RDS")
-                  await time.error('Error occurred at this time\n');
-                  return res.status(400).send('Could not add package metadata');
-                }
-                await logger.debug(`ingest package to rds with id: ${package_id}`)
-            
-                // Upload the actual package to s3
-                const s3_response = await upload_package(package_id, zippedFile);
-                await fsExtra.remove(cloneRepoOut[1]);
-            
-                // Check to see if package data was uploaded to S3
-                if (s3_response === null) {
-                  await logger.error("Error uploading package to S3")
-                  await time.error('Error occurred at this time\n');
-                  return res.status(400).send('Could not add package data');
-                }
-            
-                await logger.info(`Successfully uploaded package with id: ${package_id}`)*/
-                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
+                destinationPath = 'temp_linter_test';
+                return [4 /*yield*/, (0, metrics_1.cloneRepo)(gitUrl, destinationPath)];
             case 12:
-                /*let destinationPath = 'temp_linter_test';
-                const cloneRepoOut = await cloneRepo(gitUrl, destinationPath);
-                const zippedFile: any = await zipDirectory(cloneRepoOut[1], `./tempZip.zip`);
-            
-                let username: string = "";
-                let repo: string = "";
-                const gitInfo = get_github_info(gitUrl);
+                cloneRepoOut = _a.sent();
+                return [4 /*yield*/, (0, metrics_1.zipDirectory)(cloneRepoOut[1], "./tempZip.zip")];
+            case 13:
+                zippedFile = _a.sent();
+                username = "";
+                repo = "";
+                gitInfo = (0, metrics_1.get_github_info)(gitUrl);
                 username = gitInfo.username;
                 repo = gitInfo.repo;
-                await logger.info(`username and repo found successfully: ${username}, ${repo}`);
-                let gitDetails = [{username: username, repo: repo}];
-                let scores = await get_metric_info(gitDetails);
-                await logger.info(`retrieved scores from score calculator: ${scores.busFactor}, ${scores.rampup}, ${scores.license}, ${scores.correctness}, ${scores.maintainer}, ${scores.pullRequest}, ${scores.pinning}, ${scores.score}`);
-                
-                const package_id = await rds_handler.add_rds_package_data(npmPackageName, scores);
-            
-                // Check to see if package metadata was upladed to RDS
-                if (package_id === null) {
-                  await logger.error("Could not ingest package data to RDS")
-                  await time.error('Error occurred at this time\n');
-                  return res.status(400).send('Could not add package metadata');
-                }
-                await logger.debug(`ingest package to rds with id: ${package_id}`)
-            
-                // Upload the actual package to s3
-                const s3_response = await upload_package(package_id, zippedFile);
-                await fsExtra.remove(cloneRepoOut[1]);
-            
-                // Check to see if package data was uploaded to S3
-                if (s3_response === null) {
-                  await logger.error("Error uploading package to S3")
-                  await time.error('Error occurred at this time\n');
-                  return res.status(400).send('Could not add package data');
-                }
-            
-                await logger.info(`Successfully uploaded package with id: ${package_id}`)*/
-                _a.sent();
-                res.status(200).send("Package ingested successfully");
-                return [3 /*break*/, 16];
-            case 13:
-                error_2 = _a.sent();
-                return [4 /*yield*/, logger_1.logger.error('Could not ingest package', error_2)];
+                return [4 /*yield*/, logger_1.logger.info("username and repo found successfully: ".concat(username, ", ").concat(repo))];
             case 14:
                 _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                gitDetails = [{ username: username, repo: repo }];
+                return [4 /*yield*/, (0, metrics_1.get_metric_info)(gitDetails)];
             case 15:
+                scores = _a.sent();
+                return [4 /*yield*/, logger_1.logger.info("retrieved scores from score calculator: ".concat(scores.busFactor, ", ").concat(scores.rampup, ", ").concat(scores.license, ", ").concat(scores.correctness, ", ").concat(scores.maintainer, ", ").concat(scores.pullRequest, ", ").concat(scores.pinning, ", ").concat(scores.score))];
+            case 16:
+                _a.sent();
+                return [4 /*yield*/, rds_handler.add_rds_package_data(npmPackageName, scores)];
+            case 17:
+                package_id = _a.sent();
+                if (!(package_id === null)) return [3 /*break*/, 20];
+                return [4 /*yield*/, logger_1.logger.error("Could not ingest package data to RDS")];
+            case 18:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 19:
+                _a.sent();
+                return [2 /*return*/, res.status(400).send('Could not add package metadata')];
+            case 20: return [4 /*yield*/, logger_1.logger.debug("ingest package to rds with id: ".concat(package_id))
+                // Upload the actual package to s3
+            ];
+            case 21:
+                _a.sent();
+                return [4 /*yield*/, (0, s3_packages_1.upload_package)(package_id, zippedFile)];
+            case 22:
+                s3_response = _a.sent();
+                return [4 /*yield*/, fsExtra.remove(cloneRepoOut[1])];
+            case 23:
+                _a.sent();
+                if (!(s3_response === null)) return [3 /*break*/, 26];
+                return [4 /*yield*/, logger_1.logger.error("Error uploading package to S3")];
+            case 24:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 25:
+                _a.sent();
+                return [2 /*return*/, res.status(400).send('Could not add package data')];
+            case 26: return [4 /*yield*/, logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id))];
+            case 27:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
+            case 28:
+                _a.sent();
+                res.status(200).send("Package ingested successfully");
+                return [3 /*break*/, 32];
+            case 29:
+                error_2 = _a.sent();
+                return [4 /*yield*/, logger_1.logger.error('Could not ingest package', error_2)];
+            case 30:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 31:
                 _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 16];
-            case 16: return [2 /*return*/];
+                return [3 /*break*/, 32];
+            case 32: return [2 /*return*/];
         }
     });
 }); });
