@@ -21,7 +21,7 @@ const port = process.env.PORT||8080;
 const upload = multer({ storage: multer.memoryStorage() });
 
 app.use(cors());
-
+app.use(express.json());
 
 function extractRepoUrl(zipFilePath: string, packageName: string): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -149,7 +149,7 @@ app.post('/ingest', async (req: any, res: any) => {
     //const { url } = req.body;
 
     //await logger.info(`package url: ${url}`);
-    await logger.info(`req: ${JSON.stringify(req)}`);
+    await logger.info(`req: ${req.body}`);
 
     /*if (!req.params.url) {
       await logger.error('No file to ingest');

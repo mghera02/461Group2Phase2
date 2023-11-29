@@ -51,6 +51,7 @@ var app = express();
 var port = process.env.PORT || 8080;
 var upload = multer({ storage: multer.memoryStorage() });
 app.use(cors());
+app.use(express.json());
 function extractRepoUrl(zipFilePath, packageName) {
     var _this = this;
     return new Promise(function (resolve, reject) {
@@ -226,7 +227,7 @@ app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 
                 _a.sent();
                 //const { url } = req.body;
                 //await logger.info(`package url: ${url}`);
-                return [4 /*yield*/, logger_1.logger.info("req: ".concat(JSON.stringify(req)))];
+                return [4 /*yield*/, logger_1.logger.info("req: ".concat(req.body))];
             case 3:
                 //const { url } = req.body;
                 //await logger.info(`package url: ${url}`);
