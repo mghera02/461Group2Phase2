@@ -181,43 +181,47 @@ app.post('/ingest', async (req: any, res: any) => {
     let scores = await get_metric_info(gitDetails);
     await logger.info(`retrieved scores from score calculator: ${scores.busFactor}, ${scores.rampup}, ${scores.license}, ${scores.correctness}, ${scores.maintainer}, ${scores.pullRequest}, ${scores.pinning}, ${scores.score}`);
     
-    const package_id = await rds_handler.add_rds_package_data(npmPackageName, scores);
+    if(scores.score > 0.5) {
+      const package_id = await rds_handler.add_rds_package_data(npmPackageName, scores);
 
-    // Check to see if package metadata was upladed to RDS
-    if (package_id === null) {
-      await logger.error("Could not ingest package data to RDS")
-      await time.error('Error occurred at this time\n');
-      return res.status(400).send('Could not add package metadata');
+      // Check to see if package metadata was upladed to RDS
+      if (package_id === null) {
+        await logger.error("Could not ingest package data to RDS")
+        await time.error('Error occurred at this time\n');
+        return res.status(400).send('Could not add package metadata');
+      }
+      await logger.debug(`ingest package to rds with id: ${package_id}`)
+
+      // Upload the actual package to s3
+      // Read the zipped file content
+      const zippedFileContent = fs.readFileSync(zipFilePath);
+      await logger.debug(`got zipped file content`)
+
+      // Create Express.Multer.File object
+      const zippedFile = {
+          fieldname: 'file',
+          originalname: 'zipped_directory.zip',
+          encoding: '7bit',
+          mimetype: 'application/zip',
+          buffer: zippedFileContent // Buffer of the zipped file content
+      };
+
+      const s3_response = await upload_package(package_id, zippedFile); // Call your S3 upload function here
+      await logger.info(`Successfully uploaded package with id: ${package_id}`)
+      // Check to see if package data was uploaded to S3
+      if (s3_response === null) {
+        await logger.error("Error uploading package to S3")
+        await time.error('Error occurred at this time\n');
+        return res.status(400).send('Could not add package data');
+      }
+      await fsExtra.remove(cloneRepoOut[1]);
+      await logger.debug(`removed clone repo`)
+
+      await time.info("Finished at this time\n")
+      res.status(200).send("Package ingested successfully")
+    } else {
+      res.status(424).send("Package is not uploaded due to the disqualified rating.");
     }
-    await logger.debug(`ingest package to rds with id: ${package_id}`)
-
-    // Upload the actual package to s3
-    // Read the zipped file content
-    const zippedFileContent = fs.readFileSync(zipFilePath);
-    await logger.debug(`got zipped file content`)
-
-    // Create Express.Multer.File object
-    const zippedFile = {
-        fieldname: 'file',
-        originalname: 'zipped_directory.zip',
-        encoding: '7bit',
-        mimetype: 'application/zip',
-        buffer: zippedFileContent // Buffer of the zipped file content
-    };
-
-    const s3_response = await upload_package(package_id, zippedFile); // Call your S3 upload function here
-    await logger.info(`Successfully uploaded package with id: ${package_id}`)
-    // Check to see if package data was uploaded to S3
-    if (s3_response === null) {
-      await logger.error("Error uploading package to S3")
-      await time.error('Error occurred at this time\n');
-      return res.status(400).send('Could not add package data');
-    }
-    await fsExtra.remove(cloneRepoOut[1]);
-    await logger.debug(`removed clone repo`)
-
-    await time.info("Finished at this time\n")
-    res.status(200).send("Package ingested successfully")
   } catch (error) {
     await logger.error('Could not ingest package', error);
     await time.error('Error occurred at this time\n')
@@ -394,6 +398,10 @@ app.get('/packageId/:packageName', async (req, res) => {
     await time.error('Error occurred at this time\n');
     res.status(500).send('An error occurred.');
   }
+});
+
+app.put('/authenticate', async (req, res) => {
+  res.status(500).send('This system does not support authentication.');
 });
 
 app.listen(port, async () => {
