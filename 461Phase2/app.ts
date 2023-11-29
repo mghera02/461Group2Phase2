@@ -1,5 +1,4 @@
 const express = require('express');
-import { Request, Response } from 'express';
 const multer = require('multer');
 const fs = require('fs');
 const yauzl = require('yauzl');
@@ -142,14 +141,14 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 });
 
 
-app.post('/ingest', async (req: Request, res: Response) => {
+app.post('/ingest', async (req: any, res: any) => {
   try {
     await time.info("Starting time")
     await logger.info('Attempting to ingest package')
 
-    const { url } = req.body;
+    //const { url } = req.body;
 
-    await logger.info(`package url: ${url}`);
+    //await logger.info(`package url: ${url}`);
     await logger.info(`req: ${JSON.stringify(req)}`);
 
     /*if (!req.params.url) {

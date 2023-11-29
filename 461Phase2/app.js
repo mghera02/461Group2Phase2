@@ -210,23 +210,26 @@ app.post('/upload', upload.single('file'), function (req, res) { return __awaite
     });
 }); });
 app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var url, error_2;
+    var error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 6, , 9]);
+                _a.trys.push([0, 5, , 8]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 1:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info('Attempting to ingest package')];
+                return [4 /*yield*/, logger_1.logger.info('Attempting to ingest package')
+                    //const { url } = req.body;
+                    //await logger.info(`package url: ${url}`);
+                ];
             case 2:
                 _a.sent();
-                url = req.body.url;
-                return [4 /*yield*/, logger_1.logger.info("package url: ".concat(url))];
-            case 3:
-                _a.sent();
+                //const { url } = req.body;
+                //await logger.info(`package url: ${url}`);
                 return [4 /*yield*/, logger_1.logger.info("req: ".concat(JSON.stringify(req)))];
-            case 4:
+            case 3:
+                //const { url } = req.body;
+                //await logger.info(`package url: ${url}`);
                 _a.sent();
                 /*if (!req.params.url) {
                   await logger.error('No file to ingest');
@@ -278,7 +281,7 @@ app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 
             
                 await logger.info(`Successfully uploaded package with id: ${package_id}`)*/
                 return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
-            case 5:
+            case 4:
                 /*if (!req.params.url) {
                   await logger.error('No file to ingest');
                   await time.error('Error occurred at this time\n');
@@ -330,18 +333,18 @@ app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 
                 await logger.info(`Successfully uploaded package with id: ${package_id}`)*/
                 _a.sent();
                 res.status(200).send("Package uploaded successfully");
-                return [3 /*break*/, 9];
-            case 6:
+                return [3 /*break*/, 8];
+            case 5:
                 error_2 = _a.sent();
                 return [4 /*yield*/, logger_1.logger.error('Could not ingest package', error_2)];
-            case 7:
+            case 6:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
-            case 8:
+            case 7:
                 _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 9];
-            case 9: return [2 /*return*/];
+                return [3 /*break*/, 8];
+            case 8: return [2 /*return*/];
         }
     });
 }); });
