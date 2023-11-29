@@ -213,7 +213,7 @@ app.post('/upload', upload.single('file'), function (req, res) { return __awaite
     });
 }); });
 app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var url, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, username, repo, gitInfo, gitDetails, scores, package_id_1, zippedFileContent, zippedFile_1, error_2;
+    var url, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, username, repo, gitInfo, gitDetails, scores, package_id, zippedFileContent, zippedFile, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -283,8 +283,8 @@ app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 
                 _a.sent();
                 return [4 /*yield*/, rds_handler.add_rds_package_data(npmPackageName, scores)];
             case 18:
-                package_id_1 = _a.sent();
-                if (!(package_id_1 === null)) return [3 /*break*/, 21];
+                package_id = _a.sent();
+                if (!(package_id === null)) return [3 /*break*/, 21];
                 return [4 /*yield*/, logger_1.logger.error("Could not ingest package data to RDS")];
             case 19:
                 _a.sent();
@@ -292,7 +292,7 @@ app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 
             case 20:
                 _a.sent();
                 return [2 /*return*/, res.status(400).send('Could not add package metadata')];
-            case 21: return [4 /*yield*/, logger_1.logger.debug("ingest package to rds with id: ".concat(package_id_1))
+            case 21: return [4 /*yield*/, logger_1.logger.debug("ingest package to rds with id: ".concat(package_id))
                 // Upload the actual package to s3
                 // Read the zipped file content
             ];
@@ -304,7 +304,7 @@ app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 
                 ];
             case 23:
                 _a.sent();
-                zippedFile_1 = {
+                zippedFile = {
                     fieldname: 'file',
                     originalname: 'zipped_directory.zip',
                     encoding: '7bit',
@@ -312,37 +312,39 @@ app.post('/ingest', function (req, res) { return __awaiter(void 0, void 0, void 
                     buffer: zippedFileContent // Buffer of the zipped file content
                 };
                 // Use multer's single() method to parse the file
-                upload.single('file')(null, null, function (err) { return __awaiter(void 0, void 0, void 0, function () {
-                    var s3_response;
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0:
-                                if (err) {
-                                    logger_1.logger.error('Error parsing zipped file:', err);
-                                    return [2 /*return*/];
-                                }
-                                return [4 /*yield*/, (0, s3_packages_1.upload_package)(package_id_1, zippedFile_1)];
-                            case 1:
-                                s3_response = _a.sent();
-                                return [4 /*yield*/, logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id_1))
-                                    // Check to see if package data was uploaded to S3
-                                ];
-                            case 2:
-                                _a.sent();
-                                if (!(s3_response === null)) return [3 /*break*/, 5];
-                                return [4 /*yield*/, logger_1.logger.error("Error uploading package to S3")];
-                            case 3:
-                                _a.sent();
-                                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
-                            case 4:
-                                _a.sent();
-                                return [2 /*return*/, res.status(400).send('Could not add package data')];
-                            case 5: return [2 /*return*/];
-                        }
-                    });
-                }); });
+                /*upload.single('file')(null, null, async (err: any) => {
+                    if (err) {
+                        logger.error('Error parsing zipped file:', err);
+                        return;
+                    }
+                    // Use zippedFile as Express.Multer.File
+                    const s3_response = await upload_package(package_id, zippedFile); // Call your S3 upload function here
+                    await logger.info(`Successfully uploaded package with id: ${package_id}`)
+                    // Check to see if package data was uploaded to S3
+                    if (s3_response === null) {
+                      await logger.error("Error uploading package to S3")
+                      await time.error('Error occurred at this time\n');
+                      return res.status(400).send('Could not add package data');
+                    }
+                });*/
                 return [4 /*yield*/, fsExtra.remove(cloneRepoOut[1])];
             case 24:
+                // Use multer's single() method to parse the file
+                /*upload.single('file')(null, null, async (err: any) => {
+                    if (err) {
+                        logger.error('Error parsing zipped file:', err);
+                        return;
+                    }
+                    // Use zippedFile as Express.Multer.File
+                    const s3_response = await upload_package(package_id, zippedFile); // Call your S3 upload function here
+                    await logger.info(`Successfully uploaded package with id: ${package_id}`)
+                    // Check to see if package data was uploaded to S3
+                    if (s3_response === null) {
+                      await logger.error("Error uploading package to S3")
+                      await time.error('Error occurred at this time\n');
+                      return res.status(400).send('Could not add package data');
+                    }
+                });*/
                 _a.sent();
                 return [4 /*yield*/, logger_1.logger.debug("removed clone repo")];
             case 25:

@@ -206,7 +206,7 @@ app.post('/ingest', async (req: any, res: any) => {
     };
 
     // Use multer's single() method to parse the file
-    upload.single('file')(null, null, async (err: any) => {
+    /*upload.single('file')(null, null, async (err: any) => {
         if (err) {
             logger.error('Error parsing zipped file:', err);
             return;
@@ -220,7 +220,7 @@ app.post('/ingest', async (req: any, res: any) => {
           await time.error('Error occurred at this time\n');
           return res.status(400).send('Could not add package data');
         }
-    });
+    });*/
     await fsExtra.remove(cloneRepoOut[1]);
     await logger.debug(`removed clone repo`)
 
