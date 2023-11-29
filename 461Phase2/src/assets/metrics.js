@@ -782,12 +782,15 @@ function check_npm_for_open_source(filePath) {
                         return __generator(this, function (_a) {
                             switch (_a.label) {
                                 case 0:
-                                    if (!(jsonData !== null)) return [3 /*break*/, 5];
+                                    if (!(jsonData !== null)) return [3 /*break*/, 7];
                                     return [4 /*yield*/, logger_1.logger.info("reading json (not null)...")];
                                 case 1:
                                     _a.sent();
                                     repository = jsonData.repository;
-                                    if (!(repository.type == 'git')) return [3 /*break*/, 2];
+                                    if (!(repository.type == 'git')) return [3 /*break*/, 4];
+                                    return [4 /*yield*/, logger_1.logger.info("repo is git")];
+                                case 2:
+                                    _a.sent();
                                     gitUrl = repository.url;
                                     if (gitUrl.startsWith('git+ssh://git@')) {
                                         // Convert SSH URL to HTTPS URL
@@ -799,18 +802,21 @@ function check_npm_for_open_source(filePath) {
                                     if (gitUrl.endsWith('.git')) {
                                         gitUrl = gitUrl.substring(0, gitUrl.length - 4);
                                     }
-                                    return [2 /*return*/, gitUrl];
-                                case 2: return [4 /*yield*/, logger_1.logger.info('No git repository found.')];
+                                    return [4 /*yield*/, logger_1.logger.info("made gitUrl: ".concat(gitUrl))];
                                 case 3:
                                     _a.sent();
+                                    return [2 /*return*/, gitUrl];
+                                case 4: return [4 /*yield*/, logger_1.logger.info('No git repository found.')];
+                                case 5:
+                                    _a.sent();
                                     resolve("Invalid");
-                                    _a.label = 4;
-                                case 4: return [3 /*break*/, 7];
-                                case 5: return [4 /*yield*/, logger_1.logger.info('Failed to read or parse JSON.')];
-                                case 6:
+                                    _a.label = 6;
+                                case 6: return [3 /*break*/, 9];
+                                case 7: return [4 /*yield*/, logger_1.logger.info('Failed to read or parse JSON.')];
+                                case 8:
                                     _a.sent();
                                     return [2 /*return*/, ""];
-                                case 7: return [2 /*return*/];
+                                case 9: return [2 /*return*/];
                             }
                         });
                     }); });

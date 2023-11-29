@@ -572,22 +572,24 @@ async function check_npm_for_open_source(filePath: string): Promise<string> {
             await logger.info(`reading json (not null)...`);
             const repository = jsonData.repository as Record<string, unknown>;
             if (repository.type == 'git') {
-            let gitUrl: string = repository.url as string;
-            if (gitUrl.startsWith('git+ssh://git@')) {
-                // Convert SSH URL to HTTPS URL
-                gitUrl = gitUrl.replace('git+ssh://git@', 'https://');
-            } else if (gitUrl.startsWith('git+https://')) {
-                gitUrl = gitUrl.replace('git+https://', 'https://');
-            }
+                await logger.info(`repo is git`);
+                let gitUrl: string = repository.url as string;
+                if (gitUrl.startsWith('git+ssh://git@')) {
+                    // Convert SSH URL to HTTPS URL
+                    gitUrl = gitUrl.replace('git+ssh://git@', 'https://');
+                } else if (gitUrl.startsWith('git+https://')) {
+                    gitUrl = gitUrl.replace('git+https://', 'https://');
+                }
 
-            if (gitUrl.endsWith('.git')) { 
-                gitUrl = gitUrl.substring(0, gitUrl.length - 4);
-            }
-                
-            return gitUrl
-        } else {
-            await logger.info('No git repository found.');
-            resolve("Invalid");
+                if (gitUrl.endsWith('.git')) { 
+                    gitUrl = gitUrl.substring(0, gitUrl.length - 4);
+                }
+                    
+                await logger.info(`made gitUrl: ${gitUrl}`);
+                return gitUrl
+            } else {
+                await logger.info('No git repository found.');
+                resolve("Invalid");
             }
         } else {
             await logger.info('Failed to read or parse JSON.');
@@ -596,7 +598,7 @@ async function check_npm_for_open_source(filePath: string): Promise<string> {
         });
 
     });
-    }
+}
 
     const get_github_info = (gitUrl: string): { username: string, repo: string}  => {
         const gitRegex = /https:\/\/github\.com\/([^/]+)\/([^/]+)/i; // regex to get user/repo name  from git url
