@@ -194,6 +194,7 @@ app.post('/ingest', async (req: any, res: any) => {
     // Upload the actual package to s3
     // Read the zipped file content
     const zippedFileContent = fs.readFileSync(zipFilePath);
+    await logger.debug(`got zipped file content`)
 
     // Create Express.Multer.File object
     const zippedFile = {
@@ -212,6 +213,7 @@ app.post('/ingest', async (req: any, res: any) => {
         }
         // Use zippedFile as Express.Multer.File
         const s3_response = await upload_package(package_id, zippedFile); // Call your S3 upload function here
+        await logger.info(`Successfully uploaded package with id: ${package_id}`)
         // Check to see if package data was uploaded to S3
         if (s3_response === null) {
           await logger.error("Error uploading package to S3")
@@ -220,8 +222,8 @@ app.post('/ingest', async (req: any, res: any) => {
         }
     });
     await fsExtra.remove(cloneRepoOut[1]);
+    await logger.debug(`removed clone repo`)
 
-    await logger.info(`Successfully uploaded package with id: ${package_id}`)
     await time.info("Finished at this time\n")
     res.status(200).send("Package ingested successfully")
   } catch (error) {
