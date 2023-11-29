@@ -586,7 +586,7 @@ async function check_npm_for_open_source(filePath: string): Promise<string> {
                 }
                     
                 await logger.info(`made gitUrl: ${gitUrl}`);
-                return gitUrl
+                resolve(gitUrl);
             } else {
                 await logger.info('No git repository found.');
                 resolve("Invalid");

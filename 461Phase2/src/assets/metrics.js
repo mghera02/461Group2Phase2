@@ -805,7 +805,8 @@ function check_npm_for_open_source(filePath) {
                                     return [4 /*yield*/, logger_1.logger.info("made gitUrl: ".concat(gitUrl))];
                                 case 3:
                                     _a.sent();
-                                    return [2 /*return*/, gitUrl];
+                                    resolve(gitUrl);
+                                    return [3 /*break*/, 6];
                                 case 4: return [4 /*yield*/, logger_1.logger.info('No git repository found.')];
                                 case 5:
                                     _a.sent();
