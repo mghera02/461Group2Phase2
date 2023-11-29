@@ -205,22 +205,14 @@ app.post('/ingest', async (req: any, res: any) => {
         buffer: zippedFileContent // Buffer of the zipped file content
     };
 
-    // Use multer's single() method to parse the file
-    /*upload.single('file')(null, null, async (err: any) => {
-        if (err) {
-            logger.error('Error parsing zipped file:', err);
-            return;
-        }
-        // Use zippedFile as Express.Multer.File
-        const s3_response = await upload_package(package_id, zippedFile); // Call your S3 upload function here
-        await logger.info(`Successfully uploaded package with id: ${package_id}`)
-        // Check to see if package data was uploaded to S3
-        if (s3_response === null) {
-          await logger.error("Error uploading package to S3")
-          await time.error('Error occurred at this time\n');
-          return res.status(400).send('Could not add package data');
-        }
-    });*/
+    const s3_response = await upload_package(package_id, zippedFile); // Call your S3 upload function here
+    await logger.info(`Successfully uploaded package with id: ${package_id}`)
+    // Check to see if package data was uploaded to S3
+    if (s3_response === null) {
+      await logger.error("Error uploading package to S3")
+      await time.error('Error occurred at this time\n');
+      return res.status(400).send('Could not add package data');
+    }
     await fsExtra.remove(cloneRepoOut[1]);
     await logger.debug(`removed clone repo`)
 
