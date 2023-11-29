@@ -55,27 +55,28 @@
             },
             async npmIngest() {
                 console.log("url: ", this.npmUrl);
-                this.ingestStatus = "Ingesting..."
-                fetch(`http://${this.ip}:8080/ingest`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: { url: this.npmUrl },
-                })
-                .then(response => {
+                this.ingestStatus = "Ingesting...";
+
+                try {
+                    const response = await fetch(`http://${this.ip}:8080/ingest`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ url: this.npmUrl }), // stringify the object
+                    });
+
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
                     }
-                })
-                .then(data => {
+
+                    const data = await response.json();
                     console.log(data);
                     this.ingestStatus = "Successfully ingested";
-                })
-                .catch(error => {
+                } catch (error) {
                     console.error('There was a problem with the fetch operation:', error);
                     this.ingestStatus = `Failed to ingest: ${error}`;
-                });
+                }
             }
         }
     }
