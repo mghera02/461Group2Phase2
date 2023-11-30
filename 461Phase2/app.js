@@ -180,13 +180,13 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
             case 19:
                 package_id = _a.sent();
                 if (!(package_id === null)) return [3 /*break*/, 22];
-                return [4 /*yield*/, logger_1.logger.error("Could not ingest package data to RDS")];
+                return [4 /*yield*/, logger_1.logger.error("Could not upload package data to RDS")];
             case 20:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 21:
                 _a.sent();
-                return [2 /*return*/, res.status(400).send('Could not add package metadata')];
+                return [2 /*return*/, res.status(409).send('Package exists already.')];
             case 22: return [4 /*yield*/, logger_1.logger.debug("ingest package to rds with id: ".concat(package_id))
                 // Upload the actual package to s3
                 // Read the zipped file content
@@ -308,7 +308,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 54:
                 _a.sent();
-                return [2 /*return*/, res.status(400).send('Could not add package metadata')];
+                return [2 /*return*/, res.status(409).send('Package exists already.')];
             case 55: return [4 /*yield*/, logger_1.logger.debug("Uploaded package to rds with id: ".concat(package_id))
                 // Upload the actual package to s3
             ];

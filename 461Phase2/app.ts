@@ -116,10 +116,10 @@ app.post('/package', upload.single('file'), async (req, res) => {
         const package_id = await rds_handler.add_rds_package_data(npmPackageName, scores);
 
         // Check to see if package metadata was upladed to RDS
-        if (package_id === null) {
-          await logger.error("Could not ingest package data to RDS")
+        if (package_id === null) { //  happens when package exists already
+          await logger.error("Could not upload package data to RDS")
           await time.error('Error occurred at this time\n');
-          return res.status(400).send('Could not add package metadata');
+          return res.status(409).send('Package exists already.');
         }
         await logger.debug(`ingest package to rds with id: ${package_id}`)
 
@@ -195,10 +195,10 @@ app.post('/package', upload.single('file'), async (req, res) => {
       const package_id = await rds_handler.add_rds_package_data(req.file.originalname.replace(/\.zip$/, ''), scores);
 
       // Check to see if package metadata was upladed to RDS
-      if (package_id === null) {
+      if (package_id === null) { //  happens when package exists already
         await logger.error("Could not upload package data to RDS")
         await time.error('Error occurred at this time\n');
-        return res.status(400).send('Could not add package metadata');
+        return res.status(409).send('Package exists already.');
       }
       await logger.debug(`Uploaded package to rds with id: ${package_id}`)
 
