@@ -82,12 +82,6 @@ app.post('/package', upload.single('file'), async (req, res) => {
       await logger.info(`package url: ${req.body.url}`);
       await logger.info(`req: ${JSON.stringify(req.body)}`);
 
-      if (!url) {
-        await logger.error('No file to ingest');
-        await time.error('Error occurred at this time\n');
-        return res.status(400).send('No file ingest.');
-      }
-
       const npmPackageName: string = get_npm_package_name(url);
       await logger.info(`package name: ${npmPackageName}`);
 
@@ -149,7 +143,9 @@ app.post('/package', upload.single('file'), async (req, res) => {
         await logger.debug(`removed clone repo`)
 
         await time.info("Finished at this time\n")
-        res.status(200).send("Package ingested successfully")
+        // TODO: fix id
+        let response = {"metadata": {"Name": repo, "Version": "Not Implementing", "ID": package_id}, "data": {"Content": zippedFile.buffer, "JSProgram": "Not Implementing"}};
+        res.status(200).send(response)
       } else {
         res.status(424).send("Package is not uploaded due to the disqualified rating.");
       }
@@ -214,7 +210,9 @@ app.post('/package', upload.single('file'), async (req, res) => {
 
       await logger.info(`Successfully uploaded package with id: ${package_id}`)
       await time.info("Finished at this time\n")
-      res.status(200).send("Package uploaded successfully")
+      // TODO: fix id
+      let response = {"metadata": {"Name": repo, "Version": "Not Implementing", "ID": package_id}, "data": {"Content": req.file.buffer, "JSProgram": "Not Implementing"}};
+      res.status(200).send(response)
     } catch (error) {
       await logger.error('Could not upload package', error);
       await time.error('Error occurred at this time\n')
