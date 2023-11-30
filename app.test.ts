@@ -172,10 +172,16 @@ describe('Express App', () => {
     const mockSearchResults: PackageData[] = [
       {
         package_id: 1,
-        package_name: 'test-package',
+        package_name: 'example-package',
         rating: {
-          key1: 'value1',
-          key2: 'value2',
+          busFactor: 1,
+          rampup: 2,
+          license: 3,
+          correctness: 4,
+          maintainer: 5,
+          pullRequest: 6,
+          pinning: 7,
+          score: 8,
         },
         num_downloads: 100,
         created_at: new Date(),
