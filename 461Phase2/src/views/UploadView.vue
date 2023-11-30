@@ -41,7 +41,7 @@
                 formData.append("file", selectedFile);
                 this.uploadStatus = "Uploading...";
                 try {
-                    const response = await axios.post(`http://${this.ip}:8080/upload`, formData, {
+                    const response = await axios.post(`http://${this.ip}:8080/package`, formData, {
                         headers: {
                             "Content-Type": "application/zip",
                         },
@@ -58,7 +58,7 @@
                 this.ingestStatus = "Ingesting...";
 
                 try {
-                    const response = await fetch(`http://${this.ip}:8080/ingest`, {
+                    const response = await fetch(`http://${this.ip}:8080/package`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
