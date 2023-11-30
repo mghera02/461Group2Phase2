@@ -119,7 +119,6 @@ describe('Express App', () => {
         { Key: 'package1' },
         { Key: 'package2' },
         { Key: 'package3' },
-        // Add more mock objects as needed
       ],
     };
 
@@ -186,7 +185,6 @@ describe('Express App', () => {
         num_downloads: 100,
         created_at: new Date(),
       },
-      // Add more mock data as needed
     ];
   
     // Mock the behavior of the RDS handler
