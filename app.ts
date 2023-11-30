@@ -1,11 +1,9 @@
 import AWS from 'aws-sdk';
-import { AWSMock } from 'jest-aws-sdk-mock';
-
+//import { AWSMock } from 'jest-aws-sdk-mock';
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
 const yauzl = require('yauzl');
-// import AWS from 'aws-sdk';
 const cors = require('cors');
 import { logger, time } from './461Phase2/logger';
 import * as rds_configurator from './461Phase2/rds_config';
@@ -19,24 +17,24 @@ import {
 } from './461Phase2/s3_packages';
 import {get_metric_info, cloneRepo, check_npm_for_open_source, get_github_info, get_npm_package_name, zipDirectory} from './461Phase2/src/assets/metrics';
 
-// Mock the AWS S3 services
-AWSMock.setSDKInstance(AWS);
+// // Mock the AWS S3 services
+// AWSMock.setSDKInstance(AWS);
 
-// Mock S3 upload
-AWSMock.mock('S3', 'upload', (params: AWS.S3.PutObjectRequest, callback: AWS.RequestHandler<AWS.S3.PutObjectOutput>) => {
-  // Define your mock behavior for S3 upload here
-  callback(null, { Location: 'mocked-s3-location' });
-});
+// // Mock S3 upload
+// AWSMock.mock('S3', 'upload', (params: AWS.S3.PutObjectRequest, callback: AWS.RequestHandler<AWS.S3.PutObjectOutput>) => {
+//   // Define your mock behavior for S3 upload here
+//   callback(null, { Location: 'mocked-s3-location' });
+// });
 
-// Mock S3 getObject
-AWSMock.mock('S3', 'getObject', (params: AWS.S3.GetObjectRequest, callback: AWS.RequestHandler<AWS.S3.GetObjectOutput>) => {
-  // Define your mock behavior for S3 getObject here
-  const rateData = { rate: 10 };
-  const response: AWS.S3.GetObjectOutput = {
-    Body: JSON.stringify(rateData),
-  };
-  callback(null, response);
-});
+// // Mock S3 getObject
+// AWSMock.mock('S3', 'getObject', (params: AWS.S3.GetObjectRequest, callback: AWS.RequestHandler<AWS.S3.GetObjectOutput>) => {
+//   // Define your mock behavior for S3 getObject here
+//   const rateData = { rate: 10 };
+//   const response: AWS.S3.GetObjectOutput = {
+//     Body: JSON.stringify(rateData),
+//   };
+//   callback(null, response);
+// });
 
 const app = express();
 const port = process.env.PORT||8080;
@@ -93,7 +91,7 @@ function extractRepoUrl(zipFilePath: string, packageName: string): Promise<strin
   });
 }
 
-app.post('/upload', upload.single('file'), async (req, res) => {
+app.post('/upload', upload.single('file'), async (req : any, res : any) => {
   try {
     await time.info("Starting time")
     await logger.info('Attempting to upload package')
@@ -252,7 +250,7 @@ app.post('/ingest', async (req: any, res: any) => {
 })
 
 
-app.get('/rate/:packageId', async (req, res) => {
+app.get('/rate/:packageId', async (req: any, res: any) => {
   try {
     await time.info("Starting time")
     await logger.info("Attempring to get package rating")
@@ -285,7 +283,7 @@ app.get('/rate/:packageId', async (req, res) => {
   }
 });
 
-app.get('/download/:packageId', async (req, res) => {
+app.get('/download/:packageId', async (req: any, res: any) => {
   try {
     await time.info("Starting time")
     await logger.info("Attempting to download package")
@@ -322,7 +320,7 @@ app.get('/download/:packageId', async (req, res) => {
   }
 });
 
-app.get('/packages', async (req, res) => {
+app.get('/packages', async (req: any, res: any) => {
   // try {
   //   const s3Params = {
   //     Bucket: 'your-s3-bucket-name',
@@ -344,7 +342,7 @@ app.get('/packages', async (req, res) => {
 });
 
 // Sends the a list of package names that match the regex
-app.get('/search', async (req, res) => {
+app.get('/search', async (req: any, res: any) => {
   try {
     await time.info("Starting time")
     await logger.info("Attempting to search packages")
@@ -375,7 +373,7 @@ app.get('/search', async (req, res) => {
 });
 
 // Resets RDS and S3
-app.post('/reset', async (req, res) => {
+app.post('/reset', async (req: any, res: any) => {
   try {
     await time.info("Starting time")
     await logger.info("Attempting to reset system")
@@ -394,7 +392,7 @@ app.post('/reset', async (req, res) => {
   }
 });
 
-app.get('/packageId/:packageName', async (req, res) => {
+app.get('/packageId/:packageName', async (req: any, res: any) => {
   try {
     await time.info("Starting time");
     await logger.info("Attempting to get package ID by name");
@@ -422,7 +420,7 @@ app.get('/packageId/:packageName', async (req, res) => {
   }
 });
 
-app.put('/authenticate', async (req, res) => {
+app.put('/authenticate', async (req: any, res: any) => {
   res.status(500).send('This system does not support authentication.');
 });
 
@@ -430,3 +428,5 @@ app.listen(port, async () => {
   await logger.info(`Server is running on port ${port}`);
   await time.info('was the time\n')
 });
+
+export { app };

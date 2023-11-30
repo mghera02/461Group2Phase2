@@ -408,3 +408,5 @@ app.listen(port, async () => {
   await logger.info(`Server is running on port ${port}`);
   await time.info('was the time\n')
 });
+
+export { app };
