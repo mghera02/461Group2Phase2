@@ -5,16 +5,29 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    border-width: 3px;
+    border-color: black;
+    border: solid;
+    font-size: 1.4em;
+    word-spacing: 0.224em; /* .16 times size */
+    line-height: 2.1em; /* 1.5 times size */
+    letter-spacing: .168em;/* .12 times size */
 }
 
 .metricScore {
     margin-right: 1vw;
     margin-top: .5vw;
     font-size: 1.2em;
+    word-spacing: 0.192em; /* .16 times size */
+    line-height: 1.8em; /* 1.5 times size */
+    letter-spacing: .144em;/* .12 times size */
 }
 
 .packageTitle {
     font-size: 2em;
     margin-left: 20px;
     margin-top: 10px;
+    word-spacing: 0.32em; /* .16 times size */
+    line-height: 3em; /* 1.5 times size */
+    letter-spacing: .24em;/* .12 times size */
 }

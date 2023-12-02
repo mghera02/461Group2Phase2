@@ -5,12 +5,17 @@
     <h1 class="title">
         Upload a package 
     </h1>
-   <input ref="file" v-on:change="handleFileUpload()"  type="file">
+   <input class="btn" ref="file" v-on:change="handleFileUpload()"  type="file">
    <h3>
       {{uploadStatus}}  
    </h3>
+
+   <h2>
+    or
+   </h2>
+
    <input id="textInput" type="text" v-model="npmUrl" placeholder="Type an in npm url to ingest"/>
-   <button id="ingest" @click="npmIngest"> Ingest </button>
+   <button id="ingest" class="btn" @click="npmIngest"> Ingest </button>
    <h3>
       {{ingestStatus}}  
    </h3>

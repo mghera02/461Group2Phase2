@@ -1,10 +1,16 @@
+<style lang="css" src="../assets/css/uploadDownload.css"></style>
+
 <template>
     <router-link :to="{ name: 'home', params: {} }" class="goToBtn">Back to search page</router-link>
-     <h1 class="title">
-         Download a package 
-     </h1>
-    {{ this.$route.params.packageName }}
-    <button @click="getPackageZip">DOWNLOAD</button>
+    <h1 class="title">
+        Download a package 
+    </h1>
+    <span id="inline">
+        <h2>
+            {{ this.$route.params.packageName }}:
+        </h2>
+        <button class="btn" @click="getPackageZip">DOWNLOAD</button>
+    </span>
  </template>
  
  <script>

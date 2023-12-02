@@ -1,6 +1,6 @@
 <template>
   <main id="topNav">
-    <input id="searchBar" type="text" v-model="searchBarVal" placeholder="Search for a package using regex"/>
+    <input id="searchBar" v-on:keyup.enter="sendSearchToParent" type="text" v-model="searchBarVal" placeholder="Search for a package using regex"/>
     <button id="searchBtn" @click="sendSearchToParent"> Search </button>
   </main>
 </template>

@@ -7,6 +7,9 @@
     margin-right:auto;
     position: relative;
     top: -5vw;
+    word-spacing: 0.4em; /* .16 times size */
+    line-height: 3.75em; /* 1.5 times size */
+    letter-spacing: .3em;/* .12 times size */
 }
 
 .backBtn {
@@ -19,4 +22,64 @@
     color: black;
     font-family: Arial;
     font-size: 1.4em;
+    word-spacing: 0.224em; /* .16 times size */
+    line-height: 2.1em; /* 1.5 times size */
+    letter-spacing: .168em;/* .12 times size */
+}
+
+.backBtn:focus {
+    color: red;
+    border-color: red;
+    border: solid;
+    border-width: 6px;
+}
+
+.btn {
+    border-width: 3px;
+    border-color: black;
+    border: solid;
+    font-size: 1.4em;
+    background: #ddd;
+    word-spacing: 0.224em; /* .16 times size */
+    line-height: 2.1em; /* 1.5 times size */
+    letter-spacing: .168em;/* .12 times size */
+}
+
+.btn:focus {
+    color: red;
+    border-color: red;
+    border: solid;
+    border-width: 6px;
+}
+
+#textInput {
+    border-width: 3px;
+    border-color: black;
+    border: solid;
+    font-size: 1.4em;
+    width: 28.5vw;
+    margin-right: 10px;
+    word-spacing: 0.224em; /* .16 times size */
+    line-height: 2.1em; /* 1.5 times size */
+    letter-spacing: .168em;/* .12 times size */
+}
+
+#textInput:focus {
+    color: red;
+    border-color: red;
+    border: solid;
+    border-width: 6px;
+}
+
+#inline {
+    width: 25vw;
+    display: flex;
+    justify-content: space-around;
+}
+
+h2 {
+    font-size: 2em;
+    word-spacing: 0.32em; /* .16 times size */
+    line-height: 3em; /* 1.5 times size */
+    letter-spacing: .24em;/* .12 times size */
 }
