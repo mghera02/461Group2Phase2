@@ -478,7 +478,7 @@ app.get('/packages', function (req, res) { return __awaiter(void 0, void 0, void
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 18, , 21]);
+                _a.trys.push([0, 19, , 22]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 1:
                 _a.sent();
@@ -487,68 +487,71 @@ app.get('/packages', function (req, res) { return __awaiter(void 0, void 0, void
                 _a.sent();
                 packageName = req.body[0].Name;
                 version = req.body[0].Version;
-                return [4 /*yield*/, logger_1.logger.info("Got req.body.Name:".concat(req.body[0].Name, ", req.body.Version:").concat(req.body[0].Version))];
+                return [4 /*yield*/, logger_1.logger.info("Length of req body: ".concat(req.body.length))];
             case 3:
                 _a.sent();
-                if (!(!packageName && !version)) return [3 /*break*/, 6];
-                return [4 /*yield*/, logger_1.logger.error('No name was given')];
+                return [4 /*yield*/, logger_1.logger.info("Got req.body.Name:".concat(req.body[0].Name, ", req.body.Version:").concat(req.body[0].Version))];
             case 4:
                 _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                if (!(!packageName && !version)) return [3 /*break*/, 7];
+                return [4 /*yield*/, logger_1.logger.error('No name was given')];
             case 5:
                 _a.sent();
-                return [2 /*return*/, res.status(400).send('There is missing field(s) in the PackageQuery/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.')];
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 6:
+                _a.sent();
+                return [2 /*return*/, res.status(400).send('There is missing field(s) in the PackageQuery/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.')];
+            case 7:
                 if (!packageName && version) {
                     return [2 /*return*/, res.status(501).send('This system does not support versions.')];
                 }
-                _a.label = 7;
-            case 7:
+                _a.label = 8;
+            case 8:
                 offsetValue = void 0;
-                if (!(req.query.offset !== undefined)) return [3 /*break*/, 9];
+                if (!(req.query.offset !== undefined)) return [3 /*break*/, 10];
                 offsetValue = parseInt(req.query.offset);
                 return [4 /*yield*/, logger_1.logger.info("Offset: ".concat(offsetValue))];
-            case 8:
-                _a.sent();
-                return [3 /*break*/, 11];
             case 9:
+                _a.sent();
+                return [3 /*break*/, 12];
+            case 10:
                 offsetValue = 0;
                 return [4 /*yield*/, logger_1.logger.info('Offset is not provided in the query parameters')];
-            case 10:
-                _a.sent();
-                _a.label = 11;
             case 11:
-                searchResults = void 0;
-                if (!(packageName == "*")) return [3 /*break*/, 13];
-                return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination(".*", false, offsetValue)];
+                _a.sent();
+                _a.label = 12;
             case 12:
+                searchResults = void 0;
+                if (!(packageName == "*")) return [3 /*break*/, 14];
+                return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination(".*", false, offsetValue)];
+            case 13:
                 searchResults = _a.sent();
-                return [3 /*break*/, 15];
-            case 13: return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination("".concat(packageName), true, offsetValue)];
-            case 14:
-                searchResults = _a.sent();
-                _a.label = 15;
+                return [3 /*break*/, 16];
+            case 14: return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination("".concat(packageName), true, offsetValue)];
             case 15:
+                searchResults = _a.sent();
+                _a.label = 16;
+            case 16:
                 package_names = searchResults.map(function (data) { return data.package_name; });
                 return [4 /*yield*/, logger_1.logger.info("Successfully got packages (/packages)")];
-            case 16:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
             case 17:
                 _a.sent();
-                res.status(200).json(package_names);
-                return [3 /*break*/, 21];
+                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
             case 18:
+                _a.sent();
+                res.status(200).json(package_names);
+                return [3 /*break*/, 22];
+            case 19:
                 error_5 = _a.sent();
                 return [4 /*yield*/, logger_1.logger.error('Error searching packages:', error_5)];
-            case 19:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 20:
                 _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 21:
+                _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 21];
-            case 21: return [2 /*return*/];
+                return [3 /*break*/, 22];
+            case 22: return [2 /*return*/];
         }
     });
 }); });
