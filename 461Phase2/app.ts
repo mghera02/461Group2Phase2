@@ -310,7 +310,12 @@ app.get('/packages', async (req, res) => {
       return res.status(501).send('This system does not support versions.');
     }
 
-    const searchResults = await rds_handler.match_rds_rows(`${packageName}`, true);
+    let searchResults;
+    if(packageName == "*") {
+      searchResults = await rds_handler.match_rds_rows(`.*`);
+    } else {
+      searchResults = await rds_handler.match_rds_rows(`${packageName}`, true);
+    }
     const package_names = searchResults.map((data:any) => data.package_name);
 
     await logger.info(`Successfully got packages (/packages)`)
