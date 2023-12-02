@@ -36,6 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.app = void 0;
 var express = require('express');
 var multer = require('multer');
 var fs = require('fs');
@@ -50,6 +51,7 @@ var child_process_1 = require("child_process");
 var s3_packages_1 = require("./s3_packages");
 var metrics_1 = require("./src/assets/metrics");
 var app = express();
+exports.app = app;
 var port = process.env.PORT || 8080;
 var upload = multer({ storage: multer.memoryStorage() });
 app.use(cors());
@@ -472,13 +474,61 @@ app.get('/download/:packageId', function (req, res) { return __awaiter(void 0, v
     });
 }); });
 app.get('/packages', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var packageName, version, searchResults, package_names, error_5;
     return __generator(this, function (_a) {
-        return [2 /*return*/];
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 10, , 13]);
+                return [4 /*yield*/, logger_1.time.info("Starting time")];
+            case 1:
+                _a.sent();
+                return [4 /*yield*/, logger_1.logger.info("Attempting to get packages (/packages)")];
+            case 2:
+                _a.sent();
+                packageName = req.body.Name;
+                version = req.body.Version;
+                if (!(!packageName && !version)) return [3 /*break*/, 5];
+                return [4 /*yield*/, logger_1.logger.error('No name was given')];
+            case 3:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 4:
+                _a.sent();
+                return [2 /*return*/, res.status(400).send('There is missing field(s) in the PackageQuery/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.')];
+            case 5:
+                if (!packageName && version) {
+                    return [2 /*return*/, res.status(501).send('This system does not support versions.')];
+                }
+                _a.label = 6;
+            case 6: return [4 /*yield*/, rds_handler.match_rds_rows("/^".concat(packageName, "$/"))];
+            case 7:
+                searchResults = _a.sent();
+                package_names = searchResults.map(function (data) { return data.package_name; });
+                return [4 /*yield*/, logger_1.logger.info("Successfully got packages (/packages)")];
+            case 8:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
+            case 9:
+                _a.sent();
+                res.status(200).json(package_names);
+                return [3 /*break*/, 13];
+            case 10:
+                error_5 = _a.sent();
+                return [4 /*yield*/, logger_1.logger.error('Error searching packages:', error_5)];
+            case 11:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 12:
+                _a.sent();
+                res.status(500).send('An error occurred.');
+                return [3 /*break*/, 13];
+            case 13: return [2 /*return*/];
+        }
     });
 }); });
 // Sends the a list of package names that match the regex
 app.get('/search', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var searchString, searchResults, package_names, error_5;
+    var searchString, searchResults, package_names, error_6;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -511,8 +561,8 @@ app.get('/search', function (req, res) { return __awaiter(void 0, void 0, void 0
                 res.status(200).json(package_names);
                 return [3 /*break*/, 12];
             case 9:
-                error_5 = _a.sent();
-                return [4 /*yield*/, logger_1.logger.error('Error searching packages:', error_5)];
+                error_6 = _a.sent();
+                return [4 /*yield*/, logger_1.logger.error('Error searching packages:', error_6)];
             case 10:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
@@ -526,7 +576,7 @@ app.get('/search', function (req, res) { return __awaiter(void 0, void 0, void 0
 }); });
 // Resets RDS and S3
 app.post('/reset', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var error_6;
+    var error_7;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -555,8 +605,8 @@ app.post('/reset', function (req, res) { return __awaiter(void 0, void 0, void 0
                 res.status(200).send('Successfully reset system to original state');
                 return [3 /*break*/, 11];
             case 8:
-                error_6 = _a.sent();
-                return [4 /*yield*/, logger_1.logger.error('Error resetting system:', error_6)];
+                error_7 = _a.sent();
+                return [4 /*yield*/, logger_1.logger.error('Error resetting system:', error_7)];
             case 9:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
@@ -569,7 +619,7 @@ app.post('/reset', function (req, res) { return __awaiter(void 0, void 0, void 0
     });
 }); });
 app.get('/packageId/:packageName', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var packageName, searchResults, package_id, error_7;
+    var packageName, searchResults, package_id, error_8;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -603,8 +653,8 @@ app.get('/packageId/:packageName', function (req, res) { return __awaiter(void 0
                 res.status(200).json({ package_id: package_id });
                 return [3 /*break*/, 12];
             case 9:
-                error_7 = _a.sent();
-                return [4 /*yield*/, logger_1.logger.error('Error getting package ID by name:', error_7)];
+                error_8 = _a.sent();
+                return [4 /*yield*/, logger_1.logger.error('Error getting package ID by name:', error_8)];
             case 10:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];

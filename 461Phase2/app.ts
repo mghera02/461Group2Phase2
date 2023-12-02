@@ -294,24 +294,31 @@ app.get('/download/:packageId', async (req, res) => {
 });
 
 app.get('/packages', async (req, res) => {
-  // try {
-  //   const s3Params = {
-  //     Bucket: 'your-s3-bucket-name',
-  //     Prefix: '', 
-  //   };
-  //   const s3Objects = await s3.listObjectsV2(s3Params).promise();
-  //   const packages = s3Objects.Contents.map((object) => object.Key);
-  //   //pagination
-  //   const page = req.query.page || 1;
-  //   const perPage = req.query.perPage || 10;
-  //   const startIndex = (page - 1) * perPage;
-  //   const endIndex = page * perPage;
-  //   const paginatedPackages = packages.slice(startIndex, endIndex);
-  //   res.status(200).json(paginatedPackages);
-  // } catch (error) {
-  //   console.error('Error:', error);
-  //   res.status(500).send('An error occurred.');
-  // }
+  try {
+    await time.info("Starting time")
+    await logger.info("Attempting to get packages (/packages)")
+
+    const packageName = req.body.Name;
+    const version = req.body.Version;
+    if (!packageName && !version) {
+      await logger.error('No name was given');
+      await time.error('Error occurred at this time\n');
+      return res.status(400).send('There is missing field(s) in the PackageQuery/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.');
+    } else if (!packageName && version) {
+      return res.status(501).send('This system does not support versions.');
+    }
+
+    const searchResults = await rds_handler.match_rds_rows(`/^${packageName}$/`);
+    const package_names = searchResults.map((data) => data.package_name);
+
+    await logger.info(`Successfully got packages (/packages)`)
+    await time.info("Finished at this time\n")
+    res.status(200).json(package_names);
+  } catch (error) {
+    await logger.error('Error searching packages:', error);
+    await time.error('Error occurred at this time\n')
+    res.status(500).send('An error occurred.');
+  }
 });
 
 // Sends the a list of package names that match the regex
