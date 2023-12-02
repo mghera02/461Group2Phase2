@@ -479,7 +479,7 @@ app.get('/packages', function (req, res) { return __awaiter(void 0, void 0, void
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 11, , 14]);
+                _a.trys.push([0, 14, , 17]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 1:
                 _a.sent();
@@ -504,29 +504,38 @@ app.get('/packages', function (req, res) { return __awaiter(void 0, void 0, void
                     return [2 /*return*/, res.status(501).send('This system does not support versions.')];
                 }
                 _a.label = 7;
-            case 7: return [4 /*yield*/, rds_handler.match_rds_rows("".concat(packageName), true)];
+            case 7:
+                searchResults = void 0;
+                if (!(packageName == "*")) return [3 /*break*/, 9];
+                return [4 /*yield*/, rds_handler.match_rds_rows(".*")];
             case 8:
                 searchResults = _a.sent();
+                return [3 /*break*/, 11];
+            case 9: return [4 /*yield*/, rds_handler.match_rds_rows("".concat(packageName), true)];
+            case 10:
+                searchResults = _a.sent();
+                _a.label = 11;
+            case 11:
                 package_names = searchResults.map(function (data) { return data.package_name; });
                 return [4 /*yield*/, logger_1.logger.info("Successfully got packages (/packages)")];
-            case 9:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
-            case 10:
-                _a.sent();
-                res.status(200).json(package_names);
-                return [3 /*break*/, 14];
-            case 11:
-                error_5 = _a.sent();
-                return [4 /*yield*/, logger_1.logger.error('Error searching packages:', error_5)];
             case 12:
                 _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
             case 13:
                 _a.sent();
+                res.status(200).json(package_names);
+                return [3 /*break*/, 17];
+            case 14:
+                error_5 = _a.sent();
+                return [4 /*yield*/, logger_1.logger.error('Error searching packages:', error_5)];
+            case 15:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 16:
+                _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 14];
-            case 14: return [2 /*return*/];
+                return [3 /*break*/, 17];
+            case 17: return [2 /*return*/];
         }
     });
 }); });
