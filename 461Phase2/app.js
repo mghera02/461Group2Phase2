@@ -473,6 +473,7 @@ app.get('/download/:packageId', function (req, res) { return __awaiter(void 0, v
         }
     });
 }); });
+// TODO: incorportate pagination
 app.get('/packages', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var packageName, version, searchResults, package_names, error_5;
     return __generator(this, function (_a) {
@@ -485,8 +486,8 @@ app.get('/packages', function (req, res) { return __awaiter(void 0, void 0, void
                 return [4 /*yield*/, logger_1.logger.info("Attempting to get packages (/packages)")];
             case 2:
                 _a.sent();
-                packageName = req.body.Name;
-                version = req.body.Version;
+                packageName = req.body[0].Name;
+                version = req.body[0].Version;
                 return [4 /*yield*/, logger_1.logger.info("Got req.body.Name:".concat(req.body.Name, ", req.body.Version:").concat(req.body.Version))];
             case 3:
                 _a.sent();

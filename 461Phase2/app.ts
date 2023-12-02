@@ -293,13 +293,14 @@ app.get('/download/:packageId', async (req, res) => {
   }
 });
 
+// TODO: incorportate pagination
 app.get('/packages', async (req, res) => {
   try {
     await time.info("Starting time")
     await logger.info("Attempting to get packages (/packages)")
 
-    const packageName = req.body.Name;
-    const version = req.body.Version;
+    const packageName = req.body[0].Name;
+    const version = req.body[0].Version;
     await logger.info(`Got req.body.Name:${req.body.Name}, req.body.Version:${req.body.Version}`);
     if (!packageName && !version) {
       await logger.error('No name was given');
