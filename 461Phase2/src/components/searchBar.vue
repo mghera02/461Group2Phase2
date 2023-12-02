@@ -1,7 +1,13 @@
 <template>
-  <main id="topNav">
+  <main class="topNav">
     <input id="searchBar" v-on:keyup.enter="sendSearchToParent" type="text" v-model="searchBarVal" placeholder="Search for a package using regex"/>
     <button id="searchBtn" @click="sendSearchToParent"> Search </button>
+  </main>
+  <main class="topNav">
+  or
+  </main>
+  <main class="topNav">
+    <button id="searchBtn" @click="sendSearchToParent('*')"> Search all packages (with pagination) </button>
   </main>
 </template>
 
@@ -14,8 +20,12 @@
             }
         },
         methods: {
-            sendSearchToParent() {
-              this.$emit('searchBarVal', this.searchBarVal)
+            sendSearchToParent(i) {
+              if(i == "*") {
+                this.$emit('searchBarVal', "*")
+              } else {
+                this.$emit('searchBarVal', this.searchBarVal)
+              }
             }
         },
         props: {

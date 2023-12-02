@@ -293,7 +293,7 @@ app.get('/download/:packageId', async (req, res) => {
   }
 });
 
-app.get('/packages', async (req, res) => {
+app.post('/packages', async (req, res) => {
   try {
     await time.info("Starting time")
     await logger.info("Attempting to get packages (/packages)")

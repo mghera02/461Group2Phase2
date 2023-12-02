@@ -27,7 +27,8 @@
               searchBarVal: "",
               pastSearchBarVal: "",
               packages: [],
-              ip: "3.139.57.32"
+              ip: "3.139.57.32",
+              numSearchAllPress: 0
             }
         },
         methods: {
@@ -53,32 +54,67 @@
             
             let packageNames = []
 
-            try {
-              const response = await axios.get(`http://${this.ip}:8080/search`, {
-                params: {
-                  q: this.searchBarVal,
-                }
-              })
-              console.log('Search Results:', response.data);
-              packageNames = response.data;
-              for (let packageName of packageNames) {
-                let id = await this.getPackageId(packageName);
-                let ratings = await this.getPackageRatings(id);
-                (this.packages).push({
-                  packageName: packageName, 
-                  packageId: id, 
-                  busFactor: ratings.busFactor, 
-                  rampup: ratings.rampup,
-                  license: ratings.license,
-                  correctness: ratings.correctness,
-                  maintainer: ratings.maintainer,
-                  pullRequest: ratings.pullRequest,
-                  pinning: ratings.pinning,
-                  score: ratings.score,
-                });
-              } 
-            } catch(error) {
-              console.error('Error searching:', error);
+            if(this.searchBarVal == "*") {
+              try {
+                const response = await axios.post(`http://${this.ip}:8080/packages`, {
+                  params: {
+                    offset: this.numSearchAllPress,
+                  },
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  data: [{ "Name": "*" }]
+                })
+                this.numSearchAllPress++;
+                console.log('Search Results (/packages):', response.data);
+                packageNames = response.data;
+                for (let packageName of packageNames) {
+                  let id = await this.getPackageId(packageName);
+                  let ratings = await this.getPackageRatings(id);
+                  (this.packages).push({
+                    packageName: packageName, 
+                    packageId: id, 
+                    busFactor: ratings.busFactor, 
+                    rampup: ratings.rampup,
+                    license: ratings.license,
+                    correctness: ratings.correctness,
+                    maintainer: ratings.maintainer,
+                    pullRequest: ratings.pullRequest,
+                    pinning: ratings.pinning,
+                    score: ratings.score,
+                  });
+                } 
+              } catch(error) {
+                console.error('Error searching:', error);
+              }
+            } else {
+              try {
+                const response = await axios.get(`http://${this.ip}:8080/search`, {
+                  params: {
+                    q: this.searchBarVal,
+                  }
+                })
+                console.log('Search Results:', response.data);
+                packageNames = response.data;
+                for (let packageName of packageNames) {
+                  let id = await this.getPackageId(packageName);
+                  let ratings = await this.getPackageRatings(id);
+                  (this.packages).push({
+                    packageName: packageName, 
+                    packageId: id, 
+                    busFactor: ratings.busFactor, 
+                    rampup: ratings.rampup,
+                    license: ratings.license,
+                    correctness: ratings.correctness,
+                    maintainer: ratings.maintainer,
+                    pullRequest: ratings.pullRequest,
+                    pinning: ratings.pinning,
+                    score: ratings.score,
+                  });
+                } 
+              } catch(error) {
+                console.error('Error searching:', error);
+              }
             }
           },
           async getPackageId(packageName) {

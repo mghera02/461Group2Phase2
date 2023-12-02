@@ -473,7 +473,7 @@ app.get('/download/:packageId', function (req, res) { return __awaiter(void 0, v
         }
     });
 }); });
-app.get('/packages', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var packageName, version, offsetValue, searchResults, package_names, error_5;
     return __generator(this, function (_a) {
         switch (_a.label) {

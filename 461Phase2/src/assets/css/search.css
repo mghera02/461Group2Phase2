@@ -19,7 +19,7 @@
 
 #searchBar {
     position: relative;
-    width:44%;
+    width:50%;
     font-size: 1.75em;
     display: flex;
     border-width: 3px;
@@ -38,11 +38,20 @@
     border-width: 6px;
 }
 
-#topNav {
+.topNav {
     width: 100%;
     display: flex;
     justify-content: center;
     margin-bottom: 30px;
+    font-size: 1.4em;
+    word-spacing: 0.224em; /* .16 times size */
+    line-height: 2.1em; /* 1.5 times size */
+    letter-spacing: .168em;/* .12 times size */
+}
+
+main {
+    position: relative;
+    top: -4vw;
 }
 
 #packages {
