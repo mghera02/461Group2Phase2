@@ -293,7 +293,6 @@ app.get('/download/:packageId', async (req, res) => {
   }
 });
 
-// TODO: incorportate pagination
 app.get('/packages', async (req, res) => {
   try {
     await time.info("Starting time")
@@ -310,11 +309,20 @@ app.get('/packages', async (req, res) => {
       return res.status(501).send('This system does not support versions.');
     }
 
+    let offsetValue;
+    if (req.query.offset !== undefined) {
+      offsetValue = parseInt(req.query.offset);
+      await logger.info(`Offset: ${offsetValue}`);
+    } else {
+      offsetValue = 0;
+      await logger.info('Offset is not provided in the query parameters');
+    }
+
     let searchResults;
     if(packageName == "*") {
-      searchResults = await rds_handler.match_rds_rows(`.*`);
+      searchResults = await rds_handler.match_rds_rows(`.*`, false, offsetValue);
     } else {
-      searchResults = await rds_handler.match_rds_rows(`${packageName}`, true);
+      searchResults = await rds_handler.match_rds_rows(`${packageName}`, true, offsetValue);
     }
     const package_names = searchResults.map((data:any) => data.package_name);
 

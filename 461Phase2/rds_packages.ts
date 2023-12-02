@@ -73,36 +73,42 @@ async function get_package_data(package_id: number) : Promise<PackageData | null
 }
 
 // Finds all data for packages whos names match a given regex
-async function match_rds_rows(regex: string, useExactMatch: boolean = false): Promise<any> {
-    const client = await get_rds_connection();
+async function match_rds_rows(regex: string, useExactMatch: boolean = false, offset: number = 0): Promise<any> {
+  const client = await get_rds_connection();
+  let limit = 2;
 
-    try {
-        let query;
-        if(useExactMatch) {
+  try {
+      let query;
+      const values = [regex];
+
+      if (useExactMatch) {
           query = `
               SELECT * FROM ${TABLE_NAME}
-              WHERE package_name = $1;
+              WHERE package_name = $1
+              LIMIT $2 OFFSET $3;
           `;
-        } else {
+          values.push(limit.toString(), offset.toString());
+      } else {
           query = `
               SELECT * FROM ${TABLE_NAME}
-              WHERE package_name ~ $1;
+              WHERE package_name ~ $1
+              LIMIT $2 OFFSET $3;
           `;
-        }
-        const values = [regex]
-
-        const result = await client.query(query, values);
-
-        logger.debug('Query result:', result.rows);
-    
-        return result.rows;
-
-      } catch (error) {
-        logger.error('Error searching data:', error);
-        return [];
-      } finally {
-        await client.end();
+          values.push(limit.toString(), offset.toString());
       }
+
+      const result = await client.query(query, values);
+
+      logger.debug('Query result:', result.rows);
+
+      return result.rows;
+
+  } catch (error) {
+      logger.error('Error searching data:', error);
+      return [];
+  } finally {
+      await client.end();
+  }
 }
 
 

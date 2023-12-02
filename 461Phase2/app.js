@@ -473,13 +473,12 @@ app.get('/download/:packageId', function (req, res) { return __awaiter(void 0, v
         }
     });
 }); });
-// TODO: incorportate pagination
 app.get('/packages', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var packageName, version, searchResults, package_names, error_5;
+    var packageName, version, offsetValue, searchResults, package_names, error_5;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 14, , 17]);
+                _a.trys.push([0, 18, , 21]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 1:
                 _a.sent();
@@ -505,37 +504,51 @@ app.get('/packages', function (req, res) { return __awaiter(void 0, void 0, void
                 }
                 _a.label = 7;
             case 7:
-                searchResults = void 0;
-                if (!(packageName == "*")) return [3 /*break*/, 9];
-                return [4 /*yield*/, rds_handler.match_rds_rows(".*")];
+                offsetValue = void 0;
+                if (!(req.query.offset !== undefined)) return [3 /*break*/, 9];
+                offsetValue = parseInt(req.query.offset);
+                return [4 /*yield*/, logger_1.logger.info("Offset: ".concat(offsetValue))];
             case 8:
-                searchResults = _a.sent();
+                _a.sent();
                 return [3 /*break*/, 11];
-            case 9: return [4 /*yield*/, rds_handler.match_rds_rows("".concat(packageName), true)];
+            case 9:
+                offsetValue = 0;
+                return [4 /*yield*/, logger_1.logger.info('Offset is not provided in the query parameters')];
             case 10:
-                searchResults = _a.sent();
+                _a.sent();
                 _a.label = 11;
             case 11:
+                searchResults = void 0;
+                if (!(packageName == "*")) return [3 /*break*/, 13];
+                return [4 /*yield*/, rds_handler.match_rds_rows(".*", false, offsetValue)];
+            case 12:
+                searchResults = _a.sent();
+                return [3 /*break*/, 15];
+            case 13: return [4 /*yield*/, rds_handler.match_rds_rows("".concat(packageName), true, offsetValue)];
+            case 14:
+                searchResults = _a.sent();
+                _a.label = 15;
+            case 15:
                 package_names = searchResults.map(function (data) { return data.package_name; });
                 return [4 /*yield*/, logger_1.logger.info("Successfully got packages (/packages)")];
-            case 12:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
-            case 13:
-                _a.sent();
-                res.status(200).json(package_names);
-                return [3 /*break*/, 17];
-            case 14:
-                error_5 = _a.sent();
-                return [4 /*yield*/, logger_1.logger.error('Error searching packages:', error_5)];
-            case 15:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 16:
                 _a.sent();
+                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
+            case 17:
+                _a.sent();
+                res.status(200).json(package_names);
+                return [3 /*break*/, 21];
+            case 18:
+                error_5 = _a.sent();
+                return [4 /*yield*/, logger_1.logger.error('Error searching packages:', error_5)];
+            case 19:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 20:
+                _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 17];
-            case 17: return [2 /*return*/];
+                return [3 /*break*/, 21];
+            case 21: return [2 /*return*/];
         }
     });
 }); });
