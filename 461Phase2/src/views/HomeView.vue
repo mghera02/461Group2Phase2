@@ -27,7 +27,7 @@
               searchBarVal: "",
               pastSearchBarVal: "",
               packages: [],
-              ip: "3.22.209.9"
+              ip: "3.139.57.32"
             }
         },
         methods: {
