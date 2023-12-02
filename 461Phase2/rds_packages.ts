@@ -73,17 +73,25 @@ async function get_package_data(package_id: number) : Promise<PackageData | null
 }
 
 // Finds all data for packages whos names match a given regex
-async function match_rds_rows(regex: string) : Promise<PackageData[]> {
+async function match_rds_rows(regex: string, useExactMatch: boolean = false): Promise<any> {
     const client = await get_rds_connection();
 
     try {
-        const query = `
-            SELECT * FROM ${TABLE_NAME}
-            WHERE package_name ~ $1;
-        `;
+        let query;
+        if(useExactMatch) {
+          query = `
+              SELECT * FROM ${TABLE_NAME}
+              WHERE package_name = $1;
+          `;
+        } else {
+          query = `
+              SELECT * FROM ${TABLE_NAME}
+              WHERE package_name ~ $1;
+          `;
+        }
         const values = [regex]
 
-        const result: QueryResult<PackageData> = await client.query(query, values);
+        const result = await client.query(query, values);
 
         logger.debug('Query result:', result.rows);
     

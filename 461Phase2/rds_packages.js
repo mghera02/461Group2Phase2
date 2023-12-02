@@ -112,7 +112,8 @@ function get_package_data(package_id) {
 }
 exports.get_package_data = get_package_data;
 // Finds all data for packages whos names match a given regex
-function match_rds_rows(regex) {
+function match_rds_rows(regex, useExactMatch) {
+    if (useExactMatch === void 0) { useExactMatch = false; }
     return __awaiter(this, void 0, void 0, function () {
         var client, query, values, result, error_3;
         return __generator(this, function (_a) {
@@ -123,7 +124,13 @@ function match_rds_rows(regex) {
                     _a.label = 2;
                 case 2:
                     _a.trys.push([2, 4, 5, 7]);
-                    query = "\n            SELECT * FROM ".concat(rds_config_1.TABLE_NAME, "\n            WHERE package_name ~ $1;\n        ");
+                    query = void 0;
+                    if (useExactMatch) {
+                        query = "\n              SELECT * FROM ".concat(rds_config_1.TABLE_NAME, "\n              WHERE package_name = $1;\n          ");
+                    }
+                    else {
+                        query = "\n              SELECT * FROM ".concat(rds_config_1.TABLE_NAME, "\n              WHERE package_name ~ $1;\n          ");
+                    }
                     values = [regex];
                     return [4 /*yield*/, client.query(query, values)];
                 case 3:
