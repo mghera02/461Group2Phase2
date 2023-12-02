@@ -56,15 +56,14 @@
 
             if(this.searchBarVal == "*") {
               try {
-                const response = await axios.post(`http://${this.ip}:8080/packages`, {
-                  params: {
-                    offset: this.numSearchAllPress,
-                  },
+                const response = await axios.post(`http://${this.ip}:8080/packages/?offset=${this.numSearchAllPress}`, [{ "Name": "*" }], {
                   headers: {
                     'Content-Type': 'application/json',
                   },
-                  data: [{ "Name": "*" }]
-                })
+                  params: {
+                    offset: this.numSearchAllPress,
+                  }
+                });
                 this.numSearchAllPress++;
                 console.log('Search Results (/packages):', response.data);
                 packageNames = response.data;
