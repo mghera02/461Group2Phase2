@@ -106,7 +106,7 @@ async function match_rds_rows(regex: string, useExactMatch: boolean = false): Pr
 
 async function match_rds_rows_with_pagination(regex: string, useExactMatch: boolean = false, offset: number = 0): Promise<any> {
   const client = await get_rds_connection();
-  let limit = 1;
+  let limit = 2;
 
   try {
       let query;

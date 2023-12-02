@@ -160,7 +160,7 @@ function match_rds_rows_with_pagination(regex, useExactMatch, offset) {
                 case 0: return [4 /*yield*/, (0, rds_config_1.get_rds_connection)()];
                 case 1:
                     client = _a.sent();
-                    limit = 1;
+                    limit = 2;
                     _a.label = 2;
                 case 2:
                     _a.trys.push([2, 4, 5, 7]);
