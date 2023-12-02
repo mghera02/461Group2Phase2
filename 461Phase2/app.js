@@ -487,7 +487,7 @@ app.get('/packages', function (req, res) { return __awaiter(void 0, void 0, void
                 _a.sent();
                 packageName = req.body[0].Name;
                 version = req.body[0].Version;
-                return [4 /*yield*/, logger_1.logger.info("Got req.body.Name:".concat(req.body.Name, ", req.body.Version:").concat(req.body.Version))];
+                return [4 /*yield*/, logger_1.logger.info("Got req.body.Name:".concat(req.body[0].Name, ", req.body.Version:").concat(req.body[0].Version))];
             case 3:
                 _a.sent();
                 if (!(!packageName && !version)) return [3 /*break*/, 6];
@@ -520,11 +520,11 @@ app.get('/packages', function (req, res) { return __awaiter(void 0, void 0, void
             case 11:
                 searchResults = void 0;
                 if (!(packageName == "*")) return [3 /*break*/, 13];
-                return [4 /*yield*/, rds_handler.match_rds_rows(".*", false, offsetValue)];
+                return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination(".*", false, offsetValue)];
             case 12:
                 searchResults = _a.sent();
                 return [3 /*break*/, 15];
-            case 13: return [4 /*yield*/, rds_handler.match_rds_rows("".concat(packageName), true, offsetValue)];
+            case 13: return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination("".concat(packageName), true, offsetValue)];
             case 14:
                 searchResults = _a.sent();
                 _a.label = 15;

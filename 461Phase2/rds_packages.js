@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.match_rds_rows = exports.get_package_data = exports.add_rds_package_data = void 0;
+exports.match_rds_rows_with_pagination = exports.match_rds_rows = exports.get_package_data = exports.add_rds_package_data = void 0;
 var rds_config_1 = require("./rds_config");
 var logger_1 = require("./logger");
 // Adds data to the amazon RDS instance. That data is assigned a unique ID that is returned.
@@ -111,31 +111,26 @@ function get_package_data(package_id) {
     });
 }
 exports.get_package_data = get_package_data;
-// Finds all data for packages whos names match a given regex
-function match_rds_rows(regex, useExactMatch, offset) {
+function match_rds_rows(regex, useExactMatch) {
     if (useExactMatch === void 0) { useExactMatch = false; }
-    if (offset === void 0) { offset = 0; }
     return __awaiter(this, void 0, void 0, function () {
-        var client, limit, query, values, result, error_3;
+        var client, query, values, result, error_3;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, (0, rds_config_1.get_rds_connection)()];
                 case 1:
                     client = _a.sent();
-                    limit = 2;
                     _a.label = 2;
                 case 2:
                     _a.trys.push([2, 4, 5, 7]);
                     query = void 0;
-                    values = [regex];
                     if (useExactMatch) {
-                        query = "\n              SELECT * FROM ".concat(rds_config_1.TABLE_NAME, "\n              WHERE package_name = $1\n              LIMIT $2 OFFSET $3;\n          ");
-                        values.push(limit.toString(), offset.toString());
+                        query = "\n            SELECT * FROM ".concat(rds_config_1.TABLE_NAME, "\n            WHERE package_name = $1;\n        ");
                     }
                     else {
-                        query = "\n              SELECT * FROM ".concat(rds_config_1.TABLE_NAME, "\n              WHERE package_name ~ $1\n              LIMIT $2 OFFSET $3;\n          ");
-                        values.push(limit.toString(), offset.toString());
+                        query = "\n            SELECT * FROM ".concat(rds_config_1.TABLE_NAME, "\n            WHERE package_name ~ $1;\n        ");
                     }
+                    values = [regex];
                     return [4 /*yield*/, client.query(query, values)];
                 case 3:
                     result = _a.sent();
@@ -155,3 +150,46 @@ function match_rds_rows(regex, useExactMatch, offset) {
     });
 }
 exports.match_rds_rows = match_rds_rows;
+function match_rds_rows_with_pagination(regex, useExactMatch, offset) {
+    if (useExactMatch === void 0) { useExactMatch = false; }
+    if (offset === void 0) { offset = 0; }
+    return __awaiter(this, void 0, void 0, function () {
+        var client, limit, query, values, result, error_4;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, (0, rds_config_1.get_rds_connection)()];
+                case 1:
+                    client = _a.sent();
+                    limit = 1;
+                    _a.label = 2;
+                case 2:
+                    _a.trys.push([2, 4, 5, 7]);
+                    query = void 0;
+                    values = [regex];
+                    if (useExactMatch) {
+                        query = "\n              SELECT * FROM ".concat(rds_config_1.TABLE_NAME, "\n              WHERE package_name = $1\n              LIMIT $2 OFFSET $3;\n          ");
+                        values.push(limit.toString(), offset.toString());
+                    }
+                    else {
+                        query = "\n              SELECT * FROM ".concat(rds_config_1.TABLE_NAME, "\n              WHERE package_name ~ $1\n              LIMIT $2 OFFSET $3;\n          ");
+                        values.push(limit.toString(), offset.toString());
+                    }
+                    return [4 /*yield*/, client.query(query, values)];
+                case 3:
+                    result = _a.sent();
+                    logger_1.logger.debug('Query result:', result.rows);
+                    return [2 /*return*/, result.rows];
+                case 4:
+                    error_4 = _a.sent();
+                    logger_1.logger.error('Error searching data:', error_4);
+                    return [2 /*return*/, []];
+                case 5: return [4 /*yield*/, client.end()];
+                case 6:
+                    _a.sent();
+                    return [7 /*endfinally*/];
+                case 7: return [2 /*return*/];
+            }
+        });
+    });
+}
+exports.match_rds_rows_with_pagination = match_rds_rows_with_pagination;

@@ -300,7 +300,7 @@ app.get('/packages', async (req, res) => {
 
     const packageName = req.body[0].Name;
     const version = req.body[0].Version;
-    await logger.info(`Got req.body.Name:${req.body.Name}, req.body.Version:${req.body.Version}`);
+    await logger.info(`Got req.body.Name:${req.body[0].Name}, req.body.Version:${req.body[0].Version}`);
     if (!packageName && !version) {
       await logger.error('No name was given');
       await time.error('Error occurred at this time\n');
@@ -320,9 +320,9 @@ app.get('/packages', async (req, res) => {
 
     let searchResults;
     if(packageName == "*") {
-      searchResults = await rds_handler.match_rds_rows(`.*`, false, offsetValue);
+      searchResults = await rds_handler.match_rds_rows_with_pagination(`.*`, false, offsetValue);
     } else {
-      searchResults = await rds_handler.match_rds_rows(`${packageName}`, true, offsetValue);
+      searchResults = await rds_handler.match_rds_rows_with_pagination(`${packageName}`, true, offsetValue);
     }
     const package_names = searchResults.map((data:any) => data.package_name);
 

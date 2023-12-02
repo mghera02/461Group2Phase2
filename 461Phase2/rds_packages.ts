@@ -72,10 +72,41 @@ async function get_package_data(package_id: number) : Promise<PackageData | null
     }
 }
 
-// Finds all data for packages whos names match a given regex
-async function match_rds_rows(regex: string, useExactMatch: boolean = false, offset: number = 0): Promise<any> {
+async function match_rds_rows(regex: string, useExactMatch: boolean = false): Promise<any> {
   const client = await get_rds_connection();
-  let limit = 2;
+
+  try {
+      let query;
+      if(useExactMatch) {
+        query = `
+            SELECT * FROM ${TABLE_NAME}
+            WHERE package_name = $1;
+        `;
+      } else {
+        query = `
+            SELECT * FROM ${TABLE_NAME}
+            WHERE package_name ~ $1;
+        `;
+      }
+      const values = [regex]
+
+      const result = await client.query(query, values);
+
+      logger.debug('Query result:', result.rows);
+  
+      return result.rows;
+
+    } catch (error) {
+      logger.error('Error searching data:', error);
+      return [];
+    } finally {
+      await client.end();
+    }
+}
+
+async function match_rds_rows_with_pagination(regex: string, useExactMatch: boolean = false, offset: number = 0): Promise<any> {
+  const client = await get_rds_connection();
+  let limit = 1;
 
   try {
       let query;
@@ -117,5 +148,6 @@ export {
     add_rds_package_data,
     get_package_data,
     match_rds_rows,
+    match_rds_rows_with_pagination,
     PackageData,
 }
