@@ -300,7 +300,7 @@ app.get('/packages', async (req, res) => {
 
     const packageName = req.body.Name;
     const version = req.body.Version;
-    await logger.info(`Got req.body.Name${req.body.Name}, req.body.Version:${req.body.Version}`);
+    await logger.info(`Got req.body.Name:${req.body.Name}, req.body.Version:${req.body.Version}`);
     if (!packageName && !version) {
       await logger.error('No name was given');
       await time.error('Error occurred at this time\n');
@@ -309,7 +309,7 @@ app.get('/packages', async (req, res) => {
       return res.status(501).send('This system does not support versions.');
     }
 
-    const searchResults = await rds_handler.match_rds_rows(`/^${packageName}$/`);
+    const searchResults = await rds_handler.match_rds_rows(`^$${packageName}$`);
     const package_names = searchResults.map((data) => data.package_name);
 
     await logger.info(`Successfully got packages (/packages)`)

@@ -487,7 +487,7 @@ app.get('/packages', function (req, res) { return __awaiter(void 0, void 0, void
                 _a.sent();
                 packageName = req.body.Name;
                 version = req.body.Version;
-                return [4 /*yield*/, logger_1.logger.info("Got req.body.Name".concat(req.body.Name, ", req.body.Version:").concat(req.body.Version))];
+                return [4 /*yield*/, logger_1.logger.info("Got req.body.Name:".concat(req.body.Name, ", req.body.Version:").concat(req.body.Version))];
             case 3:
                 _a.sent();
                 if (!(!packageName && !version)) return [3 /*break*/, 6];
@@ -503,7 +503,7 @@ app.get('/packages', function (req, res) { return __awaiter(void 0, void 0, void
                     return [2 /*return*/, res.status(501).send('This system does not support versions.')];
                 }
                 _a.label = 7;
-            case 7: return [4 /*yield*/, rds_handler.match_rds_rows("/^".concat(packageName, "$/"))];
+            case 7: return [4 /*yield*/, rds_handler.match_rds_rows("^$".concat(packageName, "$"))];
             case 8:
                 searchResults = _a.sent();
                 package_names = searchResults.map(function (data) { return data.package_name; });
