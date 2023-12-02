@@ -503,7 +503,7 @@ app.get('/packages', function (req, res) { return __awaiter(void 0, void 0, void
                     return [2 /*return*/, res.status(501).send('This system does not support versions.')];
                 }
                 _a.label = 7;
-            case 7: return [4 /*yield*/, rds_handler.match_rds_rows("^$".concat(packageName, "$"), true)];
+            case 7: return [4 /*yield*/, rds_handler.match_rds_rows("".concat(packageName), true)];
             case 8:
                 searchResults = _a.sent();
                 package_names = searchResults.map(function (data) { return data.package_name; });
