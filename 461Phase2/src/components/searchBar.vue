@@ -17,14 +17,16 @@
         data() {
             return {
               searchBarVal: "",
+              numSearchAllPress: 0
             }
         },
         methods: {
             sendSearchToParent(i) {
               if(i == "*") {
-                this.$emit('searchBarVal', "*")
+                this.numSearchAllPress++;
+                this.$emit('searchBarVal', ["*", this.numSearchAllPress])
               } else {
-                this.$emit('searchBarVal', this.searchBarVal)
+                this.$emit('searchBarVal', [this.searchBarVal, this.numSearchAllPress])
               }
             }
         },

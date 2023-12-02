@@ -28,12 +28,14 @@
               pastSearchBarVal: "",
               packages: [],
               ip: "3.139.57.32",
-              numSearchAllPress: 0
+              numSearchAllPress: 0,
+              pastNumSearchAllPress: 0
             }
         },
         methods: {
           getSearchBarVal(x) {
-            this.searchBarVal = x;
+            this.searchBarVal = x[0];
+            this.numSearchAllPress = x[1];
           },
           async resetSystem() {
             const url = `http://${this.ip}:8080/reset`;
@@ -54,17 +56,15 @@
             
             let packageNames = []
 
+            console.log(`this.searchBarVal:${this.searchBarVal}`)
+            console.log(`this.numSearchAllPress:${this.numSearchAllPress - 1}`)
             if(this.searchBarVal == "*") {
               try {
-                const response = await axios.post(`http://${this.ip}:8080/packages/?offset=${this.numSearchAllPress}`, [{ "Name": "*" }], {
+                const response = await axios.post(`http://${this.ip}:8080/packages/?offset=${this.numSearchAllPress - 1}`, [{ "Name": "*" }], {
                   headers: {
                     'Content-Type': 'application/json',
                   },
-                  params: {
-                    offset: this.numSearchAllPress,
-                  }
                 });
-                this.numSearchAllPress++;
                 console.log('Search Results (/packages):', response.data);
                 packageNames = response.data;
                 for (let packageName of packageNames) {
@@ -150,9 +150,11 @@
         watch: {
           '$data': {
             handler: function(newValue) {
-              if(newValue.searchBarVal != this.pastSearchBarVal) {
+              if(newValue.searchBarVal != this.pastSearchBarVal || newValue.numSearchAllPress != this.pastNumSearchAllPress) {
                 this.getMatchingPackages()
+                console.log(newValue.searchBarVal, this.pastSearchBarVal, newValue.numSearchAllPress,this.pastNumSearchAllPress)
                 this.pastSearchBarVal = this.searchBarVal
+                this.pastNumSearchAllPress = this.numSearchAllPress
               }
             },
             deep: true
