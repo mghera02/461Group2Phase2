@@ -160,6 +160,54 @@ app.post('/upload', upload.single('file'), async (req : any, res : any) => {
   }
 });
 
+app.put('/package/:id', async (req: any, res: any) => {
+  try {
+    await time.info("Starting time");
+    await logger.info("Attempting to update package content");
+
+    const packageId = parseInt(req.params.id);
+    const requestBody = req.body;
+
+    const isValidPackageData = (['Content', 'URL', 'JSProgram'].filter(field => requestBody[field] !== undefined).length) == 1;
+
+    if (!isValidPackageData) {
+      await logger.error('Invalid request body. Exactly one field (Content, URL, JSProgram) should be set.');
+      await time.error('Error occurred at this time\n');
+      return res.status(400).send('Invalid request body. Exactly one field (Content, URL, JSProgram) should be set.');
+    }
+    const existingPackage = await rds_handler.get_package_data(packageId);
+
+    if (!existingPackage) {
+      await logger.error(`No package found with ID: ${packageId}`);
+      await time.error('Error occurred at this time\n');
+      return res.status(404).json({ error: 'Package not found.' });
+    }
+
+    const updatedPackage = {
+      ...existingPackage,
+      Content: requestBody.Content,
+      URL: requestBody.URL,
+      JSProgram: requestBody.JSProgram,
+    };
+
+    const package_id = await rds_handler.update_rds_package_data(updatedPackage.package_name, updatedPackage.rating, updatedPackage.Content, updatedPackage.URL, updatedPackage.JSProgram);
+
+    if (package_id === null) {
+      await logger.error("Could not update package data in RDS");
+      await time.error('Error occurred at this time\n');
+      return res.status(400).send('Could not update package data.');
+    }
+
+    await logger.info(`Package content updated successfully for ID: ${packageId}`);
+    await time.info("Finished at this time\n");
+
+    res.status(200).send('Version is updated.');
+  } catch (error) {
+    await logger.error('Error updating package content:', error);
+    await time.error('Error occurred at this time\n');
+    res.status(500).send('An error occurred.');
+  }
+});
 
 app.post('/ingest', async (req: any, res: any) => {
   try {
@@ -248,7 +296,6 @@ app.post('/ingest', async (req: any, res: any) => {
     res.status(500).send('An error occurred.');
   }
 })
-
 
 app.get('/rate/:packageId', async (req: any, res: any) => {
   try {
