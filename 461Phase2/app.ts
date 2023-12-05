@@ -394,12 +394,12 @@ app.post('/packages', async (req, res) => {
 });
 
 // Sends the a list of package names that match the regex
-app.get('/search', async (req, res) => {
+app.get('/package/byRegEx', async (req, res) => {
   try {
     await time.info("Starting time")
     await logger.info("Attempting to search packages")
 
-    const searchString = req.query.q as string;
+    const searchString = req.body.RegEx as string;
     if (!searchString) {
       await logger.error('No search string was given');
       await time.error('Error occurred at this time\n');
@@ -412,7 +412,16 @@ app.get('/search', async (req, res) => {
     // });
 
     const searchResults = await rds_handler.match_rds_rows(searchString);
-    const package_names = searchResults.map((data) => data.package_name);
+    const package_names = searchResults.map((data) => ({
+        Version: data.version,
+        Name: data.name,
+    }));
+
+    if (package_names.length === 0) {
+      await logger.error(`No packages found that match ${searchString}`);
+      await time.error('Finished at this time\n');
+      return res.status(404).send("No package found under this regex")
+    }
 
     await logger.info(`Successfully searched packages`)
     await time.info("Finished at this time\n")
