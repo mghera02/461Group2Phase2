@@ -181,7 +181,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
       // Old return value
       //{"metadata": {"Name": repo, "Version": "Not Implementing", "ID": package_id}, "data": {"Content": zippedFile.buffer, "JSProgram": "Not Implementing"}};
       
-      res.status(200).send(response);
+      res.status(201).json(response);
     } catch (error) {
       await logger.error('Could not ingest package', error);
       await time.error('Error occurred at this time\n')
@@ -267,18 +267,19 @@ app.post('/package', upload.single('file'), async (req, res) => {
         },
       }
       
-      res.status(200).send(response)
+      res.status(201).json(response)
     } catch (error) {
       await logger.error('Could not upload package', error);
       await time.error('Error occurred at this time\n')
       res.status(500).send('An error occurred.');
     }
   } else {
+    // Impropper request
     res.status(400).send("There is missing field(s) in the PackageData/AuthenticationToken or it is formed improperly (e.g. Content and URL are both set), or the AuthenticationToken is invalid.")
   }
 });
 
-app.get('/rate/:packageId', async (req, res) => {
+app.get('/package/:packageId/rate', async (req, res) => {
   try {
     await time.info("Starting time")
     await logger.info("Attempring to get package rating")
@@ -326,7 +327,7 @@ app.get('/download/:packageId', async (req, res) => {
     }
 
     await logger.debug(`Package data found for package with id: ${package_id}`);
-    const package_name = package_data.package_name;
+    const package_name = package_data.name;
 
     const package_buffer = await download_package(package_id);
     if (package_buffer === null) {

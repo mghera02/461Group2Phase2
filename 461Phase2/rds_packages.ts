@@ -85,7 +85,7 @@ async function update_rds_package_data(name: string, rating: object, content: st
   }
 }
 
-async function get_package_data(package_id: number) : Promise<PackageData | null> {
+async function get_package_data(package_id: number) : Promise<Row | null> {
   const client = await get_rds_connection();
 
   try {
@@ -93,7 +93,7 @@ async function get_package_data(package_id: number) : Promise<PackageData | null
         SELECT * FROM ${TABLE_NAME} WHERE package_id = $1
       `;
       const values = [package_id]
-      const data: QueryResult<PackageData> = await client.query(query, values);
+      const data: QueryResult<Row> = await client.query(query, values);
 
       // Making sure something is returned at all
       if (data.rowCount == 0) {

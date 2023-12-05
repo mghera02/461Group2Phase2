@@ -248,7 +248,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 };
                 // Old return value
                 //{"metadata": {"Name": repo, "Version": "Not Implementing", "ID": package_id}, "data": {"Content": zippedFile.buffer, "JSProgram": "Not Implementing"}};
-                res.status(200).send(response);
+                res.status(201).json(response);
                 return [3 /*break*/, 33];
             case 30:
                 error_1 = _a.sent();
@@ -361,7 +361,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                         JSProgram: "Not Implementing",
                     },
                 };
-                res.status(200).send(response);
+                res.status(201).json(response);
                 return [3 /*break*/, 61];
             case 58:
                 error_2 = _a.sent();
@@ -375,13 +375,14 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 return [3 /*break*/, 61];
             case 61: return [3 /*break*/, 63];
             case 62:
+                // Impropper request
                 res.status(400).send("There is missing field(s) in the PackageData/AuthenticationToken or it is formed improperly (e.g. Content and URL are both set), or the AuthenticationToken is invalid.");
                 _a.label = 63;
             case 63: return [2 /*return*/];
         }
     });
 }); });
-app.get('/rate/:packageId', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+app.get('/package/:packageId/rate', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var package_id, package_data, scores, error_3;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -467,7 +468,7 @@ app.get('/download/:packageId', function (req, res) { return __awaiter(void 0, v
             case 6: return [4 /*yield*/, logger_1.logger.debug("Package data found for package with id: ".concat(package_id))];
             case 7:
                 _a.sent();
-                package_name = package_data.package_name;
+                package_name = package_data.name;
                 return [4 /*yield*/, (0, s3_packages_1.download_package)(package_id)];
             case 8:
                 package_buffer = _a.sent();
