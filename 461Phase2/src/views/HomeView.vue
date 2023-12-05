@@ -88,18 +88,19 @@
               }
             } else {
               try {
-                const response = await axios.post(`http://${this.ip}:8080/package/byRegEx`, {"RegEx": this.searchBarVal},{
+                const response = await axios.post(`http://${this.ip}:8080/package/byRegEx`, {"RegEx": this.searchBarVal}, {
                   headers: {
                     'Content-Type': 'application/json',
                   }
                 })
                 console.log('Search Results:', response.data);
-                packageNames = response.data;
-                for (let packageName of packageNames) {
-                  let id = await this.getPackageId(packageName);
+                let packages = response.data; 
+                for (let packageObj of packages) {
+                  let id = await this.getPackageId(packageObj.Name, packageObj.Version);
                   let ratings = await this.getPackageRatings(id);
                   (this.packages).push({
-                    packageName: packageName, 
+                    packageName: packageObj.Name, 
+                    packageVersion: packageObj.Version, 
                     packageId: id, 
                     busFactor: ratings.busFactor, 
                     rampup: ratings.rampup,
@@ -116,7 +117,7 @@
               }
             }
           },
-          async getPackageId(packageName) {
+          async getPackageId(packageName, packageVersion) {
             try {
               const response = await axios.get(`http://${this.ip}:8080/packageId/${packageName}`);
               console.log("Id received successfuly", response.data.package_id[0]);
