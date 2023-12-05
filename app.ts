@@ -407,7 +407,7 @@ app.get('/search', async (req: any, res: any) => {
     // });
 
     const searchResults = await rds_handler.match_rds_rows(searchString);
-    const package_names = searchResults.map((data) => data.package_name);
+    const package_names = searchResults.map((data : any) => data.package_name);
 
     await logger.info(`Successfully searched packages`)
     await time.info("Finished at this time\n")
@@ -454,7 +454,7 @@ app.get('/packageId/:packageName', async (req: any, res: any) => {
       return res.status(404).json({ error: 'Package not found' });
     }
 
-    const package_id = searchResults.map((data) => data.package_id);
+    const package_id = searchResults.map((data : any) => data.package_id);
 
     await logger.debug(`Package ID found for package '${packageName}': ${package_id}`);
     await time.info("Finished at this time\n");
