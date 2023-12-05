@@ -1,9 +1,8 @@
-import AWS from 'aws-sdk';
-//import { AWSMock } from 'jest-aws-sdk-mock';
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
 const yauzl = require('yauzl');
+// import AWS from 'aws-sdk';
 const cors = require('cors');
 import { logger, time } from './461Phase2/logger';
 import * as rds_configurator from './461Phase2/rds_config';
@@ -16,25 +15,6 @@ import {
   clear_s3_bucket,
 } from './461Phase2/s3_packages';
 import {get_metric_info, cloneRepo, check_npm_for_open_source, get_github_info, get_npm_package_name, zipDirectory} from './461Phase2/src/assets/metrics';
-
-// // Mock the AWS S3 services
-// AWSMock.setSDKInstance(AWS);
-
-// // Mock S3 upload
-// AWSMock.mock('S3', 'upload', (params: AWS.S3.PutObjectRequest, callback: AWS.RequestHandler<AWS.S3.PutObjectOutput>) => {
-//   // Define your mock behavior for S3 upload here
-//   callback(null, { Location: 'mocked-s3-location' });
-// });
-
-// // Mock S3 getObject
-// AWSMock.mock('S3', 'getObject', (params: AWS.S3.GetObjectRequest, callback: AWS.RequestHandler<AWS.S3.GetObjectOutput>) => {
-//   // Define your mock behavior for S3 getObject here
-//   const rateData = { rate: 10 };
-//   const response: AWS.S3.GetObjectOutput = {
-//     Body: JSON.stringify(rateData),
-//   };
-//   callback(null, response);
-// });
 
 const app = express();
 const port = process.env.PORT||8080;
@@ -91,213 +71,159 @@ function extractRepoUrl(zipFilePath: string, packageName: string): Promise<strin
   });
 }
 
-app.post('/upload', upload.single('file'), async (req : any, res : any) => {
-  try {
-    await time.info("Starting time")
-    await logger.info('Attempting to upload package')
+app.post('/package', upload.single('file'), async (req : any, res : any) => {
+  if(req.body.url && !req.file) {
+    try {
+      await time.info("Starting time")
+      await logger.info('Attempting to ingest package')
 
-    if (!req.file) {
-      await logger.error('No file to upload');
-      await time.error('Error occurred at this time\n');
-      return res.status(400).send('No file uploaded.');
+      const url = req.body.url;
+
+      await logger.info(`package url: ${req.body.url}`);
+      await logger.info(`req: ${JSON.stringify(req.body)}`);
+
+      const npmPackageName: string = get_npm_package_name(url);
+      await logger.info(`package name: ${npmPackageName}`);
+
+      const output = execSync(`npm view ${npmPackageName} --json --silent`, { encoding: 'utf8' }); // shell cmd to get json
+      fs.writeFileSync(`./temp_npm_json/${npmPackageName}_info.json`, output); // write json to file
+      await logger.info(`wrote json file`);
+      const file = `./temp_npm_json/${npmPackageName}_info.json`; // file path
+      const gitUrl:string = await check_npm_for_open_source(file);
+      await logger.info(`gitUrl: ${gitUrl}`);
+      let destinationPath = 'temp_linter_test';
+      const cloneRepoOut = await cloneRepo(gitUrl, destinationPath);
+      await logger.info(`finished cloning`);
+      const zipFilePath = await zipDirectory(cloneRepoOut[1], `./tempZip.zip`);
+
+      let username: string = ""; 
+      let repo: string = ""; 
+      const gitInfo = get_github_info(gitUrl);
+      username = gitInfo.username;
+      repo = gitInfo.repo;
+      await logger.info(`username and repo found successfully: ${username}, ${repo}`);
+      let gitDetails = [{username: username, repo: repo}];
+      let scores = await get_metric_info(gitDetails);
+      await logger.info(`retrieved scores from score calculator: ${scores.busFactor}, ${scores.rampup}, ${scores.license}, ${scores.correctness}, ${scores.maintainer}, ${scores.pullRequest}, ${scores.pinning}, ${scores.score}`);
+      
+      if(scores.score > 0.5) {
+        const package_id = await rds_handler.add_rds_package_data(npmPackageName, scores);
+
+        // Check to see if package metadata was upladed to RDS
+        if (package_id === null) { //  happens when package exists already
+          await logger.error("Could not upload package data to RDS")
+          await time.error('Error occurred at this time\n');
+          return res.status(409).send('Package exists already.');
+        }
+        await logger.debug(`ingest package to rds with id: ${package_id}`)
+
+        // Upload the actual package to s3
+        // Read the zipped file content
+        const zippedFileContent = fs.readFileSync(zipFilePath);
+        await logger.debug(`got zipped file content`)
+
+        // Create Express.Multer.File object
+        const zippedFile = {
+            fieldname: 'file',
+            originalname: 'zipped_directory.zip',
+            encoding: '7bit',
+            mimetype: 'application/zip',
+            buffer: zippedFileContent // Buffer of the zipped file content
+        };
+
+        const s3_response = await upload_package(package_id, zippedFile); // Call your S3 upload function here
+        await logger.info(`Successfully uploaded package with id: ${package_id}`)
+        // Check to see if package data was uploaded to S3
+        if (s3_response === null) {
+          await logger.error("Error uploading package to S3")
+          await time.error('Error occurred at this time\n');
+          return res.status(400).send('Could not add package data');
+        }
+        await fsExtra.remove(cloneRepoOut[1]);
+        await logger.debug(`removed clone repo`)
+
+        await time.info("Finished at this time\n")
+        // TODO: fix id
+        let response = {"metadata": {"Name": repo, "Version": "Not Implementing", "ID": package_id}, "data": {"Content": zippedFile.buffer, "JSProgram": "Not Implementing"}};
+        res.status(200).send(response)
+      } else {
+        res.status(424).send("Package is not uploaded due to the disqualified rating.");
+      }
+    } catch (error) {
+      await logger.error('Could not ingest package', error);
+      await time.error('Error occurred at this time\n')
+      res.status(500).send('An error occurred.');
     }
-    if (!req.file.originalname.endsWith('.zip')) {
-      await logger.error('The given file is not a zip file');
-      await time.error('Error occurred at this time\n');
-      return res.status(400).send('Invalid file format. Please upload a zip file.');
-    }
+  } else if(!req.body.url && req.file) {
+    try {
+      await time.info("Starting time")
+      await logger.info('Attempting to upload package')
 
-    // The replace statement gets rid of .zip from the filename
-    let packageName = req.file.originalname.replace(/\.zip$/, '');
+      if (!req.file.originalname.endsWith('.zip')) {
+        await logger.error('The given file is not a zip file');
+        await time.error('Error occurred at this time\n');
+        return res.status(400).send('Invalid file format. Please upload a zip file.');
+      }
 
-    fs.writeFileSync('./uploads/' + req.file.originalname, req.file.buffer);
-    await logger.info('Package downloaded successfully');
-    
-    const repoUrl = await extractRepoUrl('./uploads/' + req.file.originalname, packageName);
-    await logger.info(`retrieved repo url: ${repoUrl}`);
-    let username: string = ""; 
-    let repo: string = ""; 
-    const regex = /https:\/\/github\.com\/(\w+)\/(\w+)\.git/;
-    const matches = repoUrl.match(regex);
-    if (matches) {
-      username = matches[1]; 
-      repo = matches[2]; 
-    }
-    await logger.info(`username and repo found successfully: ${username}, ${repo}`);
-    let gitDetails = [{username: username, repo: repo}];
-    let scores = await get_metric_info(gitDetails);
-    await logger.info(`retrieved scores from score calculator: ${scores.busFactor}, ${scores.rampup}, ${scores.license}, ${scores.correctness}, ${scores.maintainer}, ${scores.pullRequest}, ${scores.pinning}, ${scores.score}`);
+      // The replace statement gets rid of .zip from the filename
+      let packageName = req.file.originalname.replace(/\.zip$/, '');
 
-    fs.unlinkSync('./uploads/' + req.file.originalname);
+      fs.writeFileSync('./uploads/' + req.file.originalname, req.file.buffer);
+      await logger.info('Package downloaded successfully');
+      
+      const repoUrl = await extractRepoUrl('./uploads/' + req.file.originalname, packageName);
+      await logger.info(`retrieved repo url: ${repoUrl}`);
+      let username: string = ""; 
+      let repo: string = ""; 
+      const regex = /https:\/\/github\.com\/(\w+)\/(\w+)\.git/;
+      const matches = repoUrl.match(regex);
+      if (matches) {
+        username = matches[1]; 
+        repo = matches[2]; 
+      }
+      await logger.info(`username and repo found successfully: ${username}, ${repo}`);
+      let gitDetails = [{username: username, repo: repo}];
+      let scores = await get_metric_info(gitDetails);
+      await logger.info(`retrieved scores from score calculator: ${scores.busFactor}, ${scores.rampup}, ${scores.license}, ${scores.correctness}, ${scores.maintainer}, ${scores.pullRequest}, ${scores.pinning}, ${scores.score}`);
 
-    const package_id = await rds_handler.add_rds_package_data(req.file.originalname.replace(/\.zip$/, ''), scores);
+      fs.unlinkSync('./uploads/' + req.file.originalname);
 
-    // Check to see if package metadata was upladed to RDS
-    if (package_id === null) {
-      await logger.error("Could not upload package data to RDS")
-      await time.error('Error occurred at this time\n');
-      return res.status(400).send('Could not add package metadata');
-    }
-    await logger.debug(`Uploaded package to rds with id: ${package_id}`)
-
-    // Upload the actual package to s3
-    const s3_response = await upload_package(package_id, req.file);
-
-    // Check to see if package data was uploaded to S3
-    if (s3_response === null) {
-      await logger.error("Error uploading package to S3")
-      await time.error('Error occurred at this time\n');
-      return res.status(400).send('Could not add package data');
-    }
-
-    await logger.info(`Successfully uploaded package with id: ${package_id}`)
-    await time.info("Finished at this time\n")
-    res.status(200).send("Package uploaded successfully")
-  } catch (error) {
-    await logger.error('Could not upload package', error);
-    await time.error('Error occurred at this time\n')
-    res.status(500).send('An error occurred.');
-  }
-});
-
-app.put('/package/:id', async (req: any, res: any) => {
-  try {
-    await time.info("Starting time");
-    await logger.info("Attempting to update package content");
-
-    const packageId = parseInt(req.params.id);
-    const requestBody = req.body;
-
-    const isValidPackageData = (['Content', 'URL', 'JSProgram'].filter(field => requestBody[field] !== undefined).length) == 1;
-
-    if (!isValidPackageData) {
-      await logger.error('Invalid request body. Exactly one field (Content, URL, JSProgram) should be set.');
-      await time.error('Error occurred at this time\n');
-      return res.status(400).send('Invalid request body. Exactly one field (Content, URL, JSProgram) should be set.');
-    }
-    const existingPackage = await rds_handler.get_package_data(packageId);
-
-    if (!existingPackage) {
-      await logger.error(`No package found with ID: ${packageId}`);
-      await time.error('Error occurred at this time\n');
-      return res.status(404).json({ error: 'Package not found.' });
-    }
-
-    const updatedPackage = {
-      ...existingPackage,
-      Content: requestBody.Content,
-      URL: requestBody.URL,
-      JSProgram: requestBody.JSProgram,
-    };
-
-    const package_id = await rds_handler.update_rds_package_data(updatedPackage.package_name, updatedPackage.rating, updatedPackage.Content, updatedPackage.URL, updatedPackage.JSProgram);
-
-    if (package_id === null) {
-      await logger.error("Could not update package data in RDS");
-      await time.error('Error occurred at this time\n');
-      return res.status(400).send('Could not update package data.');
-    }
-
-    await logger.info(`Package content updated successfully for ID: ${packageId}`);
-    await time.info("Finished at this time\n");
-
-    res.status(200).send('Version is updated.');
-  } catch (error) {
-    await logger.error('Error updating package content:', error);
-    await time.error('Error occurred at this time\n');
-    res.status(500).send('An error occurred.');
-  }
-});
-
-app.post('/ingest', async (req: any, res: any) => {
-  try {
-    await time.info("Starting time")
-    await logger.info('Attempting to ingest package')
-
-    const url = req.body.url;
-
-    await logger.info(`package url: ${req.body.url}`);
-    await logger.info(`req: ${JSON.stringify(req.body)}`);
-
-    if (!url) {
-      await logger.error('No file to ingest');
-      await time.error('Error occurred at this time\n');
-      return res.status(400).send('No file ingest.');
-    }
-
-    const npmPackageName: string = get_npm_package_name(url);
-    await logger.info(`package name: ${npmPackageName}`);
-
-    const output = execSync(`npm view ${npmPackageName} --json --silent`, { encoding: 'utf8' }); // shell cmd to get json
-    fs.writeFileSync(`./temp_npm_json/${npmPackageName}_info.json`, output); // write json to file
-    await logger.info(`wrote json file`);
-    const file = `./temp_npm_json/${npmPackageName}_info.json`; // file path
-    const gitUrl:string = await check_npm_for_open_source(file);
-    await logger.info(`gitUrl: ${gitUrl}`);
-    let destinationPath = 'temp_linter_test';
-    const cloneRepoOut = await cloneRepo(gitUrl, destinationPath);
-    await logger.info(`finished cloning`);
-    const zipFilePath = await zipDirectory(cloneRepoOut[1], `./tempZip.zip`);
-
-    let username: string = ""; 
-    let repo: string = ""; 
-    const gitInfo = get_github_info(gitUrl);
-    username = gitInfo.username;
-    repo = gitInfo.repo;
-    await logger.info(`username and repo found successfully: ${username}, ${repo}`);
-    let gitDetails = [{username: username, repo: repo}];
-    let scores = await get_metric_info(gitDetails);
-    await logger.info(`retrieved scores from score calculator: ${scores.busFactor}, ${scores.rampup}, ${scores.license}, ${scores.correctness}, ${scores.maintainer}, ${scores.pullRequest}, ${scores.pinning}, ${scores.score}`);
-    
-    if(scores.score > 0.5) {
-      const package_id = await rds_handler.add_rds_package_data(npmPackageName, scores);
+      const package_id = await rds_handler.add_rds_package_data(req.file.originalname.replace(/\.zip$/, ''), scores);
 
       // Check to see if package metadata was upladed to RDS
-      if (package_id === null) {
-        await logger.error("Could not ingest package data to RDS")
+      if (package_id === null) { //  happens when package exists already
+        await logger.error("Could not upload package data to RDS")
         await time.error('Error occurred at this time\n');
-        return res.status(400).send('Could not add package metadata');
+        return res.status(409).send('Package exists already.');
       }
-      await logger.debug(`ingest package to rds with id: ${package_id}`)
+      await logger.debug(`Uploaded package to rds with id: ${package_id}`)
 
       // Upload the actual package to s3
-      // Read the zipped file content
-      const zippedFileContent = fs.readFileSync(zipFilePath);
-      await logger.debug(`got zipped file content`)
+      const s3_response = await upload_package(package_id, req.file);
 
-      // Create Express.Multer.File object
-      const zippedFile = {
-          fieldname: 'file',
-          originalname: 'zipped_directory.zip',
-          encoding: '7bit',
-          mimetype: 'application/zip',
-          buffer: zippedFileContent // Buffer of the zipped file content
-      };
-
-      const s3_response = await upload_package(package_id, zippedFile); // Call your S3 upload function here
-      await logger.info(`Successfully uploaded package with id: ${package_id}`)
       // Check to see if package data was uploaded to S3
       if (s3_response === null) {
         await logger.error("Error uploading package to S3")
         await time.error('Error occurred at this time\n');
         return res.status(400).send('Could not add package data');
       }
-      await fsExtra.remove(cloneRepoOut[1]);
-      await logger.debug(`removed clone repo`)
 
+      await logger.info(`Successfully uploaded package with id: ${package_id}`)
       await time.info("Finished at this time\n")
-      res.status(200).send("Package ingested successfully")
-    } else {
-      res.status(424).send("Package is not uploaded due to the disqualified rating.");
+      // TODO: fix id
+      let response = {"metadata": {"Name": repo, "Version": "Not Implementing", "ID": package_id}, "data": {"Content": req.file.buffer, "JSProgram": "Not Implementing"}};
+      res.status(200).send(response)
+    } catch (error) {
+      await logger.error('Could not upload package', error);
+      await time.error('Error occurred at this time\n')
+      res.status(500).send('An error occurred.');
     }
-  } catch (error) {
-    await logger.error('Could not ingest package', error);
-    await time.error('Error occurred at this time\n')
-    res.status(500).send('An error occurred.');
+  } else {
+    res.status(400).send("There is missing field(s) in the PackageData/AuthenticationToken or it is formed improperly (e.g. Content and URL are both set), or the AuthenticationToken is invalid.")
   }
-})
+});
 
-app.get('/rate/:packageId', async (req: any, res: any) => {
+app.get('/rate/:packageId', async (req : any, res : any) => {
   try {
     await time.info("Starting time")
     await logger.info("Attempring to get package rating")
@@ -330,7 +256,7 @@ app.get('/rate/:packageId', async (req: any, res: any) => {
   }
 });
 
-app.get('/download/:packageId', async (req: any, res: any) => {
+app.get('/download/:packageId', async (req : any, res : any) => {
   try {
     await time.info("Starting time")
     await logger.info("Attempting to download package")
@@ -367,29 +293,52 @@ app.get('/download/:packageId', async (req: any, res: any) => {
   }
 });
 
-app.get('/packages', async (req: any, res: any) => {
-  // try {
-  //   const s3Params = {
-  //     Bucket: 'your-s3-bucket-name',
-  //     Prefix: '', 
-  //   };
-  //   const s3Objects = await s3.listObjectsV2(s3Params).promise();
-  //   const packages = s3Objects.Contents.map((object) => object.Key);
-  //   //pagination
-  //   const page = req.query.page || 1;
-  //   const perPage = req.query.perPage || 10;
-  //   const startIndex = (page - 1) * perPage;
-  //   const endIndex = page * perPage;
-  //   const paginatedPackages = packages.slice(startIndex, endIndex);
-  //   res.status(200).json(paginatedPackages);
-  // } catch (error) {
-  //   console.error('Error:', error);
-  //   res.status(500).send('An error occurred.');
-  // }
+app.post('/packages', async (req : any, res : any) => {
+  try {
+    await time.info("Starting time")
+    await logger.info("Attempting to get packages (/packages)")
+
+    const packageName = req.body[0].Name;
+    const version = req.body[0].Version;
+    await logger.info(`Length of req body: ${req.body.length}`);
+    await logger.info(`Got req.body.Name:${req.body[0].Name}, req.body.Version:${req.body[0].Version}`);
+    if (!packageName && !version) {
+      await logger.error('No name was given');
+      await time.error('Error occurred at this time\n');
+      return res.status(400).send('There is missing field(s) in the PackageQuery/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.');
+    } else if (!packageName && version) {
+      return res.status(501).send('This system does not support versions.');
+    }
+
+    let offsetValue;
+    if (req.query.offset !== undefined) {
+      offsetValue = parseInt(req.query.offset);
+      await logger.info(`Offset: ${offsetValue}`);
+    } else {
+      offsetValue = 0;
+      await logger.info('Offset is not provided in the query parameters');
+    }
+
+    let searchResults;
+    if(packageName == "*") {
+      searchResults = await rds_handler.match_rds_rows_with_pagination(`.*`, false, offsetValue);
+    } else {
+      searchResults = await rds_handler.match_rds_rows_with_pagination(`${packageName}`, true, offsetValue);
+    }
+    const package_names = searchResults.map((data:any) => data.package_name);
+
+    await logger.info(`Successfully got packages (/packages)`)
+    await time.info("Finished at this time\n")
+    res.status(200).json(package_names);
+  } catch (error) {
+    await logger.error('Error searching packages:', error);
+    await time.error('Error occurred at this time\n')
+    res.status(500).send('An error occurred.');
+  }
 });
 
 // Sends the a list of package names that match the regex
-app.get('/search', async (req: any, res: any) => {
+app.get('/search', async (req : any, res : any) => {
   try {
     await time.info("Starting time")
     await logger.info("Attempting to search packages")
@@ -420,7 +369,7 @@ app.get('/search', async (req: any, res: any) => {
 });
 
 // Resets RDS and S3
-app.post('/reset', async (req: any, res: any) => {
+app.post('/reset', async (req : any, res : any) => {
   try {
     await time.info("Starting time")
     await logger.info("Attempting to reset system")
@@ -439,7 +388,7 @@ app.post('/reset', async (req: any, res: any) => {
   }
 });
 
-app.get('/packageId/:packageName', async (req: any, res: any) => {
+app.get('/packageId/:packageName', async (req : any, res : any) => {
   try {
     await time.info("Starting time");
     await logger.info("Attempting to get package ID by name");
@@ -467,7 +416,7 @@ app.get('/packageId/:packageName', async (req: any, res: any) => {
   }
 });
 
-app.put('/authenticate', async (req: any, res: any) => {
+app.put('/authenticate', async (req : any, res : any) => {
   res.status(500).send('This system does not support authentication.');
 });
 

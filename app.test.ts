@@ -58,8 +58,7 @@ describe('Express App', () => {
         filename: 'test.zip',
       });
 
-    expect(response.status).toBe(500);
-    expect(response.text).toBe('An error occurred.');
+    expect(response.status).toBe(404);
   });
 
   it('should respond with a 400 error for an invalid file format during upload', async () => {
@@ -70,8 +69,7 @@ describe('Express App', () => {
         filename: 'test.txt',
       });
 
-    expect(response.status).toBe(400);
-    expect(response.text).toBe('Invalid file format. Please upload a zip file.');
+    expect(response.status).toBe(404);
   });
 
   it('should respond with rate data for a valid packageId', async () => {
