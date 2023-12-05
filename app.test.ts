@@ -79,7 +79,6 @@ describe('Express App', () => {
     const response = await agent.get('/rate/validPackageId');
 
     expect(response.status).toBe(404);
-    //expect(response.body).toEqual({ rate: 10 });
   });
 
   it('should respond with a 404 error for an invalid packageId', async () => {
@@ -87,7 +86,6 @@ describe('Express App', () => {
     const response = await agent.get('/rate/invalidPackageId');
 
     expect(response.status).toBe(404);
-    //expect(response.text).toBe('Rate data not found.');
   });
 
   it('should download a package', async () => {
@@ -108,9 +106,8 @@ describe('Express App', () => {
     const agent = supertest(app);
     const response = await agent.get('/download/test-package');
   
-    expect(response.status).toBe(404); // Download successful
-    expect(response.header['content-type']).toBe('application/json; charset=utf-8'); // Adjust content type as needed
-    //expect(response.header['content-disposition']).toBe('attachment; filename="test-package.json"');
+    expect(response.status).toBe(404);
+    expect(response.header['content-type']).toBe('application/json; charset=utf-8');
   });
   /*
   it('should respond with paginated packages', async () => {
@@ -167,8 +164,7 @@ describe('Express App', () => {
     jest.resetModules(); // Reset modules before importing
     const agent = supertest(app);
     const searchString = 'test';
-  
-    // Mock data with the correct structure
+
     const mockSearchResults: PackageData[] = [
       {
         package_id: 1,
@@ -194,7 +190,6 @@ describe('Express App', () => {
     const response = await agent.get(`/search?q=${searchString}`);
   
     expect(response.status).toBe(200);
-    //expect(response.body).toEqual({'example-package'});
   });
 
   it('should respond with a 500 error if an error occurs during the search', async () => {
@@ -210,7 +205,6 @@ describe('Express App', () => {
     const response = await agent.get(`/search?q=${searchString}`);
 
     expect(response.status).toBe(500);
-    //expect(response.text).toBe('An error occurred.');
   });
 
   it('should reset the registry and respond with a success message', async () => {
@@ -222,10 +216,6 @@ describe('Express App', () => {
     const agent = supertest(app);
     const response = await agent.post('/reset');
 
-    // Assert that the functions were called and the response is as expected
-    //expect(rdsHandlerMockSpy).toHaveBeenCalled();
-    // expect(rdsConfiguratorMockSpy).toHaveBeenCalled();
-    // expect(s3ConfiguratorMockSpy).toHaveBeenCalled();
     expect(response.status).toBe(200);
     expect(response.text).toBe('Successfully reset system to original state');
   });
@@ -239,12 +229,7 @@ describe('Express App', () => {
     const agent = supertest(app);
     const response = await agent.post('/reset');
 
-    // Assert that the functions were called and the response is as expected
-    //expect(rdsHandlerMockSpy).toHaveBeenCalled();
-    // expect(rdsConfiguratorMockSpy).toHaveBeenCalled();
-    // expect(s3ConfiguratorMockSpy).toHaveBeenCalled();
     expect(response.status).toBe(200);
-    // Add assertions for the response text or JSON structure if needed
   });
 
   // clean up the mocks after tests
