@@ -55,15 +55,14 @@ var s3 = new AWS.S3();
 var BUCKET_NAME = "461s3bucketv2";
 function upload_package(package_id, file) {
     return __awaiter(this, void 0, void 0, function () {
-        var file_content, unique_filename, params, file_url, error_1;
+        var file_content, params, file_url, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     file_content = file.buffer;
-                    unique_filename = "package_ID_".concat(package_id);
                     params = {
                         Bucket: BUCKET_NAME,
-                        Key: unique_filename,
+                        Key: package_id,
                         Body: file_content,
                     };
                     _a.label = 1;
@@ -72,7 +71,7 @@ function upload_package(package_id, file) {
                     return [4 /*yield*/, s3.upload(params).promise()];
                 case 2:
                     _a.sent();
-                    file_url = "https://".concat(BUCKET_NAME, ".s3.").concat(AWS.config.region, ".amazonaws.com/").concat(unique_filename);
+                    file_url = "https://".concat(BUCKET_NAME, ".s3.").concat(AWS.config.region, ".amazonaws.com/").concat(package_id);
                     logger_1.logger.debug("File uploaded successfully to S3. URL: ".concat(file_url));
                     return [2 /*return*/, file_url];
                 case 3:

@@ -44,8 +44,9 @@ async function setup_rds_tables() {
     try {
         await client.query(`
           CREATE TABLE IF NOT EXISTS package_data (
-            package_id SERIAL PRIMARY KEY,
-            package_name VARCHAR(50) UNIQUE NOT NULL,
+            id VARCHAR(50) UNIQUE NOT NULL,
+            name VARCHAR(50) NOT NULL,
+            version VARCHAR(50) NOT NULL,
             rating JSON NOT NULL,
             num_downloads INT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
