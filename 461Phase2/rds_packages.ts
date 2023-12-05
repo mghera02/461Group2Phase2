@@ -117,12 +117,12 @@ async function match_rds_rows(regex: string, useExactMatch: boolean = false): Pr
       if(useExactMatch) {
         query = `
             SELECT * FROM ${TABLE_NAME}
-            WHERE package_name = $1;
+            WHERE name = $1;
         `;
       } else {
         query = `
             SELECT * FROM ${TABLE_NAME}
-            WHERE package_name ~ $1;
+            WHERE name ~ $1;
         `;
       }
       const values = [regex]

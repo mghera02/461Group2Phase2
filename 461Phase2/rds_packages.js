@@ -159,10 +159,10 @@ function match_rds_rows(regex, useExactMatch) {
                     _a.trys.push([2, 4, 5, 7]);
                     query = void 0;
                     if (useExactMatch) {
-                        query = "\n            SELECT * FROM ".concat(rds_config_1.TABLE_NAME, "\n            WHERE package_name = $1;\n        ");
+                        query = "\n            SELECT * FROM ".concat(rds_config_1.TABLE_NAME, "\n            WHERE name = $1;\n        ");
                     }
                     else {
-                        query = "\n            SELECT * FROM ".concat(rds_config_1.TABLE_NAME, "\n            WHERE package_name ~ $1;\n        ");
+                        query = "\n            SELECT * FROM ".concat(rds_config_1.TABLE_NAME, "\n            WHERE name ~ $1;\n        ");
                     }
                     values = [regex];
                     return [4 /*yield*/, client.query(query, values)];
