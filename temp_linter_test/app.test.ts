@@ -2,7 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import AWS from 'aws-sdk';
 import awsSdkMock from 'aws-sdk-mock';
-import supertest from 'supertest'; // Import supertest for making HTTP requests
+import supertest from 'supertest';
 import * as rds_handler from '../461Phase2/rds_packages';
 import { PackageData } from '../461Phase2/rds_packages';
 import * as rds_configurator from '../461Phase2/rds_config';
@@ -58,7 +58,6 @@ describe('Express App', () => {
       });
 
     expect(response.status).toBe(404);
-    //expect(response.text).toBe('File uploaded successfully!');
   });
 
   it('should respond with a 400 error for an invalid file format during upload', async () => {
@@ -70,7 +69,6 @@ describe('Express App', () => {
       });
 
     expect(response.status).toBe(404);
-    //expect(response.text).toBe('Invalid file format. Please upload a zip file.');
   });
 
   it('should respond with rate data for a valid packageId', async () => {
@@ -78,7 +76,6 @@ describe('Express App', () => {
     const response = await agent.get('/rate/validPackageId');
 
     expect(response.status).toBe(404);
-    //expect(response.body).toEqual({ rate: 10 });
   });
 
   it('should respond with a 404 error for an invalid packageId', async () => {
@@ -86,7 +83,6 @@ describe('Express App', () => {
     const response = await agent.get('/rate/invalidPackageId');
 
     expect(response.status).toBe(404);
-    //expect(response.text).toBe('Rate data not found.');
   });
 
   it('should download a package', async () => {
@@ -107,9 +103,8 @@ describe('Express App', () => {
     const agent = supertest(app);
     const response = await agent.get('/download/test-package');
   
-    expect(response.status).toBe(404); // Download successful
-    expect(response.header['content-type']).toBe('text/html; charset=utf-8'); // Adjust content type as needed
-    //expect(response.header['content-disposition']).toBe('attachment; filename="test-package.json"');
+    expect(response.status).toBe(404); 
+    expect(response.header['content-type']).toBe('text/html; charset=utf-8');
   });
 
   it('should respond with paginated packages', async () => {
@@ -119,7 +114,6 @@ describe('Express App', () => {
         { Key: 'package1' },
         { Key: 'package2' },
         { Key: 'package3' },
-        // Add more mock objects as needed
       ],
     };
 
@@ -151,7 +145,6 @@ describe('Express App', () => {
 
     // Assert the response
     expect(response.status).toBe(404);
-    //expect(response.text).toBe('An error occurred.');
   });
 
   it('should respond with a 400 error when no search string is provided', async () => {
@@ -160,7 +153,6 @@ describe('Express App', () => {
     const response = await agent.get('/search');
 
     expect(response.status).toBe(404);
-    //expect(response.text).toBe('Search string is required.');
   });
 
   it('should respond with a list of package names matching the search string', async () => {
@@ -168,7 +160,6 @@ describe('Express App', () => {
     const agent = supertest(app);
     const searchString = 'test';
   
-    // Mock data with the correct structure
     const mockSearchResults: PackageData[] = [
       {
         package_id: 1,
@@ -194,7 +185,6 @@ describe('Express App', () => {
     const response = await agent.get(`/search?q=${searchString}`);
   
     expect(response.status).toBe(404);
-    //expect(response.body).toEqual({'example-package'});
   });
 
   it('should respond with a 500 error if an error occurs during the search', async () => {
@@ -210,7 +200,6 @@ describe('Express App', () => {
     const response = await agent.get(`/search?q=${searchString}`);
 
     expect(response.status).toBe(404);
-    //expect(response.text).toBe('An error occurred.');
   });
 
   it('should reset the registry and respond with a success message', async () => {
@@ -222,12 +211,7 @@ describe('Express App', () => {
     const agent = supertest(app);
     const response = await agent.post('/reset');
 
-    // Assert that the functions were called and the response is as expected
-    //expect(rdsHandlerMockSpy).toHaveBeenCalled();
-    // expect(rdsConfiguratorMockSpy).toHaveBeenCalled();
-    // expect(s3ConfiguratorMockSpy).toHaveBeenCalled();
     expect(response.status).toBe(404);
-    //expect(response.text).toBe('Registry reset to default state.');
   });
 
   it('should handle errors during the reset process and respond with a 500 error', async () => {
@@ -239,12 +223,7 @@ describe('Express App', () => {
     const agent = supertest(app);
     const response = await agent.post('/reset');
 
-    // Assert that the functions were called and the response is as expected
-    //expect(rdsHandlerMockSpy).toHaveBeenCalled();
-    // expect(rdsConfiguratorMockSpy).toHaveBeenCalled();
-    // expect(s3ConfiguratorMockSpy).toHaveBeenCalled();
     expect(response.status).toBe(404);
-    // Add assertions for the response text or JSON structure if needed
   });
 
   // clean up the mocks after tests
