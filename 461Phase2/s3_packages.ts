@@ -2,6 +2,9 @@ import * as AWS from 'aws-sdk';
 import * as fs from 'fs';
 import * as dotenv from 'dotenv';
 import { logger, time } from './logger';
+import {
+    PackageData,
+} from './package_objs'
 
 dotenv.config();
 
@@ -20,19 +23,18 @@ AWS.config.update({
 const s3 = new AWS.S3();
 const BUCKET_NAME = "461s3bucketv2";
 
-async function upload_package(package_id: number, file: any) : Promise<string | null> {
+async function upload_package(package_id: string, file: any) : Promise<string | null> {
     const file_content = file.buffer;
-    const unique_filename = `package_ID_${package_id}`;
 
     const params: AWS.S3.PutObjectRequest = {
         Bucket: BUCKET_NAME,
-        Key: unique_filename,
+        Key: package_id,
         Body: file_content,
       };
     
     try {
         await s3.upload(params).promise();
-        const file_url = `https://${BUCKET_NAME}.s3.${AWS.config.region}.amazonaws.com/${unique_filename}`;
+        const file_url = `https://${BUCKET_NAME}.s3.${AWS.config.region}.amazonaws.com/${package_id}`;
         logger.debug(`File uploaded successfully to S3. URL: ${file_url}`);
         
         return file_url;

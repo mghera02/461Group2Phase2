@@ -3,6 +3,10 @@
 import { QueryResult } from 'pg';
 import { get_rds_connection, TABLE_NAME } from './rds_config';
 import { logger, time } from './logger';
+import { 
+  PackageMetadata,
+  PackageRating,
+} from './package_objs'
 
 interface PackageData {
     package_id: number,
@@ -21,25 +25,33 @@ interface PackageData {
     created_at: Date,
 }
 
+interface Row {
+  id: string,
+  name: string,
+  version: string,
+  rating: PackageRating,
+  num_downloads: number,
+} // This is a makeshift ORM, kind of a bandaid fix lol
+
 // Adds data to the amazon RDS instance. That data is assigned a unique ID that is returned.
 // This ID is used to locate the package contents in the S3 bucket.
-async function add_rds_package_data(name: string, rating: object) : Promise<number | null> {
+async function add_rds_package_data(metadata: PackageMetadata, rating: PackageRating) : Promise<string | null> {
   const client = await get_rds_connection();
 
   try {
       const query = `
-        INSERT INTO package_data(package_name, rating, num_downloads) VALUES($1, $2, $3)
-        RETURNING package_id;
+        INSERT INTO package_data(name, version, id, rating, num_downloads) VALUES($1, $2, $3, $4, $5)
+        RETURNING id;
       `;
-      const values = [name, rating, 0]
-      const result: QueryResult<PackageData> = await client.query(query, values);
+      const values = [metadata.name, metadata.version, metadata.ID, rating, 0]
+      const result: QueryResult<Row> = await client.query(query, values);
 
       // Making sure something is returned at all
       if (result.rowCount == 0) {
         return null;
       }
 
-      return result.rows[0].package_id;
+      return result.rows[0].id;
     } catch (error) {
       logger.error('Error entering data:', error);
       return null;
@@ -73,7 +85,7 @@ async function update_rds_package_data(name: string, rating: object, content: st
   }
 }
 
-async function get_package_data(package_id: number) : Promise<PackageData | null> {
+async function get_package_data(package_id: number) : Promise<Row | null> {
   const client = await get_rds_connection();
 
   try {
@@ -81,7 +93,7 @@ async function get_package_data(package_id: number) : Promise<PackageData | null
         SELECT * FROM ${TABLE_NAME} WHERE package_id = $1
       `;
       const values = [package_id]
-      const data: QueryResult<PackageData> = await client.query(query, values);
+      const data: QueryResult<Row> = await client.query(query, values);
 
       // Making sure something is returned at all
       if (data.rowCount == 0) {
@@ -105,12 +117,12 @@ async function match_rds_rows(regex: string, useExactMatch: boolean = false): Pr
       if(useExactMatch) {
         query = `
             SELECT * FROM ${TABLE_NAME}
-            WHERE package_name = $1;
+            WHERE name = $1;
         `;
       } else {
         query = `
             SELECT * FROM ${TABLE_NAME}
-            WHERE package_name ~ $1;
+            WHERE name ~ $1;
         `;
       }
       const values = [regex]

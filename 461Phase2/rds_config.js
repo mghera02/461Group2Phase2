@@ -96,7 +96,7 @@ function setup_rds_tables() {
                     _a.label = 2;
                 case 2:
                     _a.trys.push([2, 4, 5, 7]);
-                    return [4 /*yield*/, client.query("\n          CREATE TABLE IF NOT EXISTS package_data (\n            package_id SERIAL PRIMARY KEY,\n            package_name VARCHAR(50) UNIQUE NOT NULL,\n            rating JSON NOT NULL,\n            num_downloads INT NOT NULL,\n            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n          );\n        ")];
+                    return [4 /*yield*/, client.query("\n          CREATE TABLE IF NOT EXISTS package_data (\n            id VARCHAR(50) UNIQUE NOT NULL,\n            name VARCHAR(50) NOT NULL,\n            version VARCHAR(50) NOT NULL,\n            rating JSON NOT NULL,\n            num_downloads INT NOT NULL,\n            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n          );\n        ")];
                 case 3:
                     _a.sent();
                     logger_1.logger.debug("Successfully created tables");

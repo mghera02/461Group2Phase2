@@ -15,6 +15,12 @@ import {
   clear_s3_bucket,
 } from './s3_packages';
 import {get_metric_info, cloneRepo, check_npm_for_open_source, get_github_info, get_npm_package_name, zipDirectory} from './src/assets/metrics';
+import { 
+  Package,
+  PackageMetadata,
+  PackageData,
+  generate_id,
+} from './package_objs';
 
 const app = express();
 const port = process.env.PORT||8080;
@@ -71,7 +77,10 @@ function extractRepoUrl(zipFilePath: string, packageName: string): Promise<strin
   });
 }
 
+
+//TODO: if RDS succeeds to upload but S3 fails, remove the corresponding RDS entry
 app.post('/package', upload.single('file'), async (req, res) => {
+  // NPM ingest
   if(req.body.url && !req.file) {
     try {
       await time.info("Starting time")
@@ -106,54 +115,80 @@ app.post('/package', upload.single('file'), async (req, res) => {
       let scores = await get_metric_info(gitDetails);
       await logger.info(`retrieved scores from score calculator: ${scores.busFactor}, ${scores.rampup}, ${scores.license}, ${scores.correctness}, ${scores.maintainer}, ${scores.pullRequest}, ${scores.pinning}, ${scores.score}`);
       
-      if(scores.score > 0.5) {
-        const package_id = await rds_handler.add_rds_package_data(npmPackageName, scores);
-
-        // Check to see if package metadata was upladed to RDS
-        if (package_id === null) { //  happens when package exists already
-          await logger.error("Could not upload package data to RDS")
-          await time.error('Error occurred at this time\n');
-          return res.status(409).send('Package exists already.');
-        }
-        await logger.debug(`ingest package to rds with id: ${package_id}`)
-
-        // Upload the actual package to s3
-        // Read the zipped file content
-        const zippedFileContent = fs.readFileSync(zipFilePath);
-        await logger.debug(`got zipped file content`)
-
-        // Create Express.Multer.File object
-        const zippedFile = {
-            fieldname: 'file',
-            originalname: 'zipped_directory.zip',
-            encoding: '7bit',
-            mimetype: 'application/zip',
-            buffer: zippedFileContent // Buffer of the zipped file content
-        };
-
-        const s3_response = await upload_package(package_id, zippedFile); // Call your S3 upload function here
-        await logger.info(`Successfully uploaded package with id: ${package_id}`)
-        // Check to see if package data was uploaded to S3
-        if (s3_response === null) {
-          await logger.error("Error uploading package to S3")
-          await time.error('Error occurred at this time\n');
-          return res.status(400).send('Could not add package data');
-        }
-        await fsExtra.remove(cloneRepoOut[1]);
-        await logger.debug(`removed clone repo`)
-
-        await time.info("Finished at this time\n")
-        // TODO: fix id
-        let response = {"metadata": {"Name": repo, "Version": "Not Implementing", "ID": package_id}, "data": {"Content": zippedFile.buffer, "JSProgram": "Not Implementing"}};
-        res.status(200).send(response)
-      } else {
+      // We check if the rating is sufficient and return if it is not
+      if(scores.score < 0.5) {
+        logger.info(`Upload aborted, insufficient rating of ${scores.score}`);
+        time.info('Aborted at this time\n');
         res.status(424).send("Package is not uploaded due to the disqualified rating.");
       }
+
+      // Now we start the upload
+      //TODO: add in the support for different versions
+      const package_version = "0.0.0" //for now 
+      const metadata: PackageMetadata = {
+        name: npmPackageName,
+        version: package_version,
+        ID: generate_id(npmPackageName, package_version)
+      }
+
+      const package_id = await rds_handler.add_rds_package_data(metadata, scores);
+
+      // Check to see if package metadata was upladed to RDS
+      if (package_id === null) { //  happens when package exists already
+        await logger.error("Could not upload package data to RDS")
+        await time.error('Error occurred at this time\n');
+        return res.status(409).send('Package exists already.');
+      }
+      await logger.debug(`ingest package to rds with id: ${package_id}`)
+
+      // Upload the actual package to s3
+      // Read the zipped file content
+      const zippedFileContent = fs.readFileSync(zipFilePath);
+      await logger.debug(`got zipped file content`)
+
+      // Create Express.Multer.File object
+      const zippedFile = {
+          fieldname: 'file',
+          originalname: 'zipped_directory.zip',
+          encoding: '7bit',
+          mimetype: 'application/zip',
+          buffer: zippedFileContent // Buffer of the zipped file content
+      };
+
+      const s3_response = await upload_package(package_id, zippedFile); // Call your S3 upload function here\
+
+      // Check to see if package data was uploaded to S3
+      if (s3_response === null) {
+        await logger.error("Error uploading package to S3")
+        await time.error('Error occurred at this time\n');
+        return res.status(400).send('Could not add package data');
+      }
+
+      // If you get to this point, the file has been successfully uploaded
+      await logger.info(`Successfully uploaded package with id: ${package_id}`)
+      await fsExtra.remove(cloneRepoOut[1]);
+      await logger.debug(`removed clone repo`)
+      await time.info("Finished at this time\n")
+
+      let response: Package = {
+        metadata: metadata,
+        data: {
+          content: zippedFile.buffer,
+          JSProgram: "Not Implementing",
+        },
+      }
+      
+      // Old return value
+      //{"metadata": {"Name": repo, "Version": "Not Implementing", "ID": package_id}, "data": {"Content": zippedFile.buffer, "JSProgram": "Not Implementing"}};
+      
+      res.status(201).json(response);
     } catch (error) {
       await logger.error('Could not ingest package', error);
       await time.error('Error occurred at this time\n')
       res.status(500).send('An error occurred.');
     }
+
+    // zip file
   } else if(!req.body.url && req.file) {
     try {
       await time.info("Starting time")
@@ -188,7 +223,16 @@ app.post('/package', upload.single('file'), async (req, res) => {
 
       fs.unlinkSync('./uploads/' + req.file.originalname);
 
-      const package_id = await rds_handler.add_rds_package_data(req.file.originalname.replace(/\.zip$/, ''), scores);
+      // Currently using the repo name as the package name, not the zip file name
+      //const name = req.file.originalname.replace(/\.zip$/, '');
+      const version = "0.0.0"
+      const metadata: PackageMetadata = {
+        name: repo,
+        version: version,
+        ID: generate_id(repo, version),
+      }
+
+      const package_id = await rds_handler.add_rds_package_data(metadata, scores);
 
       // Check to see if package metadata was upladed to RDS
       if (package_id === null) { //  happens when package exists already
@@ -210,20 +254,32 @@ app.post('/package', upload.single('file'), async (req, res) => {
 
       await logger.info(`Successfully uploaded package with id: ${package_id}`)
       await time.info("Finished at this time\n")
-      // TODO: fix id
-      let response = {"metadata": {"Name": repo, "Version": "Not Implementing", "ID": package_id}, "data": {"Content": req.file.buffer, "JSProgram": "Not Implementing"}};
-      res.status(200).send(response)
+
+      // Original response
+      //let response = {"metadata": {"Name": repo, "Version": "Not Implementing", "ID": package_id}, "data": {"Content": req.file.buffer, "JSProgram": "Not Implementing"}};
+      
+      //New response
+      let response: Package = {
+        metadata: metadata,
+        data: {
+          content: req.file.buffer,
+          JSProgram: "Not Implementing",
+        },
+      }
+      
+      res.status(201).json(response)
     } catch (error) {
       await logger.error('Could not upload package', error);
       await time.error('Error occurred at this time\n')
       res.status(500).send('An error occurred.');
     }
   } else {
+    // Impropper request
     res.status(400).send("There is missing field(s) in the PackageData/AuthenticationToken or it is formed improperly (e.g. Content and URL are both set), or the AuthenticationToken is invalid.")
   }
 });
 
-app.get('/rate/:packageId', async (req, res) => {
+app.get('/package/:packageId/rate', async (req, res) => {
   try {
     await time.info("Starting time")
     await logger.info("Attempring to get package rating")
@@ -271,7 +327,7 @@ app.get('/download/:packageId', async (req, res) => {
     }
 
     await logger.debug(`Package data found for package with id: ${package_id}`);
-    const package_name = package_data.package_name;
+    const package_name = package_data.name;
 
     const package_buffer = await download_package(package_id);
     if (package_buffer === null) {
@@ -338,12 +394,12 @@ app.post('/packages', async (req, res) => {
 });
 
 // Sends the a list of package names that match the regex
-app.get('/search', async (req, res) => {
+app.post('/package/byRegEx', async (req, res) => {
   try {
     await time.info("Starting time")
     await logger.info("Attempting to search packages")
 
-    const searchString = req.query.q as string;
+    const searchString = req.body.RegEx as string;
     if (!searchString) {
       await logger.error('No search string was given');
       await time.error('Error occurred at this time\n');
@@ -356,7 +412,16 @@ app.get('/search', async (req, res) => {
     // });
 
     const searchResults = await rds_handler.match_rds_rows(searchString);
-    const package_names = searchResults.map((data) => data.package_name);
+    const package_names = searchResults.map((data) => ({
+        Version: data.version,
+        Name: data.name,
+    }));
+
+    if (package_names.length === 0) {
+      await logger.error(`No packages found that match ${searchString}`);
+      await time.error('Finished at this time\n');
+      return res.status(404).send("No package found under this regex")
+    }
 
     await logger.info(`Successfully searched packages`)
     await time.info("Finished at this time\n")
