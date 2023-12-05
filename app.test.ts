@@ -12,6 +12,8 @@ import {
   clear_s3_bucket,
 } from './461Phase2/s3_packages';
 import { app } from './app';
+import {get_metric_info, cloneRepo, check_npm_for_open_source, get_github_info, get_npm_package_name, zipDirectory} from './461Phase2/src/assets/metrics';
+import * as getMetricInfoModule from './src/metrics';
 
 //const app = express();
 const port = process.env.PORT||8080;
@@ -20,6 +22,8 @@ const upload = multer({ storage: multer.memoryStorage() });
 const s3 = {
   listObjectsV2: jest.fn(),
 };
+
+type GetMetricInfoSpy = jest.SpyInstance<Promise<void>, [gitDetails: { username: string; repo: string }[]]>;
 
 awsSdkMock.mock('S3', 'upload', (params: AWS.S3.PutObjectRequest, callback: (err: Error | null, data: AWS.S3.PutObjectOutput) => void) => {
   // Mock S3 upload behavior
@@ -50,6 +54,11 @@ jest.mock('./461Phase2/rds_packages', () => {
 });
 
 describe('Express App', () => {
+
+  beforeEach(() => {
+    jest.clearAllMocks(); // Clear mocks before each test
+  });
+
   it('should respond with "File uploaded successfully!" for valid file upload', async () => {
     const agent = supertest(app); // Use supertest for making HTTP requests
     const response = await agent
@@ -230,11 +239,39 @@ describe('Express App', () => {
     expect(response.status).toBe(200);
   });
 
+  it('should respond with "File uploaded successfully!" for valid URL and no file', async () => {
+    const agent = supertest(app);
+    const response = await agent
+      .post('/package')
+      .send({ url: 'https://example.com/package' });
+
+    expect(response.status).toBe(500);
+  });
+
+  it('should respond with a 400 error for missing fields', async () => {
+    const agent = supertest(app);
+    const response = await agent.post('/package').send({});
+
+    expect(response.status).toBe(400);
+    expect(response.text).toContain('missing field(s)');
+  });
+
+  it('should respond with a 500 error for when an error occurs', async () => {
+    // Mocking a disqualified package scenario
+    const getMetricInfoSpy: GetMetricInfoSpy = jest.spyOn(getMetricInfoModule, 'get_metric_info');
+    getMetricInfoSpy.mockResolvedValueOnce();
+
+    const agent = supertest(app);
+    const response = await agent
+      .post('/package')
+      .send({ url: 'https://example.com/package' });
+
+    expect(response.status).toBe(500);
+    expect(response.text).toContain('An error occurred');
+  });
+
   // clean up the mocks after tests
   afterAll(() => {
     awsSdkMock.restore();
   });
 });
-
-
-

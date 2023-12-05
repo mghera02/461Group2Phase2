@@ -25,6 +25,16 @@ interface RepoData {
     PULL_REQUEST: number;
     RESPONSIVE_MAINTAINER_SCORE: number;
 }
+interface GetMetricInfoModule {
+    calcuBusFactor: (x: number) => number;
+    calcLicenseScore: (licenseName: string) => number;
+    calcRampUpScore: (x: number) => number;
+    calcCorrectnessScore: (errors: number, filecount: number) => number;
+    calcRespMaintScore: (timeDifference: number[], username: string, repo: string) => number;
+    get_metric_info: (gitDetails: { username: string; repo: string }[]) => Promise<void>;
+    outputResults: (username: string, repo: string, busFactor: number, rampup: number, license: number, correctness: number, maintainer: number, pinning: number, pullRequest: number, score: number) => void;
+    calcTotalScore: (busFactor: number, rampup: number, license: number, correctness: number, maintainer: number, pullRequest: number, pinning: number) => Promise<number>;
+  }
 
 function calcuBusFactor(x: number): number {
     const result = (Math.pow((Math.log(x + 1) / (Math.log(1500+1))), 1.22));
