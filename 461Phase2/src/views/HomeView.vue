@@ -88,9 +88,9 @@
               }
             } else {
               try {
-                const response = await axios.get(`http://${this.ip}:8080/search`, {
-                  params: {
-                    q: this.searchBarVal,
+                const response = await axios.post(`http://${this.ip}:8080/package/byRegEx`, {"RegEx": this.searchBarVal},{
+                  headers: {
+                    'Content-Type': 'application/json',
                   }
                 })
                 console.log('Search Results:', response.data);

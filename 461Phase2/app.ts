@@ -394,7 +394,7 @@ app.post('/packages', async (req, res) => {
 });
 
 // Sends the a list of package names that match the regex
-app.get('/package/byRegEx', async (req, res) => {
+app.post('/package/byRegEx', async (req, res) => {
   try {
     await time.info("Starting time")
     await logger.info("Attempting to search packages")

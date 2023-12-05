@@ -588,7 +588,7 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
     });
 }); });
 // Sends the a list of package names that match the regex
-app.get('/package/byRegEx', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+app.post('/package/byRegEx', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var searchString, searchResults, package_names, error_6;
     return __generator(this, function (_a) {
         switch (_a.label) {
