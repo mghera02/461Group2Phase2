@@ -59,82 +59,57 @@ var upload = multer({ storage: multer.memoryStorage() });
 app.use(cors());
 app.use(express.json());
 function extractRepoUrl(zipFilePath, packageName) {
-    return __awaiter(this, void 0, void 0, function () {
-        var _this = this;
-        return __generator(this, function (_a) {
-            return [2 /*return*/, new Promise(function (resolve, reject) {
-                    yauzl.open(zipFilePath, { lazyEntries: true }, function (err, zipfile) { return __awaiter(_this, void 0, void 0, function () {
-                        var _this = this;
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0:
-                                    if (!(err || !zipfile)) return [3 /*break*/, 2];
-                                    return [4 /*yield*/, logger_1.logger.error('Unable to open zip file.')];
-                                case 1:
-                                    _a.sent();
-                                    reject(err || new Error('Unable to open zip file'));
-                                    return [2 /*return*/];
-                                case 2:
-                                    zipfile.on('entry', function (entry) { return __awaiter(_this, void 0, void 0, function () {
-                                        var _this = this;
-                                        return __generator(this, function (_a) {
-                                            if (entry.fileName === "".concat(packageName, "/package.json")) {
-                                                zipfile.openReadStream(entry, function (err, readStream) { return __awaiter(_this, void 0, void 0, function () {
-                                                    var fileContent;
-                                                    return __generator(this, function (_a) {
-                                                        switch (_a.label) {
-                                                            case 0:
-                                                                if (!(err || !readStream)) return [3 /*break*/, 2];
-                                                                return [4 /*yield*/, logger_1.logger.error('Unable to read package.json.')];
-                                                            case 1:
-                                                                _a.sent();
-                                                                reject(err || new Error('Unable to read package.json'));
-                                                                return [2 /*return*/];
-                                                            case 2:
-                                                                fileContent = '';
-                                                                readStream.on('data', function (data) {
-                                                                    fileContent += data;
-                                                                });
-                                                                readStream.on('end', function () {
-                                                                    try {
-                                                                        var jsonObject = JSON.parse(fileContent);
-                                                                        if ('repository' in jsonObject && 'url' in jsonObject.repository) {
-                                                                            resolve(jsonObject.repository.url);
-                                                                        }
-                                                                        else {
-                                                                            reject(new Error('Repository URL not found in package.json'));
-                                                                        }
-                                                                    }
-                                                                    catch (parseError) {
-                                                                        reject(new Error('Error parsing package.json'));
-                                                                    }
-                                                                });
-                                                                return [2 /*return*/];
-                                                        }
-                                                    });
-                                                }); });
-                                            }
-                                            else {
-                                                zipfile.readEntry();
-                                            }
-                                            return [2 /*return*/];
-                                        });
-                                    }); });
-                                    zipfile.on('end', function () {
-                                        reject(new Error('Package.json not found in the zip'));
-                                    });
-                                    zipfile.readEntry();
-                                    return [2 /*return*/];
+    var _this = this;
+    return new Promise(function (resolve, reject) {
+        yauzl.open(zipFilePath, { lazyEntries: true }, function (err, zipfile) {
+            if (err || !zipfile) {
+                reject(err || new Error('Unable to open zip file'));
+                return "Unable to open zip file";
+            }
+            zipfile.on('entry', function (entry) { return __awaiter(_this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    if (entry.fileName === "".concat(packageName, "/package.json")) {
+                        zipfile.openReadStream(entry, function (err, readStream) {
+                            if (err || !readStream) {
+                                reject(err || new Error('Unable to read package.json'));
+                                return "Unable to read package.json";
                             }
+                            var fileContent = '';
+                            readStream.on('data', function (data) {
+                                fileContent += data;
+                            });
+                            readStream.on('end', function () {
+                                try {
+                                    var jsonObject = JSON.parse(fileContent);
+                                    if ('repository' in jsonObject && 'url' in jsonObject.repository) {
+                                        resolve(jsonObject.repository.url);
+                                    }
+                                    else {
+                                        reject(new Error('Repository URL not found in package.json'));
+                                    }
+                                }
+                                catch (parseError) {
+                                    reject(new Error('Error parsing package.json'));
+                                }
+                            });
                         });
-                    }); });
-                })];
+                    }
+                    else {
+                        zipfile.readEntry();
+                    }
+                    return [2 /*return*/];
+                });
+            }); });
+            zipfile.on('end', function () {
+                reject(new Error('Package.json not found in the zip'));
+            });
+            zipfile.readEntry();
         });
     });
 }
 //TODO: if RDS succeeds to upload but S3 fails, remove the corresponding RDS entry
 app.post('/package', upload.single('file'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, username, repo, gitInfo, gitDetails, scores, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, response, error_1, packageName, binaryData, uploadDir, timestamp, zipFilePath, writeStream, repoUrl, response, error_2;
+    var url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, username, repo, gitInfo, gitDetails, scores, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, response, error_1, packageName, binaryData, uploadDir, timestamp, zipFilePath, writeStream_1, repoUrl, response, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -296,12 +271,12 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 _a.sent();
                 res.status(500).send('An error occurred.');
                 return [3 /*break*/, 35];
-            case 35: return [3 /*break*/, 54];
+            case 35: return [3 /*break*/, 53];
             case 36:
-                if (!(!req.body.URL && req.body.Content)) return [3 /*break*/, 53];
+                if (!(!req.body.URL && req.body.Content)) return [3 /*break*/, 52];
                 _a.label = 37;
             case 37:
-                _a.trys.push([37, 49, , 52]);
+                _a.trys.push([37, 48, , 51]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 38:
                 _a.sent();
@@ -330,37 +305,51 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 return [4 /*yield*/, logger_1.logger.info("Got zip file path: ".concat(zipFilePath))];
             case 45:
                 _a.sent();
-                writeStream = fs.createWriteStream(zipFilePath);
-                writeStream.write(binaryData);
-                writeStream.end();
-                return [4 /*yield*/, logger_1.logger.info('Package downloaded successfully')];
-            case 46:
-                _a.sent();
+                writeStream_1 = fs.createWriteStream(zipFilePath);
+                writeStream_1.write(binaryData, function (err) { return __awaiter(void 0, void 0, void 0, function () {
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                if (!err) return [3 /*break*/, 2];
+                                return [4 /*yield*/, logger_1.logger.info("failed to to save zip file")];
+                            case 1:
+                                _a.sent();
+                                return [3 /*break*/, 4];
+                            case 2: return [4 /*yield*/, logger_1.logger.info("zip file saved successfully")];
+                            case 3:
+                                _a.sent();
+                                _a.label = 4;
+                            case 4:
+                                writeStream_1.end();
+                                return [2 /*return*/];
+                        }
+                    });
+                }); });
                 return [4 /*yield*/, extractRepoUrl(zipFilePath, packageName)];
-            case 47:
+            case 46:
                 repoUrl = _a.sent();
                 return [4 /*yield*/, logger_1.logger.info("retrieved repo url: ".concat(repoUrl))];
-            case 48:
+            case 47:
                 _a.sent();
                 response = "hi";
                 res.status(201).json(response);
-                return [3 /*break*/, 52];
-            case 49:
+                return [3 /*break*/, 51];
+            case 48:
                 error_2 = _a.sent();
                 return [4 /*yield*/, logger_1.logger.error('Could not upload package', error_2)];
-            case 50:
+            case 49:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
-            case 51:
+            case 50:
                 _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 52];
-            case 52: return [3 /*break*/, 54];
-            case 53:
+                return [3 /*break*/, 51];
+            case 51: return [3 /*break*/, 53];
+            case 52:
                 // Impropper request
                 res.status(400).send("There is missing field(s) in the PackageData/AuthenticationToken or it is formed improperly (e.g. Content and URL are both set), or the AuthenticationToken is invalid.");
-                _a.label = 54;
-            case 54: return [2 /*return*/];
+                _a.label = 53;
+            case 53: return [2 /*return*/];
         }
     });
 }); });
