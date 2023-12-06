@@ -107,12 +107,12 @@ function extractRepoUrl(zipFilePath, packageName) {
     });
 }
 //TODO: if RDS succeeds to upload but S3 fails, remove the corresponding RDS entry
-app.post('/package', upload.single('file'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+app.post('/package', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var url, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, username, repo, gitInfo, gitDetails, scores, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, response, error_1, packageName, repoUrl, username, repo, regex, matches, gitDetails, scores, version, metadata, package_id, s3_response, response, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                if (!(req.body.url && !req.file)) return [3 /*break*/, 34];
+                if (!(req.body.URL && !req.body.Content)) return [3 /*break*/, 34];
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 30, , 33]);
@@ -122,8 +122,8 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 return [4 /*yield*/, logger_1.logger.info('Attempting to ingest package')];
             case 3:
                 _a.sent();
-                url = req.body.url;
-                return [4 /*yield*/, logger_1.logger.info("package url: ".concat(req.body.url))];
+                url = req.body.URL;
+                return [4 /*yield*/, logger_1.logger.info("package url: ".concat(req.body.URL))];
             case 4:
                 _a.sent();
                 return [4 /*yield*/, logger_1.logger.info("req: ".concat(JSON.stringify(req.body)))];
@@ -262,7 +262,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 return [3 /*break*/, 33];
             case 33: return [3 /*break*/, 63];
             case 34:
-                if (!(!req.body.url && req.file)) return [3 /*break*/, 62];
+                if (!(!req.body.URL && req.body.Content)) return [3 /*break*/, 62];
                 _a.label = 35;
             case 35:
                 _a.trys.push([35, 58, , 61]);
@@ -272,7 +272,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 return [4 /*yield*/, logger_1.logger.info('Attempting to upload package')];
             case 37:
                 _a.sent();
-                if (!!req.file.originalname.endsWith('.zip')) return [3 /*break*/, 40];
+                if (!!req.body.Content.originalname.endsWith('.zip')) return [3 /*break*/, 40];
                 return [4 /*yield*/, logger_1.logger.error('The given file is not a zip file')];
             case 38:
                 _a.sent();
@@ -281,12 +281,12 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 _a.sent();
                 return [2 /*return*/, res.status(400).send('Invalid file format. Please upload a zip file.')];
             case 40:
-                packageName = req.file.originalname.replace(/\.zip$/, '');
-                fs.writeFileSync('./uploads/' + req.file.originalname, req.file.buffer);
+                packageName = req.body.Content.originalname.replace(/\.zip$/, '');
+                fs.writeFileSync('./uploads/' + req.body.Content.originalname, req.body.Content.buffer);
                 return [4 /*yield*/, logger_1.logger.info('Package downloaded successfully')];
             case 41:
                 _a.sent();
-                return [4 /*yield*/, extractRepoUrl('./uploads/' + req.file.originalname, packageName)];
+                return [4 /*yield*/, extractRepoUrl('./uploads/' + req.body.Content.originalname, packageName)];
             case 42:
                 repoUrl = _a.sent();
                 return [4 /*yield*/, logger_1.logger.info("retrieved repo url: ".concat(repoUrl))];
@@ -310,7 +310,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 return [4 /*yield*/, logger_1.logger.info("retrieved scores from score calculator: ".concat(scores.busFactor, ", ").concat(scores.rampup, ", ").concat(scores.license, ", ").concat(scores.correctness, ", ").concat(scores.maintainer, ", ").concat(scores.pullRequest, ", ").concat(scores.pinning, ", ").concat(scores.score))];
             case 46:
                 _a.sent();
-                fs.unlinkSync('./uploads/' + req.file.originalname);
+                fs.unlinkSync('./uploads/' + req.body.Content.originalname);
                 version = "0.0.0";
                 metadata = {
                     name: repo,
@@ -333,7 +333,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
             ];
             case 51:
                 _a.sent();
-                return [4 /*yield*/, (0, s3_packages_1.upload_package)(package_id, req.file)];
+                return [4 /*yield*/, (0, s3_packages_1.upload_package)(package_id, req.body.Content)];
             case 52:
                 s3_response = _a.sent();
                 if (!(s3_response === null)) return [3 /*break*/, 55];
@@ -357,7 +357,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 response = {
                     metadata: metadata,
                     data: {
-                        content: req.file.buffer,
+                        content: req.body.Content.buffer,
                         JSProgram: "Not Implementing",
                     },
                 };

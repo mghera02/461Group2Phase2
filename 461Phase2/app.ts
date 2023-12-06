@@ -79,16 +79,16 @@ function extractRepoUrl(zipFilePath: string, packageName: string): Promise<strin
 
 
 //TODO: if RDS succeeds to upload but S3 fails, remove the corresponding RDS entry
-app.post('/package', upload.single('file'), async (req, res) => {
+app.post('/package', async (req, res) => {
   // NPM ingest
-  if(req.body.url && !req.file) {
+  if(req.body.URL && !req.body.Content) {
     try {
       await time.info("Starting time")
       await logger.info('Attempting to ingest package')
 
-      const url = req.body.url;
+      const url = req.body.URL;
 
-      await logger.info(`package url: ${req.body.url}`);
+      await logger.info(`package url: ${req.body.URL}`);
       await logger.info(`req: ${JSON.stringify(req.body)}`);
 
       const npmPackageName: string = get_npm_package_name(url);
@@ -189,24 +189,24 @@ app.post('/package', upload.single('file'), async (req, res) => {
     }
 
     // zip file
-  } else if(!req.body.url && req.file) {
+  } else if(!req.body.URL && req.body.Content) {
     try {
       await time.info("Starting time")
       await logger.info('Attempting to upload package')
 
-      if (!req.file.originalname.endsWith('.zip')) {
+      if (!req.body.Content.originalname.endsWith('.zip')) {
         await logger.error('The given file is not a zip file');
         await time.error('Error occurred at this time\n');
         return res.status(400).send('Invalid file format. Please upload a zip file.');
       }
 
       // The replace statement gets rid of .zip from the filename
-      let packageName = req.file.originalname.replace(/\.zip$/, '');
+      let packageName = req.body.Content.originalname.replace(/\.zip$/, '');
 
-      fs.writeFileSync('./uploads/' + req.file.originalname, req.file.buffer);
+      fs.writeFileSync('./uploads/' + req.body.Content.originalname, req.body.Content.buffer);
       await logger.info('Package downloaded successfully');
       
-      const repoUrl = await extractRepoUrl('./uploads/' + req.file.originalname, packageName);
+      const repoUrl = await extractRepoUrl('./uploads/' + req.body.Content.originalname, packageName);
       await logger.info(`retrieved repo url: ${repoUrl}`);
       let username: string = ""; 
       let repo: string = ""; 
@@ -221,7 +221,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
       let scores = await get_metric_info(gitDetails);
       await logger.info(`retrieved scores from score calculator: ${scores.busFactor}, ${scores.rampup}, ${scores.license}, ${scores.correctness}, ${scores.maintainer}, ${scores.pullRequest}, ${scores.pinning}, ${scores.score}`);
 
-      fs.unlinkSync('./uploads/' + req.file.originalname);
+      fs.unlinkSync('./uploads/' + req.body.Content.originalname);
 
       // Currently using the repo name as the package name, not the zip file name
       //const name = req.file.originalname.replace(/\.zip$/, '');
@@ -243,7 +243,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
       await logger.debug(`Uploaded package to rds with id: ${package_id}`)
 
       // Upload the actual package to s3
-      const s3_response = await upload_package(package_id, req.file);
+      const s3_response = await upload_package(package_id, req.body.Content);
 
       // Check to see if package data was uploaded to S3
       if (s3_response === null) {
@@ -262,7 +262,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
       let response: Package = {
         metadata: metadata,
         data: {
-          content: req.file.buffer,
+          content: req.body.Content.buffer,
           JSProgram: "Not Implementing",
         },
       }
