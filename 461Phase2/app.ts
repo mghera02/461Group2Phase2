@@ -9,6 +9,7 @@ import * as rds_configurator from './rds_config';
 import * as rds_handler from './rds_packages';
 import * as fsExtra from 'fs-extra';
 import { execSync } from 'child_process';
+import * as path from 'path';
 import {
   upload_package,
   download_package,
@@ -210,7 +211,16 @@ app.post('/package', async (req, res) => {
         await logger.error('Invalid or empty binary data received.');
       }
 
-      fs.writeFileSync('./uploads/' + packageName + '.zip', binaryData);
+      const directory = './uploads/';
+
+      if (!fs.existsSync(directory)) {
+        fs.mkdirSync(directory, { recursive: true });
+        await logger.info('Made /uploads directory');
+      }
+
+      const filePath = path.join(directory, packageName + '.zip');
+
+      fs.writeFileSync(filePath, binaryData);
       await logger.info('Package downloaded successfully');
       
       const repoUrl = await extractRepoUrl('./uploads/' + packageName, packageName);
