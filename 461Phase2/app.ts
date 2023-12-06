@@ -434,7 +434,7 @@ app.post('/package/byRegEx', async (req, res) => {
 });
 
 // Resets RDS and S3
-app.post('/reset', async (req, res) => {
+app.delete('/reset', async (req, res) => {
   try {
     await time.info("Starting time")
     await logger.info("Attempting to reset system")
