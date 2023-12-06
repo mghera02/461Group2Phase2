@@ -196,8 +196,9 @@ app.post('/package', async (req, res) => {
 
       // The replace statement gets rid of .zip from the filename
       let packageName = "testFile";
+      let packageData:Buffer = req.body.Content;
 
-      fs.writeFileSync('./uploads/' + packageName, req.body.Content);
+      fs.writeFileSync('./uploads/' + packageName, packageData);
       await logger.info('Package downloaded successfully');
       
       const repoUrl = await extractRepoUrl('./uploads/' + packageName, packageName);
@@ -256,7 +257,7 @@ app.post('/package', async (req, res) => {
       let response: Package = {
         metadata: metadata,
         data: {
-          content: req.body.Content,
+          content: String(packageData),
           JSProgram: "Not Implementing",
         },
       }
