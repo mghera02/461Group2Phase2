@@ -271,12 +271,12 @@ app.post('/package', function (req, res) { return __awaiter(void 0, void 0, void
                 _a.sent();
                 res.status(500).send('An error occurred.');
                 return [3 /*break*/, 35];
-            case 35: return [3 /*break*/, 52];
+            case 35: return [3 /*break*/, 54];
             case 36:
-                if (!(!req.body.URL && req.body.Content)) return [3 /*break*/, 51];
+                if (!(!req.body.URL && req.body.Content)) return [3 /*break*/, 53];
                 _a.label = 37;
             case 37:
-                _a.trys.push([37, 47, , 50]);
+                _a.trys.push([37, 49, , 52]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 38:
                 _a.sent();
@@ -304,31 +304,41 @@ app.post('/package', function (req, res) { return __awaiter(void 0, void 0, void
                 return [4 /*yield*/, logger_1.logger.info('Package downloaded successfully')];
             case 44:
                 _a.sent();
-                return [4 /*yield*/, extractRepoUrl('./uploads/' + packageName, packageName)];
+                // Make sure the file is completely written before proceeding
+                return [4 /*yield*/, new Promise(function (resolve) {
+                        setTimeout(resolve, 1000); // Adjust timeout if necessary to ensure the file is available
+                    })];
             case 45:
+                // Make sure the file is completely written before proceeding
+                _a.sent();
+                return [4 /*yield*/, logger_1.logger.info("Finished waiting for file to be done writing")];
+            case 46:
+                _a.sent();
+                return [4 /*yield*/, extractRepoUrl('./uploads/' + packageName, packageName)];
+            case 47:
                 repoUrl = _a.sent();
                 return [4 /*yield*/, logger_1.logger.info("retrieved repo url: ".concat(repoUrl))];
-            case 46:
+            case 48:
                 _a.sent();
                 response = "hi";
                 res.status(201).json(response);
-                return [3 /*break*/, 50];
-            case 47:
+                return [3 /*break*/, 52];
+            case 49:
                 error_2 = _a.sent();
                 return [4 /*yield*/, logger_1.logger.error('Could not upload package', error_2)];
-            case 48:
+            case 50:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
-            case 49:
+            case 51:
                 _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 50];
-            case 50: return [3 /*break*/, 52];
-            case 51:
+                return [3 /*break*/, 52];
+            case 52: return [3 /*break*/, 54];
+            case 53:
                 // Impropper request
                 res.status(400).send("There is missing field(s) in the PackageData/AuthenticationToken or it is formed improperly (e.g. Content and URL are both set), or the AuthenticationToken is invalid.");
-                _a.label = 52;
-            case 52: return [2 /*return*/];
+                _a.label = 54;
+            case 54: return [2 /*return*/];
         }
     });
 }); });
