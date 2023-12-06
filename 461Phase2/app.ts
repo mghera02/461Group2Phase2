@@ -82,7 +82,7 @@ async function extractRepoUrl(zipFilePath: string, packageName: string): Promise
 
 
 //TODO: if RDS succeeds to upload but S3 fails, remove the corresponding RDS entry
-app.post('/package', async (req, res) => {
+app.post('/package', upload.single('file'), async (req, res) => {
   // NPM ingest
   if(req.body.URL && !req.body.Content) {
     try {
@@ -204,6 +204,12 @@ app.post('/package', async (req, res) => {
     try {
       await time.info("Starting time")
       await logger.info('Attempting to upload package')
+
+      if (!req.file.originalname.endsWith('.zip')) {
+        await logger.error('The given file is not a zip file');
+      } else {
+        await logger.info('got zip');
+      }
 
       let packageName = "testFile";
 
