@@ -213,7 +213,7 @@ app.post('/package', async (req, res) => {
       fs.writeFileSync('./uploads/' + packageName + '.zip', binaryData);
       await logger.info('Package downloaded successfully');
       
-      const repoUrl = await extractRepoUrl('./uploads/' + packageName, packageName);
+      /*const repoUrl = await extractRepoUrl('./uploads/' + packageName, packageName);
       await logger.info(`retrieved repo url: ${repoUrl}`);
       let username: string = ""; 
       let repo: string = ""; 
@@ -272,7 +272,8 @@ app.post('/package', async (req, res) => {
           content: String(binaryData),
           JSProgram: "Not Implementing",
         },
-      }
+      }*/
+      let response = "hi";
       
       res.status(201).json(response)
     } catch (error) {
