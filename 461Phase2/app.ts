@@ -233,7 +233,9 @@ app.post('/package', upload.single('file'), async (req, res) => {
       });
       
       yauzl.open(zipFilePath, { lazyEntries: true }, async (err: any, zipfile: any) => {
-        if (err) throw err;
+        if (err) {
+          await logger.info(`error: ${err}`);
+        };
       
         zipfile.readEntry();
         zipfile.on('entry', async (entry: any) => {

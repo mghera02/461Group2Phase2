@@ -327,20 +327,28 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 }); });
                 yauzl.open(zipFilePath, { lazyEntries: true }, function (err, zipfile) { return __awaiter(void 0, void 0, void 0, function () {
                     return __generator(this, function (_a) {
-                        if (err)
-                            throw err;
-                        zipfile.readEntry();
-                        zipfile.on('entry', function (entry) { return __awaiter(void 0, void 0, void 0, function () {
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0: return [4 /*yield*/, logger_1.logger.info("here!")];
-                                    case 1:
-                                        _a.sent();
-                                        return [2 /*return*/];
-                                }
-                            });
-                        }); });
-                        return [2 /*return*/];
+                        switch (_a.label) {
+                            case 0:
+                                if (!err) return [3 /*break*/, 2];
+                                return [4 /*yield*/, logger_1.logger.info("error: ".concat(err))];
+                            case 1:
+                                _a.sent();
+                                _a.label = 2;
+                            case 2:
+                                ;
+                                zipfile.readEntry();
+                                zipfile.on('entry', function (entry) { return __awaiter(void 0, void 0, void 0, function () {
+                                    return __generator(this, function (_a) {
+                                        switch (_a.label) {
+                                            case 0: return [4 /*yield*/, logger_1.logger.info("here!")];
+                                            case 1:
+                                                _a.sent();
+                                                return [2 /*return*/];
+                                        }
+                                    });
+                                }); });
+                                return [2 /*return*/];
+                        }
                     });
                 }); });
                 response = "hi";
