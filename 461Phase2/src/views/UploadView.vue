@@ -59,15 +59,15 @@
                             }
                         });
                         console.log("File uploaded successfully.", response.data);
-                        this.uploadStatus = "File uploaded successfully"
+                        return "File uploaded successfully"
                     } catch (error) {
                         console.error("Error uploading the file.", error);
-                        this.uploadStatus = `Error uploading the file ${error}`;
+                        return `Error uploading the file ${error}`;
                     }
                 };
 
                 // Read file as data URL (base64)
-                reader.readAsDataURL(selectedFile);
+                this.uploadStatus = reader.readAsDataURL(selectedFile);
             },
             async npmIngest() {
                 console.log("url: ", this.npmUrl);

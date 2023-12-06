@@ -109,7 +109,7 @@ function extractRepoUrl(zipFilePath, packageName) {
 }
 //TODO: if RDS succeeds to upload but S3 fails, remove the corresponding RDS entry
 app.post('/package', upload.single('file'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, username, repo, gitInfo, gitDetails, scores, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, response, error_1, packageName, binaryData, uploadDir, timestamp, zipFilePath_1, writeStream_1, response, error_2;
+    var url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, username, repo, gitInfo, gitDetails, scores, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, response, error_1, packageName_1, binaryData, uploadDir, timestamp, zipFilePath_1, writeStream_1, response, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -283,7 +283,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 return [4 /*yield*/, logger_1.logger.info('Attempting to upload package')];
             case 39:
                 _a.sent();
-                packageName = "testFile";
+                packageName_1 = "testFile";
                 binaryData = Buffer.from(req.body.Content, 'base64');
                 return [4 /*yield*/, logger_1.logger.info("Got buffer/binary data")];
             case 40:
@@ -307,6 +307,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 _a.sent();
                 writeStream_1 = fs.createWriteStream(zipFilePath_1);
                 writeStream_1.write(binaryData, function (err) { return __awaiter(void 0, void 0, void 0, function () {
+                    var repoUrl;
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
@@ -314,38 +315,18 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                                 return [4 /*yield*/, logger_1.logger.info("failed to save zip file")];
                             case 1:
                                 _a.sent();
-                                return [3 /*break*/, 4];
+                                return [3 /*break*/, 6];
                             case 2: return [4 /*yield*/, logger_1.logger.info("zip file saved successfully")];
                             case 3:
                                 _a.sent();
-                                // Open the zip file and read its entries here, after it's fully written
-                                yauzl.open(zipFilePath_1, { lazyEntries: true }, function (err, zipfile) { return __awaiter(void 0, void 0, void 0, function () {
-                                    return __generator(this, function (_a) {
-                                        switch (_a.label) {
-                                            case 0:
-                                                if (!err) return [3 /*break*/, 2];
-                                                return [4 /*yield*/, logger_1.logger.info("error: ".concat(err))];
-                                            case 1:
-                                                _a.sent();
-                                                _a.label = 2;
-                                            case 2:
-                                                zipfile.readEntry();
-                                                zipfile.on('entry', function (entry) { return __awaiter(void 0, void 0, void 0, function () {
-                                                    return __generator(this, function (_a) {
-                                                        switch (_a.label) {
-                                                            case 0: return [4 /*yield*/, logger_1.logger.info("here!")];
-                                                            case 1:
-                                                                _a.sent();
-                                                                return [2 /*return*/];
-                                                        }
-                                                    });
-                                                }); });
-                                                return [2 /*return*/];
-                                        }
-                                    });
-                                }); });
-                                _a.label = 4;
+                                return [4 /*yield*/, extractRepoUrl(zipFilePath_1, packageName_1)];
                             case 4:
+                                repoUrl = _a.sent();
+                                return [4 /*yield*/, logger_1.logger.info("retrieved repo url: ".concat(repoUrl))];
+                            case 5:
+                                _a.sent();
+                                _a.label = 6;
+                            case 6:
                                 writeStream_1.end();
                                 return [2 /*return*/];
                         }
