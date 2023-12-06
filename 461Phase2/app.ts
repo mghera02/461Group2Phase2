@@ -96,6 +96,7 @@ app.post('/package', async (req, res) => {
         const repositoryName = parts[parts.length - 1];
         // Constructing the npm package URL
         url = `https://www.npmjs.com/package/${repositoryName}`;
+        await logger.info(`constructed npm package url: ${url}`);
       }
 
       const npmPackageName: string = get_npm_package_name(url);

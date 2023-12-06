@@ -579,6 +579,8 @@ async function check_npm_for_open_source(filePath: string): Promise<string> {
                     gitUrl = gitUrl.replace('git+ssh://git@', 'https://');
                 } else if (gitUrl.startsWith('git+https://')) {
                     gitUrl = gitUrl.replace('git+https://', 'https://');
+                } else if (gitUrl.startsWith('git')) {
+                    gitUrl = gitUrl.replace('git', 'https');
                 }
 
                 if (gitUrl.endsWith('.git')) { 

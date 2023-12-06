@@ -799,6 +799,9 @@ function check_npm_for_open_source(filePath) {
                                     else if (gitUrl.startsWith('git+https://')) {
                                         gitUrl = gitUrl.replace('git+https://', 'https://');
                                     }
+                                    else if (gitUrl.startsWith('git')) {
+                                        gitUrl = gitUrl.replace('git', 'https');
+                                    }
                                     if (gitUrl.endsWith('.git')) {
                                         gitUrl = gitUrl.substring(0, gitUrl.length - 4);
                                     }
