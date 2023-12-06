@@ -449,7 +449,7 @@ app.delete('/reset', async (req, res) => {
   } catch (error) {
     await logger.error('Error resetting system:', error);
     await time.error('Error occurred at this time\n')
-    res.status(500).send('An error occurred while resetting the registry.');
+    res.status(500).send('An error occurred while resetting the registry');
   }
 });
 
