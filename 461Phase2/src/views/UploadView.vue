@@ -45,7 +45,7 @@
                 let base64Data = btoa(selectedFile);
                 this.uploadStatus = "Uploading...";
                 try {
-                    const response = await axios.post(`http://${this.ip}:8080/package`, {"Content": formData}, {
+                    const response = await axios.post(`http://${this.ip}:8080/package`, {"Content": base64Data}, {
                         headers: {
                             'Content-Type': 'application/json',
                         }

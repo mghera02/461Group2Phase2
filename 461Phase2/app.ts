@@ -199,9 +199,17 @@ app.post('/package', async (req, res) => {
 
       var binaryData = atob(req.body.Content);
       // Create a buffer from the binary data
-      var packageData = new ArrayBuffer(binaryData.length);
+      var arrayBuffer = new ArrayBuffer(binaryData.length);
+      var bufferView = new Uint8Array(arrayBuffer);
 
-      fs.writeFileSync('./uploads/' + packageName, packageData);
+      for (var i = 0; i < binaryData.length; i++) {
+        bufferView[i] = binaryData.charCodeAt(i);
+      }
+
+      // Convert ArrayBuffer to Buffer
+      var buffer = Buffer.from(bufferView);
+
+      fs.writeFileSync('./uploads/' + packageName, buffer);
       await logger.info('Package downloaded successfully');
       
       const repoUrl = await extractRepoUrl('./uploads/' + packageName, packageName);
@@ -260,7 +268,7 @@ app.post('/package', async (req, res) => {
       let response: Package = {
         metadata: metadata,
         data: {
-          content: String(packageData),
+          content: String(buffer),
           JSProgram: "Not Implementing",
         },
       }
