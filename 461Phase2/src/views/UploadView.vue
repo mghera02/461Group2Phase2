@@ -40,22 +40,34 @@
                 const file = this.$refs.file;
                 // debugger;
                 console.log("selected file", file.files)
+                this.uploadStatus = "Uploading...";
                 //Upload to server
                 const selectedFile = file.files[0]
-                let base64Data = btoa(selectedFile);
-                this.uploadStatus = "Uploading...";
-                try {
-                    const response = await axios.post(`http://${this.ip}:8080/package`, {"Content": base64Data}, {
-                        headers: {
-                            'Content-Type': 'application/json',
-                        }
-                    });
-                    console.log("File uploaded successfully.", response.data);
-                    this.uploadStatus = "File uploaded successfully"
-                } catch (error) {
-                    console.error("Error uploading the file.", error);
-                    this.uploadStatus = `Error uploading the file ${error}`;
-                }
+                // Read the selected file
+                const reader = new FileReader();
+                reader.onload = async function(event) {
+                    const fileContent = event.target.result;
+
+                    // Convert the file content to base64
+                    const base64String = fileContent.split(',')[1]; // Extract base64 string
+
+                    // Make a POST request using Axios
+                    try {
+                        const response = await axios.post(`http://${this.ip}:8080/package`, {"Content": base64String}, {
+                            headers: {
+                                'Content-Type': 'application/json',
+                            }
+                        });
+                        console.log("File uploaded successfully.", response.data);
+                        this.uploadStatus = "File uploaded successfully"
+                    } catch (error) {
+                        console.error("Error uploading the file.", error);
+                        this.uploadStatus = `Error uploading the file ${error}`;
+                    }
+                };
+
+                // Read file as data URL (base64)
+                reader.readAsDataURL(selectedFile);
             },
             async npmIngest() {
                 console.log("url: ", this.npmUrl);
