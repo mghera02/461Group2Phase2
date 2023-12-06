@@ -296,12 +296,12 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 _a.sent();
                 res.status(500).send('An error occurred.');
                 return [3 /*break*/, 35];
-            case 35: return [3 /*break*/, 48];
+            case 35: return [3 /*break*/, 54];
             case 36:
-                if (!(!req.body.URL && req.body.Content)) return [3 /*break*/, 47];
+                if (!(!req.body.URL && req.body.Content)) return [3 /*break*/, 53];
                 _a.label = 37;
             case 37:
-                _a.trys.push([37, 43, , 46]);
+                _a.trys.push([37, 49, , 52]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 38:
                 _a.sent();
@@ -310,43 +310,56 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 _a.sent();
                 packageName = "testFile";
                 binaryData = Buffer.from(req.body.Content, 'base64');
+                return [4 /*yield*/, logger_1.logger.info("Got buffer/binary data")];
+            case 40:
+                _a.sent();
                 uploadDir = './uploads';
-                // Create the uploads directory if it doesn't exist
-                if (!fs.existsSync(uploadDir)) {
-                    fs.mkdirSync(uploadDir);
-                }
+                if (!!fs.existsSync(uploadDir)) return [3 /*break*/, 42];
+                fs.mkdirSync(uploadDir);
+                return [4 /*yield*/, logger_1.logger.info("created upload directory")];
+            case 41:
+                _a.sent();
+                return [3 /*break*/, 44];
+            case 42: return [4 /*yield*/, logger_1.logger.info("upload directory exists already, no need to make it")];
+            case 43:
+                _a.sent();
+                _a.label = 44;
+            case 44:
                 timestamp = Date.now();
                 zipFilePath = path.join(uploadDir, "file_".concat(timestamp, ".zip"));
+                return [4 /*yield*/, logger_1.logger.info("Got zip file path: ".concat(zipFilePath))];
+            case 45:
+                _a.sent();
                 // Write the decoded zip data to a file
                 fs.writeFile(zipFilePath, binaryData);
                 return [4 /*yield*/, logger_1.logger.info('Package downloaded successfully')];
-            case 40:
+            case 46:
                 _a.sent();
                 return [4 /*yield*/, extractRepoUrl(zipFilePath, packageName)];
-            case 41:
+            case 47:
                 repoUrl = _a.sent();
                 return [4 /*yield*/, logger_1.logger.info("retrieved repo url: ".concat(repoUrl))];
-            case 42:
+            case 48:
                 _a.sent();
                 response = "hi";
                 res.status(201).json(response);
-                return [3 /*break*/, 46];
-            case 43:
+                return [3 /*break*/, 52];
+            case 49:
                 error_2 = _a.sent();
                 return [4 /*yield*/, logger_1.logger.error('Could not upload package', error_2)];
-            case 44:
+            case 50:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
-            case 45:
+            case 51:
                 _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 46];
-            case 46: return [3 /*break*/, 48];
-            case 47:
+                return [3 /*break*/, 52];
+            case 52: return [3 /*break*/, 54];
+            case 53:
                 // Impropper request
                 res.status(400).send("There is missing field(s) in the PackageData/AuthenticationToken or it is formed improperly (e.g. Content and URL are both set), or the AuthenticationToken is invalid.");
-                _a.label = 48;
-            case 48: return [2 /*return*/];
+                _a.label = 54;
+            case 54: return [2 /*return*/];
         }
     });
 }); });

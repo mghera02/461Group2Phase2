@@ -208,15 +208,20 @@ app.post('/package', upload.single('file'), async (req, res) => {
       let packageName = "testFile";
 
       const binaryData = Buffer.from(req.body.Content, 'base64');
+      await logger.info(`Got buffer/binary data`);
       const uploadDir = './uploads';
 
       // Create the uploads directory if it doesn't exist
       if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir);
+        await logger.info(`created upload directory`);
+      } else {
+        await logger.info(`upload directory exists already, no need to make it`);
       }
 
       const timestamp = Date.now(); // Use a timestamp to create a unique file name
       const zipFilePath = path.join(uploadDir, `file_${timestamp}.zip`);
+      await logger.info(`Got zip file path: ${zipFilePath}`);
 
       // Write the decoded zip data to a file
       fs.writeFile(zipFilePath, binaryData)
