@@ -53,7 +53,7 @@
 
                     // Make a POST request using Axios
                     try {
-                        const response = await axios.post(`http://${this.ip}:8080/package`, {"Content": base64String}, {
+                        const response = await axios.post(`http://3.139.57.32:8080/package`, {"Content": base64String}, {
                             headers: {
                                 'Content-Type': 'application/json',
                             }
