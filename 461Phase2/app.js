@@ -113,7 +113,7 @@ function extractRepoUrl(zipFilePath, packageName) {
 }
 //TODO: if RDS succeeds to upload but S3 fails, remove the corresponding RDS entry
 app.post('/package', upload.single('file'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, username, repo, gitInfo, gitDetails, scores, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, response, error_1, packageName_1, binaryData, uploadDir, timestamp, zipFilePath_1, writeStream_1, response, error_2;
+    var url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, username, repo, gitInfo, gitDetails, scores, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, response, error_1, packageName_1, binaryData_1, uploadDir, timestamp, zipFilePath_1, writeStream_1, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -288,7 +288,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
             case 39:
                 _a.sent();
                 packageName_1 = "testFile";
-                binaryData = Buffer.from(req.body.Content, 'base64');
+                binaryData_1 = Buffer.from(req.body.Content, 'base64');
                 return [4 /*yield*/, logger_1.logger.info("Got buffer/binary data")];
             case 40:
                 _a.sent();
@@ -310,8 +310,8 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
             case 45:
                 _a.sent();
                 writeStream_1 = fs.createWriteStream(zipFilePath_1);
-                writeStream_1.write(binaryData, function (err) { return __awaiter(void 0, void 0, void 0, function () {
-                    var repoUrl;
+                writeStream_1.write(binaryData_1, function (err) { return __awaiter(void 0, void 0, void 0, function () {
+                    var repoUrl, username, repo, regex, matches, gitDetails, scores, version, metadata, package_id, s3_response, response;
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
@@ -319,7 +319,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                                 return [4 /*yield*/, logger_1.logger.info("failed to save zip file")];
                             case 1:
                                 _a.sent();
-                                return [3 /*break*/, 6];
+                                return [3 /*break*/, 20];
                             case 2: return [4 /*yield*/, logger_1.logger.info("zip file saved successfully")];
                             case 3:
                                 _a.sent();
@@ -329,15 +329,83 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                                 return [4 /*yield*/, logger_1.logger.info("retrieved repo url: ".concat(repoUrl))];
                             case 5:
                                 _a.sent();
-                                _a.label = 6;
+                                username = "";
+                                repo = "";
+                                regex = /https:\/\/github\.com\/(\w+)\/(\w+)\.git/;
+                                matches = repoUrl.match(regex);
+                                if (matches) {
+                                    username = matches[1];
+                                    repo = matches[2];
+                                }
+                                return [4 /*yield*/, logger_1.logger.info("username and repo found successfully: ".concat(username, ", ").concat(repo))];
                             case 6:
+                                _a.sent();
+                                gitDetails = [{ username: username, repo: repo }];
+                                return [4 /*yield*/, (0, metrics_1.get_metric_info)(gitDetails)];
+                            case 7:
+                                scores = _a.sent();
+                                return [4 /*yield*/, logger_1.logger.info("retrieved scores from score calculator: ".concat(scores.busFactor, ", ").concat(scores.rampup, ", ").concat(scores.license, ", ").concat(scores.correctness, ", ").concat(scores.maintainer, ", ").concat(scores.pullRequest, ", ").concat(scores.pinning, ", ").concat(scores.score))];
+                            case 8:
+                                _a.sent();
+                                fs.unlinkSync('./uploads/' + packageName_1);
+                                version = "0.0.0";
+                                metadata = {
+                                    name: repo,
+                                    version: version,
+                                    ID: (0, package_objs_1.generate_id)(repo, version),
+                                };
+                                return [4 /*yield*/, rds_handler.add_rds_package_data(metadata, scores)];
+                            case 9:
+                                package_id = _a.sent();
+                                if (!(package_id === null)) return [3 /*break*/, 12];
+                                return [4 /*yield*/, logger_1.logger.error("Could not upload package data to RDS")];
+                            case 10:
+                                _a.sent();
+                                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                            case 11:
+                                _a.sent();
+                                return [2 /*return*/, res.status(409).send('Package exists already.')];
+                            case 12: return [4 /*yield*/, logger_1.logger.debug("Uploaded package to rds with id: ".concat(package_id))
+                                // Upload the actual package to s3
+                            ];
+                            case 13:
+                                _a.sent();
+                                return [4 /*yield*/, (0, s3_packages_1.upload_package)(package_id, repo)];
+                            case 14:
+                                s3_response = _a.sent();
+                                if (!(s3_response === null)) return [3 /*break*/, 17];
+                                return [4 /*yield*/, logger_1.logger.error("Error uploading package to S3")];
+                            case 15:
+                                _a.sent();
+                                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                            case 16:
+                                _a.sent();
+                                return [2 /*return*/, res.status(400).send('Could not add package data')];
+                            case 17: return [4 /*yield*/, logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id))];
+                            case 18:
+                                _a.sent();
+                                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")
+                                    // Original response
+                                    //let response = {"metadata": {"Name": repo, "Version": "Not Implementing", "ID": package_id}, "data": {"Content": req.file.buffer, "JSProgram": "Not Implementing"}};
+                                    //New response
+                                ];
+                            case 19:
+                                _a.sent();
+                                response = {
+                                    metadata: metadata,
+                                    data: {
+                                        content: String(binaryData_1),
+                                        JSProgram: "Not Implementing",
+                                    },
+                                };
+                                res.status(201).json(response);
+                                _a.label = 20;
+                            case 20:
                                 writeStream_1.end();
                                 return [2 /*return*/];
                         }
                     });
                 }); });
-                response = "hi";
-                res.status(201).json(response);
                 return [3 /*break*/, 49];
             case 46:
                 error_2 = _a.sent();

@@ -242,72 +242,69 @@ app.post('/package', upload.single('file'), async (req, res) => {
           });*/
           const repoUrl = await extractRepoUrl(zipFilePath, packageName);
           await logger.info(`retrieved repo url: ${repoUrl}`);
+          let username: string = ""; 
+          let repo: string = ""; 
+          const regex = /https:\/\/github\.com\/(\w+)\/(\w+)\.git/;
+          const matches = repoUrl.match(regex);
+          if (matches) {
+            username = matches[1]; 
+            repo = matches[2]; 
+          }
+          await logger.info(`username and repo found successfully: ${username}, ${repo}`);
+          let gitDetails = [{username: username, repo: repo}];
+          let scores = await get_metric_info(gitDetails);
+          await logger.info(`retrieved scores from score calculator: ${scores.busFactor}, ${scores.rampup}, ${scores.license}, ${scores.correctness}, ${scores.maintainer}, ${scores.pullRequest}, ${scores.pinning}, ${scores.score}`);
+
+          fs.unlinkSync(zipFilePath);
+
+          // Currently using the repo name as the package name, not the zip file name
+          //const name = req.file.originalname.replace(/\.zip$/, '');
+          const version = "0.0.0"
+          const metadata: PackageMetadata = {
+            name: repo,
+            version: version,
+            ID: generate_id(repo, version),
+          }
+
+          const package_id = await rds_handler.add_rds_package_data(metadata, scores);
+
+          // Check to see if package metadata was upladed to RDS
+          if (package_id === null) { //  happens when package exists already
+            await logger.error("Could not upload package data to RDS")
+            await time.error('Error occurred at this time\n');
+            return res.status(409).send('Package exists already.');
+          }
+          await logger.debug(`Uploaded package to rds with id: ${package_id}`)
+
+          // Upload the actual package to s3
+          const s3_response = await upload_package(package_id, repo);
+
+          // Check to see if package data was uploaded to S3
+          if (s3_response === null) {
+            await logger.error("Error uploading package to S3")
+            await time.error('Error occurred at this time\n');
+            return res.status(400).send('Could not add package data');
+          }
+
+          await logger.info(`Successfully uploaded package with id: ${package_id}`)
+          await time.info("Finished at this time\n")
+
+          // Original response
+          //let response = {"metadata": {"Name": repo, "Version": "Not Implementing", "ID": package_id}, "data": {"Content": req.file.buffer, "JSProgram": "Not Implementing"}};
+          
+          //New response
+          let response: Package = {
+            metadata: metadata,
+            data: {
+              content: String(binaryData),
+              JSProgram: "Not Implementing",
+            },
+          }
+
+          res.status(201).json(response)
         }
         writeStream.end();
       });
-      
-
-      /*let username: string = ""; 
-      let repo: string = ""; 
-      const regex = /https:\/\/github\.com\/(\w+)\/(\w+)\.git/;
-      const matches = repoUrl.match(regex);
-      if (matches) {
-        username = matches[1]; 
-        repo = matches[2]; 
-      }
-      await logger.info(`username and repo found successfully: ${username}, ${repo}`);
-      let gitDetails = [{username: username, repo: repo}];
-      let scores = await get_metric_info(gitDetails);
-      await logger.info(`retrieved scores from score calculator: ${scores.busFactor}, ${scores.rampup}, ${scores.license}, ${scores.correctness}, ${scores.maintainer}, ${scores.pullRequest}, ${scores.pinning}, ${scores.score}`);
-
-      fs.unlinkSync('./uploads/' + packageName);
-
-      // Currently using the repo name as the package name, not the zip file name
-      //const name = req.file.originalname.replace(/\.zip$/, '');
-      const version = "0.0.0"
-      const metadata: PackageMetadata = {
-        name: repo,
-        version: version,
-        ID: generate_id(repo, version),
-      }
-
-      const package_id = await rds_handler.add_rds_package_data(metadata, scores);
-
-      // Check to see if package metadata was upladed to RDS
-      if (package_id === null) { //  happens when package exists already
-        await logger.error("Could not upload package data to RDS")
-        await time.error('Error occurred at this time\n');
-        return res.status(409).send('Package exists already.');
-      }
-      await logger.debug(`Uploaded package to rds with id: ${package_id}`)
-
-      // Upload the actual package to s3
-      const s3_response = await upload_package(package_id, repo);
-
-      // Check to see if package data was uploaded to S3
-      if (s3_response === null) {
-        await logger.error("Error uploading package to S3")
-        await time.error('Error occurred at this time\n');
-        return res.status(400).send('Could not add package data');
-      }
-
-      await logger.info(`Successfully uploaded package with id: ${package_id}`)
-      await time.info("Finished at this time\n")
-
-      // Original response
-      //let response = {"metadata": {"Name": repo, "Version": "Not Implementing", "ID": package_id}, "data": {"Content": req.file.buffer, "JSProgram": "Not Implementing"}};
-      
-      //New response
-      let response: Package = {
-        metadata: metadata,
-        data: {
-          content: String(binaryData),
-          JSProgram: "Not Implementing",
-        },
-      }*/
-      let response = "hi";
-      
-      res.status(201).json(response)
     } catch (error) {
       await logger.error('Could not upload package', error);
       await time.error('Error occurred at this time\n')
