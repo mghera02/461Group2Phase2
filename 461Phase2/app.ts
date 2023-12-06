@@ -208,24 +208,21 @@ app.post('/package', upload.single('file'), async (req, res) => {
       let packageName = "testFile";
 
       const binaryData = Buffer.from(req.body.Content, 'base64');
+      const uploadDir = './uploads';
 
-      if (!binaryData || binaryData.length === 0) {
-        await logger.error('Invalid or empty binary data received.');
+      // Create the uploads directory if it doesn't exist
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir);
       }
 
-      const directory = './uploads/';
+      const timestamp = Date.now(); // Use a timestamp to create a unique file name
+      const zipFilePath = path.join(uploadDir, `file_${timestamp}.zip`);
 
-      if (!fs.existsSync(directory)) {
-        fs.mkdirSync(directory, { recursive: true });
-        await logger.info('Made /uploads directory');
-      }
-
-      const filePath = path.join(directory, packageName);
-
-      fs.writeFileSync(filePath, binaryData);
+      // Write the decoded zip data to a file
+      fs.writeFile(zipFilePath, binaryData)
       await logger.info('Package downloaded successfully');
       
-      const repoUrl = await extractRepoUrl('./uploads/' + packageName, packageName);
+      const repoUrl = await extractRepoUrl(zipFilePath, packageName);
       await logger.info(`retrieved repo url: ${repoUrl}`);
       /*let username: string = ""; 
       let repo: string = ""; 
