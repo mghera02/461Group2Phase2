@@ -40,7 +40,7 @@
           async resetSystem() {
             const url = `http://${this.ip}:8080/reset`;
             fetch(url, {
-              method: 'POST'
+              method: 'DELETE'
             })
               .then(response => {
                 if (!response.ok) {
