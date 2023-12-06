@@ -134,7 +134,7 @@ function extractRepoUrl(zipFilePath, packageName) {
 }
 //TODO: if RDS succeeds to upload but S3 fails, remove the corresponding RDS entry
 app.post('/package', upload.single('file'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, username, repo, gitInfo, gitDetails, scores, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, response, error_1, packageName, binaryData, uploadDir, timestamp, zipFilePath, repoUrl, response, error_2;
+    var url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, username, repo, gitInfo, gitDetails, scores, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, response, error_1, packageName, binaryData, uploadDir, timestamp, zipFilePath, writeStream, repoUrl, response, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -330,8 +330,9 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 return [4 /*yield*/, logger_1.logger.info("Got zip file path: ".concat(zipFilePath))];
             case 45:
                 _a.sent();
-                // Write the decoded zip data to a file
-                fs.writeFile(zipFilePath, binaryData);
+                writeStream = fs.createWriteStream(zipFilePath);
+                writeStream.write(binaryData);
+                writeStream.end();
                 return [4 /*yield*/, logger_1.logger.info('Package downloaded successfully')];
             case 46:
                 _a.sent();

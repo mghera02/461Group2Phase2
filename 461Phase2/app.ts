@@ -223,8 +223,10 @@ app.post('/package', upload.single('file'), async (req, res) => {
       const zipFilePath = path.join(uploadDir, `file_${timestamp}.zip`);
       await logger.info(`Got zip file path: ${zipFilePath}`);
 
-      // Write the decoded zip data to a file
-      fs.writeFile(zipFilePath, binaryData)
+      // Create a writable stream to save the zip data
+      const writeStream = fs.createWriteStream(zipFilePath);
+      writeStream.write(binaryData)
+      writeStream.end();
       await logger.info('Package downloaded successfully');
       
       const repoUrl = await extractRepoUrl(zipFilePath, packageName);
