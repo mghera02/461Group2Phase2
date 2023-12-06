@@ -205,12 +205,6 @@ app.post('/package', upload.single('file'), async (req, res) => {
       await time.info("Starting time")
       await logger.info('Attempting to upload package')
 
-      if (!req.file.originalname.endsWith('.zip')) {
-        await logger.error('The given file is not a zip file');
-      } else {
-        await logger.info('got zip');
-      }
-
       let packageName = "testFile";
 
       const binaryData = Buffer.from(req.body.Content, 'base64');
