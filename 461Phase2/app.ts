@@ -31,7 +31,7 @@ app.use(cors());
 app.use(express.json());
 
 function extractRepoUrl(zipFilePath: string, packageName: string): Promise<string> {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     yauzl.open(zipFilePath, { lazyEntries: true }, (err: Error | null, zipfile: any | null) => {
       if (err || !zipfile) {
         reject(err || new Error('Unable to open zip file'));
@@ -39,6 +39,7 @@ function extractRepoUrl(zipFilePath: string, packageName: string): Promise<strin
       }
 
       zipfile.on('entry', async (entry: any) => {
+        await logger.info(`entry.fileName: ${entry.fileName}`);
         if (entry.fileName === `${packageName}/package.json`) {
           zipfile.openReadStream(entry, (err: Error | null, readStream: NodeJS.ReadableStream | null) => {
             if (err || !readStream) {
@@ -230,7 +231,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
           await logger.info(`zip file saved successfully`);
           
           // Open the zip file and read its entries here, after it's fully written
-          yauzl.open(zipFilePath, { lazyEntries: true }, async (err: any, zipfile: any) => {
+          /*yauzl.open(zipFilePath, { lazyEntries: true }, async (err: any, zipfile: any) => {
             if (err) {
               await logger.info(`error: ${err}`);
             }
@@ -239,14 +240,14 @@ app.post('/package', upload.single('file'), async (req, res) => {
             zipfile.on('entry', async (entry: any) => {
               await logger.info(`here!`);
             });
-          });
+          });*/
+          const repoUrl = await extractRepoUrl(zipFilePath, packageName);
+          await logger.info(`retrieved repo url: ${repoUrl}`);
         }
         writeStream.end();
       });
       
 
-      //const repoUrl = await extractRepoUrl(zipFilePath, packageName);
-      //await logger.info(`retrieved repo url: ${repoUrl}`);
       /*let username: string = ""; 
       let repo: string = ""; 
       const regex = /https:\/\/github\.com\/(\w+)\/(\w+)\.git/;

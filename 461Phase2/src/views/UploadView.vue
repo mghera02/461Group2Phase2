@@ -59,8 +59,10 @@
                             }
                         });
                         console.log("File uploaded successfully.", response.data);
+                        this.uploadStatus = "File uploaded successfully.";
                     } catch (error) {
                         console.error("Error uploading the file.", error);
+                        this.uploadStatus = `Error uploading the file, ${error}`;
                     }
                 };
 
