@@ -311,7 +311,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 _a.sent();
                 writeStream_1 = fs.createWriteStream(zipFilePath_1);
                 writeStream_1.write(binaryData_1, function (err) { return __awaiter(void 0, void 0, void 0, function () {
-                    var repoUrl, username, repo, regex, matches, gitDetails, scores, version, metadata, package_id, s3_response, response;
+                    var repoUrl, username, repo, regex, matches, gitDetails, scores, version, metadata, package_id, file, s3_response, response;
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
@@ -370,7 +370,8 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                             ];
                             case 13:
                                 _a.sent();
-                                return [4 /*yield*/, (0, s3_packages_1.upload_package)(package_id, repo)];
+                                file = { buffer: binaryData_1 };
+                                return [4 /*yield*/, (0, s3_packages_1.upload_package)(package_id, file)];
                             case 14:
                                 s3_response = _a.sent();
                                 if (!(s3_response === null)) return [3 /*break*/, 17];
