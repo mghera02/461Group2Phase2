@@ -108,7 +108,7 @@ function extractRepoUrl(zipFilePath, packageName) {
 }
 //TODO: if RDS succeeds to upload but S3 fails, remove the corresponding RDS entry
 app.post('/package', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, username, repo, gitInfo, gitDetails, scores, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, response, error_1, packageName, binaryData, response, error_2;
+    var url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, username, repo, gitInfo, gitDetails, scores, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, response, error_1, packageName, binaryData, repoUrl, response, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -270,12 +270,12 @@ app.post('/package', function (req, res) { return __awaiter(void 0, void 0, void
                 _a.sent();
                 res.status(500).send('An error occurred.');
                 return [3 /*break*/, 35];
-            case 35: return [3 /*break*/, 48];
+            case 35: return [3 /*break*/, 50];
             case 36:
-                if (!(!req.body.URL && req.body.Content)) return [3 /*break*/, 47];
+                if (!(!req.body.URL && req.body.Content)) return [3 /*break*/, 49];
                 _a.label = 37;
             case 37:
-                _a.trys.push([37, 43, , 46]);
+                _a.trys.push([37, 45, , 48]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 38:
                 _a.sent();
@@ -294,25 +294,31 @@ app.post('/package', function (req, res) { return __awaiter(void 0, void 0, void
                 return [4 /*yield*/, logger_1.logger.info('Package downloaded successfully')];
             case 42:
                 _a.sent();
-                response = "hi";
-                res.status(201).json(response);
-                return [3 /*break*/, 46];
+                return [4 /*yield*/, extractRepoUrl('./uploads/' + packageName, packageName)];
             case 43:
-                error_2 = _a.sent();
-                return [4 /*yield*/, logger_1.logger.error('Could not upload package', error_2)];
+                repoUrl = _a.sent();
+                return [4 /*yield*/, logger_1.logger.info("retrieved repo url: ".concat(repoUrl))];
             case 44:
                 _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                response = "hi";
+                res.status(201).json(response);
+                return [3 /*break*/, 48];
             case 45:
+                error_2 = _a.sent();
+                return [4 /*yield*/, logger_1.logger.error('Could not upload package', error_2)];
+            case 46:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 47:
                 _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 46];
-            case 46: return [3 /*break*/, 48];
-            case 47:
+                return [3 /*break*/, 48];
+            case 48: return [3 /*break*/, 50];
+            case 49:
                 // Impropper request
                 res.status(400).send("There is missing field(s) in the PackageData/AuthenticationToken or it is formed improperly (e.g. Content and URL are both set), or the AuthenticationToken is invalid.");
-                _a.label = 48;
-            case 48: return [2 /*return*/];
+                _a.label = 50;
+            case 50: return [2 /*return*/];
         }
     });
 }); });
