@@ -647,7 +647,7 @@ app.post('/package/byRegEx', function (req, res) { return __awaiter(void 0, void
     });
 }); });
 // Resets RDS and S3
-app.post('/reset', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+app.delete('/reset', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var error_7;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -674,7 +674,7 @@ app.post('/reset', function (req, res) { return __awaiter(void 0, void 0, void 0
                 return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
             case 7:
                 _a.sent();
-                res.status(200).send('Successfully reset system to original state');
+                res.status(200).send('Registry is reset.');
                 return [3 /*break*/, 11];
             case 8:
                 error_7 = _a.sent();
@@ -684,7 +684,7 @@ app.post('/reset', function (req, res) { return __awaiter(void 0, void 0, void 0
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 10:
                 _a.sent();
-                res.status(500).send('An error occurred while resetting the registry.');
+                res.status(500).send('An error occurred while resetting the registry');
                 return [3 /*break*/, 11];
             case 11: return [2 /*return*/];
         }
