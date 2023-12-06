@@ -314,7 +314,7 @@ app.post('/package', function (req, res) { return __awaiter(void 0, void 0, void
                 return [4 /*yield*/, logger_1.logger.info("Finished waiting for file to be done writing")];
             case 46:
                 _a.sent();
-                return [4 /*yield*/, extractRepoUrl('./uploads/' + packageName, packageName)];
+                return [4 /*yield*/, extractRepoUrl('./uploads/' + packageName + '.zip', packageName)];
             case 47:
                 repoUrl = _a.sent();
                 return [4 /*yield*/, logger_1.logger.info("retrieved repo url: ".concat(repoUrl))];

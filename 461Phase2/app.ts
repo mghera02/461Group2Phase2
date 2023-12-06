@@ -229,7 +229,7 @@ app.post('/package', async (req, res) => {
       });
       await logger.info(`Finished waiting for file to be done writing`);
       
-      const repoUrl = await extractRepoUrl('./uploads/' + packageName, packageName);
+      const repoUrl = await extractRepoUrl('./uploads/' + packageName + '.zip', packageName);
       await logger.info(`retrieved repo url: ${repoUrl}`);
       /*let username: string = ""; 
       let repo: string = ""; 
