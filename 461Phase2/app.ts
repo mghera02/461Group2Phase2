@@ -445,7 +445,7 @@ app.delete('/reset', async (req, res) => {
 
     await logger.info('Successfully cleared Databses and reset to original state');
     await time.info("Finished at this time\n")
-    res.status(200).send('Successfully reset system to original state');
+    res.status(200).send('Registry is reset.');
   } catch (error) {
     await logger.error('Error resetting system:', error);
     await time.error('Error occurred at this time\n')
