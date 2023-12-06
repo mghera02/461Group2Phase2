@@ -270,31 +270,35 @@ app.post('/package', function (req, res) { return __awaiter(void 0, void 0, void
                 _a.sent();
                 res.status(500).send('An error occurred.');
                 return [3 /*break*/, 35];
-            case 35: return [3 /*break*/, 62];
+            case 35: return [3 /*break*/, 64];
             case 36:
-                if (!(!req.body.URL && req.body.Content)) return [3 /*break*/, 61];
+                if (!(!req.body.URL && req.body.Content)) return [3 /*break*/, 63];
                 _a.label = 37;
             case 37:
-                _a.trys.push([37, 57, , 60]);
+                _a.trys.push([37, 59, , 62]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 38:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info('Attempting to upload package')
-                    // The replace statement gets rid of .zip from the filename
-                ];
+                return [4 /*yield*/, logger_1.logger.info('Attempting to upload package')];
             case 39:
                 _a.sent();
                 packageName = "testFile";
                 binaryData = Buffer.from(req.body.Content, 'base64');
-                fs.writeFileSync('./uploads/' + packageName + '.zip', binaryData);
-                return [4 /*yield*/, logger_1.logger.info('Package downloaded successfully')];
+                if (!(!binaryData || binaryData.length === 0)) return [3 /*break*/, 41];
+                return [4 /*yield*/, logger_1.logger.error('Invalid or empty binary data received.')];
             case 40:
                 _a.sent();
-                return [4 /*yield*/, extractRepoUrl('./uploads/' + packageName, packageName)];
+                _a.label = 41;
             case 41:
+                fs.writeFileSync('./uploads/' + packageName + '.zip', binaryData);
+                return [4 /*yield*/, logger_1.logger.info('Package downloaded successfully')];
+            case 42:
+                _a.sent();
+                return [4 /*yield*/, extractRepoUrl('./uploads/' + packageName, packageName)];
+            case 43:
                 repoUrl = _a.sent();
                 return [4 /*yield*/, logger_1.logger.info("retrieved repo url: ".concat(repoUrl))];
-            case 42:
+            case 44:
                 _a.sent();
                 username = "";
                 repo = "";
@@ -305,14 +309,14 @@ app.post('/package', function (req, res) { return __awaiter(void 0, void 0, void
                     repo = matches[2];
                 }
                 return [4 /*yield*/, logger_1.logger.info("username and repo found successfully: ".concat(username, ", ").concat(repo))];
-            case 43:
+            case 45:
                 _a.sent();
                 gitDetails = [{ username: username, repo: repo }];
                 return [4 /*yield*/, (0, metrics_1.get_metric_info)(gitDetails)];
-            case 44:
+            case 46:
                 scores = _a.sent();
                 return [4 /*yield*/, logger_1.logger.info("retrieved scores from score calculator: ".concat(scores.busFactor, ", ").concat(scores.rampup, ", ").concat(scores.license, ", ").concat(scores.correctness, ", ").concat(scores.maintainer, ", ").concat(scores.pullRequest, ", ").concat(scores.pinning, ", ").concat(scores.score))];
-            case 45:
+            case 47:
                 _a.sent();
                 fs.unlinkSync('./uploads/' + packageName);
                 version = "0.0.0";
@@ -322,41 +326,41 @@ app.post('/package', function (req, res) { return __awaiter(void 0, void 0, void
                     ID: (0, package_objs_1.generate_id)(repo, version),
                 };
                 return [4 /*yield*/, rds_handler.add_rds_package_data(metadata, scores)];
-            case 46:
+            case 48:
                 package_id = _a.sent();
-                if (!(package_id === null)) return [3 /*break*/, 49];
+                if (!(package_id === null)) return [3 /*break*/, 51];
                 return [4 /*yield*/, logger_1.logger.error("Could not upload package data to RDS")];
-            case 47:
+            case 49:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
-            case 48:
-                _a.sent();
-                return [2 /*return*/, res.status(409).send('Package exists already.')];
-            case 49: return [4 /*yield*/, logger_1.logger.debug("Uploaded package to rds with id: ".concat(package_id))
-                // Upload the actual package to s3
-            ];
             case 50:
                 _a.sent();
-                return [4 /*yield*/, (0, s3_packages_1.upload_package)(package_id, repo)];
-            case 51:
-                s3_response = _a.sent();
-                if (!(s3_response === null)) return [3 /*break*/, 54];
-                return [4 /*yield*/, logger_1.logger.error("Error uploading package to S3")];
+                return [2 /*return*/, res.status(409).send('Package exists already.')];
+            case 51: return [4 /*yield*/, logger_1.logger.debug("Uploaded package to rds with id: ".concat(package_id))
+                // Upload the actual package to s3
+            ];
             case 52:
                 _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                return [4 /*yield*/, (0, s3_packages_1.upload_package)(package_id, repo)];
             case 53:
+                s3_response = _a.sent();
+                if (!(s3_response === null)) return [3 /*break*/, 56];
+                return [4 /*yield*/, logger_1.logger.error("Error uploading package to S3")];
+            case 54:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 55:
                 _a.sent();
                 return [2 /*return*/, res.status(400).send('Could not add package data')];
-            case 54: return [4 /*yield*/, logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id))];
-            case 55:
+            case 56: return [4 /*yield*/, logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id))];
+            case 57:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.info("Finished at this time\n")
                     // Original response
                     //let response = {"metadata": {"Name": repo, "Version": "Not Implementing", "ID": package_id}, "data": {"Content": req.file.buffer, "JSProgram": "Not Implementing"}};
                     //New response
                 ];
-            case 56:
+            case 58:
                 _a.sent();
                 response = {
                     metadata: metadata,
@@ -366,23 +370,23 @@ app.post('/package', function (req, res) { return __awaiter(void 0, void 0, void
                     },
                 };
                 res.status(201).json(response);
-                return [3 /*break*/, 60];
-            case 57:
+                return [3 /*break*/, 62];
+            case 59:
                 error_2 = _a.sent();
                 return [4 /*yield*/, logger_1.logger.error('Could not upload package', error_2)];
-            case 58:
+            case 60:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
-            case 59:
+            case 61:
                 _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 60];
-            case 60: return [3 /*break*/, 62];
-            case 61:
+                return [3 /*break*/, 62];
+            case 62: return [3 /*break*/, 64];
+            case 63:
                 // Impropper request
                 res.status(400).send("There is missing field(s) in the PackageData/AuthenticationToken or it is formed improperly (e.g. Content and URL are both set), or the AuthenticationToken is invalid.");
-                _a.label = 62;
-            case 62: return [2 /*return*/];
+                _a.label = 64;
+            case 64: return [2 /*return*/];
         }
     });
 }); });

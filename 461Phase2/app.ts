@@ -202,10 +202,13 @@ app.post('/package', async (req, res) => {
       await time.info("Starting time")
       await logger.info('Attempting to upload package')
 
-      // The replace statement gets rid of .zip from the filename
       let packageName = "testFile";
 
       const binaryData = Buffer.from(req.body.Content, 'base64');
+
+      if (!binaryData || binaryData.length === 0) {
+        await logger.error('Invalid or empty binary data received.');
+      }
 
       fs.writeFileSync('./uploads/' + packageName + '.zip', binaryData);
       await logger.info('Package downloaded successfully');
