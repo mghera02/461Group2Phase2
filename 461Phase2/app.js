@@ -70,41 +70,36 @@ function extractRepoUrl(zipFilePath, packageName) {
                 }
                 zipfile.on('entry', function (entry) { return __awaiter(_this, void 0, void 0, function () {
                     return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0: return [4 /*yield*/, logger_1.logger.info("entry.fileName: ".concat(entry.fileName))];
-                            case 1:
-                                _a.sent();
-                                if (entry.fileName === "".concat(packageName, "/package.json")) {
-                                    zipfile.openReadStream(entry, function (err, readStream) {
-                                        if (err || !readStream) {
-                                            reject(err || new Error('Unable to read package.json'));
-                                            return "Unable to read package.json";
+                        if (/\/package\.json$/.test(entry.fileName)) {
+                            zipfile.openReadStream(entry, function (err, readStream) {
+                                if (err || !readStream) {
+                                    reject(err || new Error('Unable to read package.json'));
+                                    return "Unable to read package.json";
+                                }
+                                var fileContent = '';
+                                readStream.on('data', function (data) {
+                                    fileContent += data;
+                                });
+                                readStream.on('end', function () {
+                                    try {
+                                        var jsonObject = JSON.parse(fileContent);
+                                        if ('repository' in jsonObject && 'url' in jsonObject.repository) {
+                                            resolve(jsonObject.repository.url);
                                         }
-                                        var fileContent = '';
-                                        readStream.on('data', function (data) {
-                                            fileContent += data;
-                                        });
-                                        readStream.on('end', function () {
-                                            try {
-                                                var jsonObject = JSON.parse(fileContent);
-                                                if ('repository' in jsonObject && 'url' in jsonObject.repository) {
-                                                    resolve(jsonObject.repository.url);
-                                                }
-                                                else {
-                                                    reject(new Error('Repository URL not found in package.json'));
-                                                }
-                                            }
-                                            catch (parseError) {
-                                                reject(new Error('Error parsing package.json'));
-                                            }
-                                        });
-                                    });
-                                }
-                                else {
-                                    zipfile.readEntry();
-                                }
-                                return [2 /*return*/];
+                                        else {
+                                            reject(new Error('Repository URL not found in package.json'));
+                                        }
+                                    }
+                                    catch (parseError) {
+                                        reject(new Error('Error parsing package.json'));
+                                    }
+                                });
+                            });
                         }
+                        else {
+                            zipfile.readEntry();
+                        }
+                        return [2 /*return*/];
                     });
                 }); });
                 zipfile.on('end', function () {

@@ -39,8 +39,7 @@ function extractRepoUrl(zipFilePath: string, packageName: string): Promise<strin
       }
 
       zipfile.on('entry', async (entry: any) => {
-        await logger.info(`entry.fileName: ${entry.fileName}`);
-        if (entry.fileName === `${packageName}/package.json`) {
+        if (/\/package\.json$/.test(entry.fileName)) {
           zipfile.openReadStream(entry, (err: Error | null, readStream: NodeJS.ReadableStream | null) => {
             if (err || !readStream) {
               reject(err || new Error('Unable to read package.json'));
