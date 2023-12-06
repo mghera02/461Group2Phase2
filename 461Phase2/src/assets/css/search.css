@@ -1,4 +1,4 @@
-#searchBtn {
+.searchBtn {
     position: relative;
     font-size: 1.75em;
     display: flex;
@@ -10,7 +10,7 @@
     letter-spacing: .21em;/* .12 times size */
 }
 
-#searchBtn:focus {
+.searchBtn:focus {
     color: red;
     border-color: red;
     border: solid;
