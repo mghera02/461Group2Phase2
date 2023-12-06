@@ -30,18 +30,20 @@ const upload = multer({ storage: multer.memoryStorage() });
 app.use(cors());
 app.use(express.json());
 
-function extractRepoUrl(zipFilePath: string, packageName: string): Promise<string> {
+async function extractRepoUrl(zipFilePath: string, packageName: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    yauzl.open(zipFilePath, { lazyEntries: true }, (err: Error | null, zipfile: any | null) => {
+    yauzl.open(zipFilePath, { lazyEntries: true }, async (err: Error | null, zipfile: any | null) => {
       if (err || !zipfile) {
+        await logger.error('Unable to open zip file.');
         reject(err || new Error('Unable to open zip file'));
         return;
       }
 
       zipfile.on('entry', async (entry: any) => {
         if (entry.fileName === `${packageName}/package.json`) {
-          zipfile.openReadStream(entry, (err: Error | null, readStream: NodeJS.ReadableStream | null) => {
+          zipfile.openReadStream(entry, async (err: Error | null, readStream: NodeJS.ReadableStream | null) => {
             if (err || !readStream) {
+              await logger.error('Unable to read package.json.');
               reject(err || new Error('Unable to read package.json'));
               return;
             }

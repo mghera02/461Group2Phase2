@@ -59,51 +59,76 @@ var upload = multer({ storage: multer.memoryStorage() });
 app.use(cors());
 app.use(express.json());
 function extractRepoUrl(zipFilePath, packageName) {
-    var _this = this;
-    return new Promise(function (resolve, reject) {
-        yauzl.open(zipFilePath, { lazyEntries: true }, function (err, zipfile) {
-            if (err || !zipfile) {
-                reject(err || new Error('Unable to open zip file'));
-                return;
-            }
-            zipfile.on('entry', function (entry) { return __awaiter(_this, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    if (entry.fileName === "".concat(packageName, "/package.json")) {
-                        zipfile.openReadStream(entry, function (err, readStream) {
-                            if (err || !readStream) {
-                                reject(err || new Error('Unable to read package.json'));
-                                return;
+    return __awaiter(this, void 0, void 0, function () {
+        var _this = this;
+        return __generator(this, function (_a) {
+            return [2 /*return*/, new Promise(function (resolve, reject) {
+                    yauzl.open(zipFilePath, { lazyEntries: true }, function (err, zipfile) { return __awaiter(_this, void 0, void 0, function () {
+                        var _this = this;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    if (!(err || !zipfile)) return [3 /*break*/, 2];
+                                    return [4 /*yield*/, logger_1.logger.error('Unable to open zip file.')];
+                                case 1:
+                                    _a.sent();
+                                    reject(err || new Error('Unable to open zip file'));
+                                    return [2 /*return*/];
+                                case 2:
+                                    zipfile.on('entry', function (entry) { return __awaiter(_this, void 0, void 0, function () {
+                                        var _this = this;
+                                        return __generator(this, function (_a) {
+                                            if (entry.fileName === "".concat(packageName, "/package.json")) {
+                                                zipfile.openReadStream(entry, function (err, readStream) { return __awaiter(_this, void 0, void 0, function () {
+                                                    var fileContent;
+                                                    return __generator(this, function (_a) {
+                                                        switch (_a.label) {
+                                                            case 0:
+                                                                if (!(err || !readStream)) return [3 /*break*/, 2];
+                                                                return [4 /*yield*/, logger_1.logger.error('Unable to read package.json.')];
+                                                            case 1:
+                                                                _a.sent();
+                                                                reject(err || new Error('Unable to read package.json'));
+                                                                return [2 /*return*/];
+                                                            case 2:
+                                                                fileContent = '';
+                                                                readStream.on('data', function (data) {
+                                                                    fileContent += data;
+                                                                });
+                                                                readStream.on('end', function () {
+                                                                    try {
+                                                                        var jsonObject = JSON.parse(fileContent);
+                                                                        if ('repository' in jsonObject && 'url' in jsonObject.repository) {
+                                                                            resolve(jsonObject.repository.url);
+                                                                        }
+                                                                        else {
+                                                                            reject(new Error('Repository URL not found in package.json'));
+                                                                        }
+                                                                    }
+                                                                    catch (parseError) {
+                                                                        reject(new Error('Error parsing package.json'));
+                                                                    }
+                                                                });
+                                                                return [2 /*return*/];
+                                                        }
+                                                    });
+                                                }); });
+                                            }
+                                            else {
+                                                zipfile.readEntry();
+                                            }
+                                            return [2 /*return*/];
+                                        });
+                                    }); });
+                                    zipfile.on('end', function () {
+                                        reject(new Error('Package.json not found in the zip'));
+                                    });
+                                    zipfile.readEntry();
+                                    return [2 /*return*/];
                             }
-                            var fileContent = '';
-                            readStream.on('data', function (data) {
-                                fileContent += data;
-                            });
-                            readStream.on('end', function () {
-                                try {
-                                    var jsonObject = JSON.parse(fileContent);
-                                    if ('repository' in jsonObject && 'url' in jsonObject.repository) {
-                                        resolve(jsonObject.repository.url);
-                                    }
-                                    else {
-                                        reject(new Error('Repository URL not found in package.json'));
-                                    }
-                                }
-                                catch (parseError) {
-                                    reject(new Error('Error parsing package.json'));
-                                }
-                            });
                         });
-                    }
-                    else {
-                        zipfile.readEntry();
-                    }
-                    return [2 /*return*/];
-                });
-            }); });
-            zipfile.on('end', function () {
-                reject(new Error('Package.json not found in the zip'));
-            });
-            zipfile.readEntry();
+                    }); });
+                })];
         });
     });
 }
