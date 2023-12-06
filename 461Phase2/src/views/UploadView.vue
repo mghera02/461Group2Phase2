@@ -68,6 +68,7 @@
 
                 // Read file as data URL (base64)
                 this.uploadStatus = reader.readAsDataURL(selectedFile);
+                console.log(this.uploadStatus);
             },
             async npmIngest() {
                 console.log("url: ", this.npmUrl);

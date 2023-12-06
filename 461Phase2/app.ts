@@ -223,17 +223,30 @@ app.post('/package', upload.single('file'), async (req, res) => {
 
       // Create a writable stream to save the zip data
       const writeStream = fs.createWriteStream(zipFilePath);
-      writeStream.write(binaryData, async (err: any) => {
+      await writeStream.write(binaryData, async (err: any) => {
         if (err) {
           await logger.info(`failed to save zip file`);
         } else {
           await logger.info(`zip file saved successfully`);
-          
-          const repoUrl = await extractRepoUrl(zipFilePath, packageName);
-          await logger.info(`retrieved repo url: ${repoUrl}`);
         }
         writeStream.end();
       });
+
+      // Open the zip file and read its entries here, after it's fully written
+      yauzl.open(zipFilePath, { lazyEntries: true }, async (err: any, zipfile: any) => {
+        if (err) {
+          await logger.info(`error: ${err}`);
+        }
+      
+        zipfile.readEntry();
+        zipfile.on('entry', async (entry: any) => {
+          await logger.info(`here!`);
+        });
+      });
+      
+
+      //const repoUrl = await extractRepoUrl(zipFilePath, packageName);
+      //await logger.info(`retrieved repo url: ${repoUrl}`);
       /*let username: string = ""; 
       let repo: string = ""; 
       const regex = /https:\/\/github\.com\/(\w+)\/(\w+)\.git/;
