@@ -213,9 +213,9 @@ app.post('/package', async (req, res) => {
       fs.writeFileSync('./uploads/' + packageName + '.zip', binaryData);
       await logger.info('Package downloaded successfully');
       
-      /*const repoUrl = await extractRepoUrl('./uploads/' + packageName, packageName);
+      const repoUrl = await extractRepoUrl('./uploads/' + packageName, packageName);
       await logger.info(`retrieved repo url: ${repoUrl}`);
-      let username: string = ""; 
+      /*let username: string = ""; 
       let repo: string = ""; 
       const regex = /https:\/\/github\.com\/(\w+)\/(\w+)\.git/;
       const matches = repoUrl.match(regex);
