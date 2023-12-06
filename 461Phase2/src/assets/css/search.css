@@ -54,12 +54,12 @@ main {
     top: -4vw;
 }
 
-#packages {
+.packages {
     display: flex;
     justify-content: center;
 }
 
-#packages:focus {
+.packages:focus {
     color: red;
     border-color: red;
     border: solid;
