@@ -331,7 +331,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                                 _a.sent();
                                 username = "";
                                 repo = "";
-                                regex = /https:\/\/github\.com\/(\w+)\/(\w+)\.git/;
+                                regex = /\/([^\/]+)\/([^\/]+)\.git$/;
                                 matches = repoUrl.match(regex);
                                 if (matches) {
                                     username = matches[1];

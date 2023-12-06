@@ -244,7 +244,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
           await logger.info(`retrieved repo url: ${repoUrl}`);
           let username: string = ""; 
           let repo: string = ""; 
-          const regex = /https:\/\/github\.com\/(\w+)\/(\w+)\.git/;
+          const regex = /\/([^\/]+)\/([^\/]+)\.git$/;
           const matches = repoUrl.match(regex);
           if (matches) {
             username = matches[1]; 
