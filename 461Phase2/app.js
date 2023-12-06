@@ -108,7 +108,7 @@ function extractRepoUrl(zipFilePath, packageName) {
 }
 //TODO: if RDS succeeds to upload but S3 fails, remove the corresponding RDS entry
 app.post('/package', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var url, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, username, repo, gitInfo, gitDetails, scores, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, response, error_1, packageName, binaryData, arrayBuffer, bufferView, i, buffer, repoUrl, username, repo, regex, matches, gitDetails, scores, version, metadata, package_id, s3_response, response, error_2;
+    var url, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, username, repo, gitInfo, gitDetails, scores, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, response, error_1, packageName, binaryData, repoUrl, username, repo, regex, matches, gitDetails, scores, version, metadata, package_id, s3_response, response, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -275,14 +275,8 @@ app.post('/package', function (req, res) { return __awaiter(void 0, void 0, void
             case 37:
                 _a.sent();
                 packageName = "testFile";
-                binaryData = atob(req.body.Content);
-                arrayBuffer = new ArrayBuffer(binaryData.length);
-                bufferView = new Uint8Array(arrayBuffer);
-                for (i = 0; i < binaryData.length; i++) {
-                    bufferView[i] = binaryData.charCodeAt(i);
-                }
-                buffer = Buffer.from(bufferView);
-                fs.writeFileSync('./uploads/' + packageName, buffer);
+                binaryData = Buffer.from(req.body.Content, 'base64');
+                fs.writeFileSync('./uploads/' + packageName + '.zip', binaryData);
                 return [4 /*yield*/, logger_1.logger.info('Package downloaded successfully')];
             case 38:
                 _a.sent();
@@ -357,7 +351,7 @@ app.post('/package', function (req, res) { return __awaiter(void 0, void 0, void
                 response = {
                     metadata: metadata,
                     data: {
-                        content: String(buffer),
+                        content: String(binaryData),
                         JSProgram: "Not Implementing",
                     },
                 };

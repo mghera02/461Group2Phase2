@@ -197,19 +197,9 @@ app.post('/package', async (req, res) => {
       // The replace statement gets rid of .zip from the filename
       let packageName = "testFile";
 
-      var binaryData = atob(req.body.Content);
-      // Create a buffer from the binary data
-      var arrayBuffer = new ArrayBuffer(binaryData.length);
-      var bufferView = new Uint8Array(arrayBuffer);
+      const binaryData = Buffer.from(req.body.Content, 'base64');
 
-      for (var i = 0; i < binaryData.length; i++) {
-        bufferView[i] = binaryData.charCodeAt(i);
-      }
-
-      // Convert ArrayBuffer to Buffer
-      var buffer = Buffer.from(bufferView);
-
-      fs.writeFileSync('./uploads/' + packageName, buffer);
+      fs.writeFileSync('./uploads/' + packageName + '.zip', binaryData);
       await logger.info('Package downloaded successfully');
       
       const repoUrl = await extractRepoUrl('./uploads/' + packageName, packageName);
@@ -268,7 +258,7 @@ app.post('/package', async (req, res) => {
       let response: Package = {
         metadata: metadata,
         data: {
-          content: String(buffer),
+          content: String(binaryData),
           JSProgram: "Not Implementing",
         },
       }
