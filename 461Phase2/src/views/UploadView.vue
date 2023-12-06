@@ -42,8 +42,7 @@
                 console.log("selected file", file.files)
                 //Upload to server
                 const selectedFile = file.files[0]
-                const formData = new FormData();
-                formData.append("file", selectedFile);
+                let base64Data = btoa(selectedFile);
                 this.uploadStatus = "Uploading...";
                 try {
                     const response = await axios.post(`http://${this.ip}:8080/package`, {"Content": formData}, {

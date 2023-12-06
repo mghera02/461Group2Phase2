@@ -196,7 +196,10 @@ app.post('/package', async (req, res) => {
 
       // The replace statement gets rid of .zip from the filename
       let packageName = "testFile";
-      let packageData:Buffer = req.body.Content;
+
+      var binaryData = atob(req.body.Content);
+      // Create a buffer from the binary data
+      var packageData = new ArrayBuffer(binaryData.length);
 
       fs.writeFileSync('./uploads/' + packageName, packageData);
       await logger.info('Package downloaded successfully');
