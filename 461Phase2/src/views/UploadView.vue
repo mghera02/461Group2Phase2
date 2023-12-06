@@ -37,30 +37,25 @@
         },
         methods: {
             async handleFileUpload() {
-                const fileInput = this.$refs.file;
-                const selectedFile = fileInput.files[0];
-
-                const reader = new FileReader();
-
-                reader.onload = async () => {
-                const base64Data = reader.result.split(',')[1]; // Extracting the base64 content
-                
+                const file = this.$refs.file;
+                // debugger;
+                console.log("selected file", file.files)
+                //Upload to server
+                const selectedFile = file.files[0]
+                let base64Data = btoa(selectedFile);
                 this.uploadStatus = "Uploading...";
                 try {
-                    const response = await axios.post(`http://${this.ip}:8080/package`, { "Content": base64Data }, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
+                    const response = await axios.post(`http://${this.ip}:8080/package`, {"Content": base64Data}, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
                     });
                     console.log("File uploaded successfully.", response.data);
-                    this.uploadStatus = "File uploaded successfully";
+                    this.uploadStatus = "File uploaded successfully"
                 } catch (error) {
                     console.error("Error uploading the file.", error);
                     this.uploadStatus = `Error uploading the file ${error}`;
                 }
-                };
-
-                reader.readAsDataURL(selectedFile);
             },
             async npmIngest() {
                 console.log("url: ", this.npmUrl);
