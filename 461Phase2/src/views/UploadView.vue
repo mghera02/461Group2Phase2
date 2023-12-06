@@ -46,10 +46,10 @@
                 formData.append("file", selectedFile);
                 this.uploadStatus = "Uploading...";
                 try {
-                    const response = await axios.post(`http://${this.ip}:8080/package`, formData, {
+                    const response = await axios.post(`http://${this.ip}:8080/package`, {"Content": formData}, {
                         headers: {
-                            "Content-Type": "application/zip",
-                        },
+                            'Content-Type': 'application/json',
+                        }
                     });
                     console.log("File uploaded successfully.", response.data);
                     this.uploadStatus = "File uploaded successfully"
@@ -68,7 +68,7 @@
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ url: this.npmUrl }), // stringify the object
+                        body: JSON.stringify({ URL: this.npmUrl }), // stringify the object
                     });
 
                     if (!response.ok) {

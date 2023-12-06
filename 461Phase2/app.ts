@@ -194,19 +194,13 @@ app.post('/package', async (req, res) => {
       await time.info("Starting time")
       await logger.info('Attempting to upload package')
 
-      if (!req.body.Content.originalname.endsWith('.zip')) {
-        await logger.error('The given file is not a zip file');
-        await time.error('Error occurred at this time\n');
-        return res.status(400).send('Invalid file format. Please upload a zip file.');
-      }
-
       // The replace statement gets rid of .zip from the filename
-      let packageName = req.body.Content.originalname.replace(/\.zip$/, '');
+      let packageName = "testFile";
 
-      fs.writeFileSync('./uploads/' + req.body.Content.originalname, req.body.Content.buffer);
+      fs.writeFileSync('./uploads/' + packageName, req.body.Content);
       await logger.info('Package downloaded successfully');
       
-      const repoUrl = await extractRepoUrl('./uploads/' + req.body.Content.originalname, packageName);
+      const repoUrl = await extractRepoUrl('./uploads/' + packageName, packageName);
       await logger.info(`retrieved repo url: ${repoUrl}`);
       let username: string = ""; 
       let repo: string = ""; 
@@ -221,7 +215,7 @@ app.post('/package', async (req, res) => {
       let scores = await get_metric_info(gitDetails);
       await logger.info(`retrieved scores from score calculator: ${scores.busFactor}, ${scores.rampup}, ${scores.license}, ${scores.correctness}, ${scores.maintainer}, ${scores.pullRequest}, ${scores.pinning}, ${scores.score}`);
 
-      fs.unlinkSync('./uploads/' + req.body.Content.originalname);
+      fs.unlinkSync('./uploads/' + packageName);
 
       // Currently using the repo name as the package name, not the zip file name
       //const name = req.file.originalname.replace(/\.zip$/, '');
@@ -243,7 +237,7 @@ app.post('/package', async (req, res) => {
       await logger.debug(`Uploaded package to rds with id: ${package_id}`)
 
       // Upload the actual package to s3
-      const s3_response = await upload_package(package_id, req.body.Content);
+      const s3_response = await upload_package(package_id, repo);
 
       // Check to see if package data was uploaded to S3
       if (s3_response === null) {
@@ -262,7 +256,7 @@ app.post('/package', async (req, res) => {
       let response: Package = {
         metadata: metadata,
         data: {
-          content: req.body.Content.buffer,
+          content: req.body.Content,
           JSProgram: "Not Implementing",
         },
       }

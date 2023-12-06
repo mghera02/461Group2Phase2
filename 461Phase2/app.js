@@ -260,37 +260,30 @@ app.post('/package', function (req, res) { return __awaiter(void 0, void 0, void
                 _a.sent();
                 res.status(500).send('An error occurred.');
                 return [3 /*break*/, 33];
-            case 33: return [3 /*break*/, 63];
+            case 33: return [3 /*break*/, 60];
             case 34:
-                if (!(!req.body.URL && req.body.Content)) return [3 /*break*/, 62];
+                if (!(!req.body.URL && req.body.Content)) return [3 /*break*/, 59];
                 _a.label = 35;
             case 35:
-                _a.trys.push([35, 58, , 61]);
+                _a.trys.push([35, 55, , 58]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 36:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info('Attempting to upload package')];
+                return [4 /*yield*/, logger_1.logger.info('Attempting to upload package')
+                    // The replace statement gets rid of .zip from the filename
+                ];
             case 37:
                 _a.sent();
-                if (!!req.body.Content.originalname.endsWith('.zip')) return [3 /*break*/, 40];
-                return [4 /*yield*/, logger_1.logger.error('The given file is not a zip file')];
+                packageName = "testFile";
+                fs.writeFileSync('./uploads/' + packageName, req.body.Content);
+                return [4 /*yield*/, logger_1.logger.info('Package downloaded successfully')];
             case 38:
                 _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                return [4 /*yield*/, extractRepoUrl('./uploads/' + packageName, packageName)];
             case 39:
-                _a.sent();
-                return [2 /*return*/, res.status(400).send('Invalid file format. Please upload a zip file.')];
-            case 40:
-                packageName = req.body.Content.originalname.replace(/\.zip$/, '');
-                fs.writeFileSync('./uploads/' + req.body.Content.originalname, req.body.Content.buffer);
-                return [4 /*yield*/, logger_1.logger.info('Package downloaded successfully')];
-            case 41:
-                _a.sent();
-                return [4 /*yield*/, extractRepoUrl('./uploads/' + req.body.Content.originalname, packageName)];
-            case 42:
                 repoUrl = _a.sent();
                 return [4 /*yield*/, logger_1.logger.info("retrieved repo url: ".concat(repoUrl))];
-            case 43:
+            case 40:
                 _a.sent();
                 username = "";
                 repo = "";
@@ -301,16 +294,16 @@ app.post('/package', function (req, res) { return __awaiter(void 0, void 0, void
                     repo = matches[2];
                 }
                 return [4 /*yield*/, logger_1.logger.info("username and repo found successfully: ".concat(username, ", ").concat(repo))];
-            case 44:
+            case 41:
                 _a.sent();
                 gitDetails = [{ username: username, repo: repo }];
                 return [4 /*yield*/, (0, metrics_1.get_metric_info)(gitDetails)];
-            case 45:
+            case 42:
                 scores = _a.sent();
                 return [4 /*yield*/, logger_1.logger.info("retrieved scores from score calculator: ".concat(scores.busFactor, ", ").concat(scores.rampup, ", ").concat(scores.license, ", ").concat(scores.correctness, ", ").concat(scores.maintainer, ", ").concat(scores.pullRequest, ", ").concat(scores.pinning, ", ").concat(scores.score))];
-            case 46:
+            case 43:
                 _a.sent();
-                fs.unlinkSync('./uploads/' + req.body.Content.originalname);
+                fs.unlinkSync('./uploads/' + packageName);
                 version = "0.0.0";
                 metadata = {
                     name: repo,
@@ -318,67 +311,67 @@ app.post('/package', function (req, res) { return __awaiter(void 0, void 0, void
                     ID: (0, package_objs_1.generate_id)(repo, version),
                 };
                 return [4 /*yield*/, rds_handler.add_rds_package_data(metadata, scores)];
-            case 47:
+            case 44:
                 package_id = _a.sent();
-                if (!(package_id === null)) return [3 /*break*/, 50];
+                if (!(package_id === null)) return [3 /*break*/, 47];
                 return [4 /*yield*/, logger_1.logger.error("Could not upload package data to RDS")];
-            case 48:
+            case 45:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
-            case 49:
+            case 46:
                 _a.sent();
                 return [2 /*return*/, res.status(409).send('Package exists already.')];
-            case 50: return [4 /*yield*/, logger_1.logger.debug("Uploaded package to rds with id: ".concat(package_id))
+            case 47: return [4 /*yield*/, logger_1.logger.debug("Uploaded package to rds with id: ".concat(package_id))
                 // Upload the actual package to s3
             ];
-            case 51:
+            case 48:
                 _a.sent();
-                return [4 /*yield*/, (0, s3_packages_1.upload_package)(package_id, req.body.Content)];
-            case 52:
+                return [4 /*yield*/, (0, s3_packages_1.upload_package)(package_id, repo)];
+            case 49:
                 s3_response = _a.sent();
-                if (!(s3_response === null)) return [3 /*break*/, 55];
+                if (!(s3_response === null)) return [3 /*break*/, 52];
                 return [4 /*yield*/, logger_1.logger.error("Error uploading package to S3")];
-            case 53:
+            case 50:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
-            case 54:
+            case 51:
                 _a.sent();
                 return [2 /*return*/, res.status(400).send('Could not add package data')];
-            case 55: return [4 /*yield*/, logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id))];
-            case 56:
+            case 52: return [4 /*yield*/, logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id))];
+            case 53:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.info("Finished at this time\n")
                     // Original response
                     //let response = {"metadata": {"Name": repo, "Version": "Not Implementing", "ID": package_id}, "data": {"Content": req.file.buffer, "JSProgram": "Not Implementing"}};
                     //New response
                 ];
-            case 57:
+            case 54:
                 _a.sent();
                 response = {
                     metadata: metadata,
                     data: {
-                        content: req.body.Content.buffer,
+                        content: req.body.Content,
                         JSProgram: "Not Implementing",
                     },
                 };
                 res.status(201).json(response);
-                return [3 /*break*/, 61];
-            case 58:
+                return [3 /*break*/, 58];
+            case 55:
                 error_2 = _a.sent();
                 return [4 /*yield*/, logger_1.logger.error('Could not upload package', error_2)];
-            case 59:
+            case 56:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
-            case 60:
+            case 57:
                 _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 61];
-            case 61: return [3 /*break*/, 63];
-            case 62:
+                return [3 /*break*/, 58];
+            case 58: return [3 /*break*/, 60];
+            case 59:
                 // Impropper request
                 res.status(400).send("There is missing field(s) in the PackageData/AuthenticationToken or it is formed improperly (e.g. Content and URL are both set), or the AuthenticationToken is invalid.");
-                _a.label = 63;
-            case 63: return [2 /*return*/];
+                _a.label = 60;
+            case 60: return [2 /*return*/];
         }
     });
 }); });
