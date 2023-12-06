@@ -45,7 +45,7 @@
                 const selectedFile = file.files[0]
                 // Read the selected file
                 const reader = new FileReader();
-                reader.onload = async function(event) {
+                reader.onload = async (event) => {
                     const fileContent = event.target.result;
 
                     // Convert the file content to base64
@@ -59,16 +59,13 @@
                             }
                         });
                         console.log("File uploaded successfully.", response.data);
-                        return "File uploaded successfully"
                     } catch (error) {
                         console.error("Error uploading the file.", error);
-                        return `Error uploading the file ${error}`;
                     }
                 };
 
                 // Read file as data URL (base64)
-                this.uploadStatus = reader.readAsDataURL(selectedFile);
-                console.log(this.uploadStatus);
+                reader.readAsDataURL(selectedFile);
             },
             async npmIngest() {
                 console.log("url: ", this.npmUrl);

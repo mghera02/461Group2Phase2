@@ -109,7 +109,7 @@ function extractRepoUrl(zipFilePath, packageName) {
 }
 //TODO: if RDS succeeds to upload but S3 fails, remove the corresponding RDS entry
 app.post('/package', upload.single('file'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, username, repo, gitInfo, gitDetails, scores, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, response, error_1, packageName, binaryData, uploadDir, timestamp, zipFilePath, writeStream_1, response, error_2;
+    var url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, username, repo, gitInfo, gitDetails, scores, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, response, error_1, packageName, binaryData, uploadDir, timestamp, zipFilePath_1, writeStream_1, response, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -271,12 +271,12 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 _a.sent();
                 res.status(500).send('An error occurred.');
                 return [3 /*break*/, 35];
-            case 35: return [3 /*break*/, 52];
+            case 35: return [3 /*break*/, 51];
             case 36:
-                if (!(!req.body.URL && req.body.Content)) return [3 /*break*/, 51];
+                if (!(!req.body.URL && req.body.Content)) return [3 /*break*/, 50];
                 _a.label = 37;
             case 37:
-                _a.trys.push([37, 47, , 50]);
+                _a.trys.push([37, 46, , 49]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 38:
                 _a.sent();
@@ -301,77 +301,75 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 _a.label = 44;
             case 44:
                 timestamp = Date.now();
-                zipFilePath = path.join(uploadDir, "file_".concat(timestamp, ".zip"));
-                return [4 /*yield*/, logger_1.logger.info("Got zip file path: ".concat(zipFilePath))];
+                zipFilePath_1 = path.join(uploadDir, "file_".concat(timestamp, ".zip"));
+                return [4 /*yield*/, logger_1.logger.info("Got zip file path: ".concat(zipFilePath_1))];
             case 45:
                 _a.sent();
-                writeStream_1 = fs.createWriteStream(zipFilePath);
-                return [4 /*yield*/, writeStream_1.write(binaryData, function (err) { return __awaiter(void 0, void 0, void 0, function () {
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0:
-                                    if (!err) return [3 /*break*/, 2];
-                                    return [4 /*yield*/, logger_1.logger.info("failed to save zip file")];
-                                case 1:
-                                    _a.sent();
-                                    return [3 /*break*/, 4];
-                                case 2: return [4 /*yield*/, logger_1.logger.info("zip file saved successfully")];
-                                case 3:
-                                    _a.sent();
-                                    _a.label = 4;
-                                case 4:
-                                    writeStream_1.end();
-                                    return [2 /*return*/];
-                            }
-                        });
-                    }); })];
-            case 46:
-                _a.sent();
-                // Open the zip file and read its entries here, after it's fully written
-                yauzl.open(zipFilePath, { lazyEntries: true }, function (err, zipfile) { return __awaiter(void 0, void 0, void 0, function () {
+                writeStream_1 = fs.createWriteStream(zipFilePath_1);
+                writeStream_1.write(binaryData, function (err) { return __awaiter(void 0, void 0, void 0, function () {
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
                                 if (!err) return [3 /*break*/, 2];
-                                return [4 /*yield*/, logger_1.logger.info("error: ".concat(err))];
+                                return [4 /*yield*/, logger_1.logger.info("failed to save zip file")];
                             case 1:
                                 _a.sent();
-                                _a.label = 2;
-                            case 2:
-                                zipfile.readEntry();
-                                zipfile.on('entry', function (entry) { return __awaiter(void 0, void 0, void 0, function () {
+                                return [3 /*break*/, 4];
+                            case 2: return [4 /*yield*/, logger_1.logger.info("zip file saved successfully")];
+                            case 3:
+                                _a.sent();
+                                // Open the zip file and read its entries here, after it's fully written
+                                yauzl.open(zipFilePath_1, { lazyEntries: true }, function (err, zipfile) { return __awaiter(void 0, void 0, void 0, function () {
                                     return __generator(this, function (_a) {
                                         switch (_a.label) {
-                                            case 0: return [4 /*yield*/, logger_1.logger.info("here!")];
+                                            case 0:
+                                                if (!err) return [3 /*break*/, 2];
+                                                return [4 /*yield*/, logger_1.logger.info("error: ".concat(err))];
                                             case 1:
                                                 _a.sent();
+                                                _a.label = 2;
+                                            case 2:
+                                                zipfile.readEntry();
+                                                zipfile.on('entry', function (entry) { return __awaiter(void 0, void 0, void 0, function () {
+                                                    return __generator(this, function (_a) {
+                                                        switch (_a.label) {
+                                                            case 0: return [4 /*yield*/, logger_1.logger.info("here!")];
+                                                            case 1:
+                                                                _a.sent();
+                                                                return [2 /*return*/];
+                                                        }
+                                                    });
+                                                }); });
                                                 return [2 /*return*/];
                                         }
                                     });
                                 }); });
+                                _a.label = 4;
+                            case 4:
+                                writeStream_1.end();
                                 return [2 /*return*/];
                         }
                     });
                 }); });
                 response = "hi";
                 res.status(201).json(response);
-                return [3 /*break*/, 50];
-            case 47:
+                return [3 /*break*/, 49];
+            case 46:
                 error_2 = _a.sent();
                 return [4 /*yield*/, logger_1.logger.error('Could not upload package', error_2)];
-            case 48:
+            case 47:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
-            case 49:
+            case 48:
                 _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 50];
-            case 50: return [3 /*break*/, 52];
-            case 51:
+                return [3 /*break*/, 49];
+            case 49: return [3 /*break*/, 51];
+            case 50:
                 // Impropper request
                 res.status(400).send("There is missing field(s) in the PackageData/AuthenticationToken or it is formed improperly (e.g. Content and URL are both set), or the AuthenticationToken is invalid.");
-                _a.label = 52;
-            case 52: return [2 /*return*/];
+                _a.label = 51;
+            case 51: return [2 /*return*/];
         }
     });
 }); });
