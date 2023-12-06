@@ -218,18 +218,12 @@ app.post('/package', async (req, res) => {
         await logger.info('Made /uploads directory');
       }
 
-      const filePath = path.join(directory, packageName + '.zip');
+      const filePath = path.join(directory, packageName);
 
       fs.writeFileSync(filePath, binaryData);
       await logger.info('Package downloaded successfully');
-
-      // Make sure the file is completely written before proceeding
-      await new Promise((resolve) => {
-        setTimeout(resolve, 1000); // Adjust timeout if necessary to ensure the file is available
-      });
-      await logger.info(`Finished waiting for file to be done writing`);
       
-      const repoUrl = await extractRepoUrl('./uploads/' + packageName + '.zip', packageName);
+      const repoUrl = await extractRepoUrl('./uploads/' + packageName, packageName);
       await logger.info(`retrieved repo url: ${repoUrl}`);
       /*let username: string = ""; 
       let repo: string = ""; 
