@@ -34,7 +34,6 @@ function extractRepoUrl(zipFilePath: string, packageName: string): Promise<strin
   return new Promise((resolve, reject) => {
     yauzl.open(zipFilePath, { lazyEntries: true }, (err: Error | null, zipfile: any | null) => {
       if (err || !zipfile) {
-        reject(err || new Error('Unable to open zip file'));
         return "Unable to open zip file";
       }
 
@@ -42,7 +41,6 @@ function extractRepoUrl(zipFilePath: string, packageName: string): Promise<strin
         if (entry.fileName === `${packageName}/package.json`) {
           zipfile.openReadStream(entry, (err: Error | null, readStream: NodeJS.ReadableStream | null) => {
             if (err || !readStream) {
-              reject(err || new Error('Unable to read package.json'));
               return "Unable to read package.json";
             }
 

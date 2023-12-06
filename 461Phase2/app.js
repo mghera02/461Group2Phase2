@@ -63,7 +63,6 @@ function extractRepoUrl(zipFilePath, packageName) {
     return new Promise(function (resolve, reject) {
         yauzl.open(zipFilePath, { lazyEntries: true }, function (err, zipfile) {
             if (err || !zipfile) {
-                reject(err || new Error('Unable to open zip file'));
                 return "Unable to open zip file";
             }
             zipfile.on('entry', function (entry) { return __awaiter(_this, void 0, void 0, function () {
@@ -71,7 +70,6 @@ function extractRepoUrl(zipFilePath, packageName) {
                     if (entry.fileName === "".concat(packageName, "/package.json")) {
                         zipfile.openReadStream(entry, function (err, readStream) {
                             if (err || !readStream) {
-                                reject(err || new Error('Unable to read package.json'));
                                 return "Unable to read package.json";
                             }
                             var fileContent = '';
