@@ -347,7 +347,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                                 return [4 /*yield*/, logger_1.logger.info("retrieved scores from score calculator: ".concat(scores.busFactor, ", ").concat(scores.rampup, ", ").concat(scores.license, ", ").concat(scores.correctness, ", ").concat(scores.maintainer, ", ").concat(scores.pullRequest, ", ").concat(scores.pinning, ", ").concat(scores.score))];
                             case 8:
                                 _a.sent();
-                                fs.unlinkSync('./uploads/' + packageName_1);
+                                fs.unlinkSync(zipFilePath_1);
                                 version = "0.0.0";
                                 metadata = {
                                     name: repo,
