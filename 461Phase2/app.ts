@@ -86,10 +86,17 @@ app.post('/package', async (req, res) => {
       await time.info("Starting time")
       await logger.info('Attempting to ingest package')
 
-      const url = req.body.URL;
+      let url = req.body.URL;
 
       await logger.info(`package url: ${req.body.URL}`);
       await logger.info(`req: ${JSON.stringify(req.body)}`);
+
+      if(url.includes("github")) {
+        const parts = url.split('/');
+        const repositoryName = parts[parts.length - 1];
+        // Constructing the npm package URL
+        url = `https://www.npmjs.com/package/${repositoryName}`;
+      }
 
       const npmPackageName: string = get_npm_package_name(url);
       await logger.info(`package name: ${npmPackageName}`);

@@ -108,7 +108,7 @@ function extractRepoUrl(zipFilePath, packageName) {
 }
 //TODO: if RDS succeeds to upload but S3 fails, remove the corresponding RDS entry
 app.post('/package', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var url, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, username, repo, gitInfo, gitDetails, scores, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, response, error_1, packageName, binaryData, repoUrl, username, repo, regex, matches, gitDetails, scores, version, metadata, package_id, s3_response, response, error_2;
+    var url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, username, repo, gitInfo, gitDetails, scores, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, response, error_1, packageName, binaryData, repoUrl, username, repo, regex, matches, gitDetails, scores, version, metadata, package_id, s3_response, response, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -129,6 +129,12 @@ app.post('/package', function (req, res) { return __awaiter(void 0, void 0, void
                 return [4 /*yield*/, logger_1.logger.info("req: ".concat(JSON.stringify(req.body)))];
             case 5:
                 _a.sent();
+                if (url.includes("github")) {
+                    parts = url.split('/');
+                    repositoryName = parts[parts.length - 1];
+                    // Constructing the npm package URL
+                    url = "https://www.npmjs.com/package/".concat(repositoryName);
+                }
                 npmPackageName = (0, metrics_1.get_npm_package_name)(url);
                 return [4 /*yield*/, logger_1.logger.info("package name: ".concat(npmPackageName))];
             case 6:
