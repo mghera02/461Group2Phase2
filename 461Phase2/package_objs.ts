@@ -17,14 +17,14 @@ interface PackageData {
 }
 
 interface PackageRating {
-    busFactor: number,
-    rampup: number,
-    license: number,
-    correctness: number,
-    maintainer: number,
-    pullRequest: number,
-    pinning: number,
-    score: number,
+    BusFactor: number;
+    RampUp: number;
+    LicenseScore: number;
+    Correctness: number;
+    ResponsiveMaintainer: number;
+    PullRequest: number;
+    GoodPinningPractice: number;
+    NetScore: number;
 }
 
 function generate_id(name: string, version: string) {

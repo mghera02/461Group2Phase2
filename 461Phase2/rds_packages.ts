@@ -12,14 +12,14 @@ interface PackageData {
     package_id: number,
     package_name: string,
     rating: {
-      busFactor: number;
-      rampup: number;
-      license: number;
-      correctness: number;
-      maintainer: number;
-      pullRequest: number;
-      pinning: number;
-      score: number;
+      BusFactor: number;
+      RampUp: number;
+      LicenseScore: number;
+      Correctness: number;
+      ResponsiveMaintainer: number;
+      PullRequest: number;
+      GoodPinningPractice: number;
+      NetScore: number;
     },
     num_downloads: number,
     created_at: Date,

@@ -122,7 +122,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
       await logger.info(`username and repo found successfully: ${username}, ${repo}`);
       let gitDetails = [{username: username, repo: repo}];
       let scores = await get_metric_info(gitDetails);
-      await logger.info(`retrieved scores from score calculator: ${scores.busFactor}, ${scores.rampup}, ${scores.license}, ${scores.correctness}, ${scores.maintainer}, ${scores.pullRequest}, ${scores.pinning}, ${scores.score}`);
+      await logger.info(`retrieved scores from score calculator: ${scores.BusFactor}, ${scores.RampUp}, ${scores.LicenseScore}, ${scores.Correctness}, ${scores.ResponsiveMaintainer}, ${scores.PullRequest}, ${scores.GoodPinningPractice}, ${scores.NetScore}`);
       
       // We check if the rating is sufficient and return if it is not
       if(scores.score < 0.5) {
@@ -253,7 +253,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
           await logger.info(`username and repo found successfully: ${username}, ${repo}`);
           let gitDetails = [{username: username, repo: repo}];
           let scores = await get_metric_info(gitDetails);
-          await logger.info(`retrieved scores from score calculator: ${scores.busFactor}, ${scores.rampup}, ${scores.license}, ${scores.correctness}, ${scores.maintainer}, ${scores.pullRequest}, ${scores.pinning}, ${scores.score}`);
+          await logger.info(`retrieved scores from score calculator: ${scores.BusFactor}, ${scores.RampUp}, ${scores.LicenseScore}, ${scores.Correctness}, ${scores.ResponsiveMaintainer}, ${scores.PullRequest}, ${scores.GoodPinningPractice}, ${scores.NetScore}`);
 
           fs.unlinkSync(zipFilePath);
 
@@ -317,12 +317,12 @@ app.post('/package', upload.single('file'), async (req, res) => {
   }
 });
 
-app.get('/package/:packageId/rate', async (req, res) => {
+app.get('/package/:id/rate', async (req, res) => {
   try {
     await time.info("Starting time")
-    await logger.info("Attempring to get package rating")
+    await logger.info("Attempting to get package rating")
 
-    const package_id = parseInt(req.params.packageId);
+    const package_id = parseInt(req.params.id);
     await logger.debug(`Attempting to rate package with id: ${package_id}`)
 
     const package_data = await rds_handler.get_package_data(package_id);
@@ -331,6 +331,7 @@ app.get('/package/:packageId/rate', async (req, res) => {
       await time.error('Error occurred at this time\n');
       return res.status(404).json({ error: 'Package not found' });
     }
+    await logger.info(`Received package data from RDS: ${package_data}`);
 
     const scores = package_data.rating;
     
@@ -340,7 +341,7 @@ app.get('/package/:packageId/rate', async (req, res) => {
       return res.status(404).send('Rate data not found.');
     }
 
-    await logger.info(`Rate data found for package with id: ${package_id}, rateData: ${scores.busFactor}, ${scores.rampup}, ${scores.license}, ${scores.correctness}, ${scores.maintainer}, ${scores.pullRequest}, ${scores.pinning}, ${scores.score}`);
+    await logger.info(`Rate data found for package with id: ${package_id}, rateData: ${scores.BusFactor}, ${scores.RampUp}, ${scores.LicenseScore}, ${scores.Correctness}, ${scores.ResponsiveMaintainer}, ${scores.PullRequest}, ${scores.GoodPinningPractice}, ${scores.NetScore}`);
     await time.info("Finished at this time\n")
     res.status(200).json(scores);
   } catch (error) {

@@ -182,7 +182,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 return [4 /*yield*/, (0, metrics_1.get_metric_info)(gitDetails)];
             case 16:
                 scores = _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("retrieved scores from score calculator: ".concat(scores.busFactor, ", ").concat(scores.rampup, ", ").concat(scores.license, ", ").concat(scores.correctness, ", ").concat(scores.maintainer, ", ").concat(scores.pullRequest, ", ").concat(scores.pinning, ", ").concat(scores.score))];
+                return [4 /*yield*/, logger_1.logger.info("retrieved scores from score calculator: ".concat(scores.BusFactor, ", ").concat(scores.RampUp, ", ").concat(scores.LicenseScore, ", ").concat(scores.Correctness, ", ").concat(scores.ResponsiveMaintainer, ", ").concat(scores.PullRequest, ", ").concat(scores.GoodPinningPractice, ", ").concat(scores.NetScore))];
             case 17:
                 _a.sent();
                 // We check if the rating is sufficient and return if it is not
@@ -344,7 +344,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                                 return [4 /*yield*/, (0, metrics_1.get_metric_info)(gitDetails)];
                             case 7:
                                 scores = _a.sent();
-                                return [4 /*yield*/, logger_1.logger.info("retrieved scores from score calculator: ".concat(scores.busFactor, ", ").concat(scores.rampup, ", ").concat(scores.license, ", ").concat(scores.correctness, ", ").concat(scores.maintainer, ", ").concat(scores.pullRequest, ", ").concat(scores.pinning, ", ").concat(scores.score))];
+                                return [4 /*yield*/, logger_1.logger.info("retrieved scores from score calculator: ".concat(scores.BusFactor, ", ").concat(scores.RampUp, ", ").concat(scores.LicenseScore, ", ").concat(scores.Correctness, ", ").concat(scores.ResponsiveMaintainer, ", ").concat(scores.PullRequest, ", ").concat(scores.GoodPinningPractice, ", ").concat(scores.NetScore))];
                             case 8:
                                 _a.sent();
                                 fs.unlinkSync(zipFilePath_1);
@@ -427,19 +427,19 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
         }
     });
 }); });
-app.get('/package/:packageId/rate', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+app.get('/package/:id/rate', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var package_id, package_data, scores, error_3;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 13, , 16]);
+                _a.trys.push([0, 14, , 17]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 1:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("Attempring to get package rating")];
+                return [4 /*yield*/, logger_1.logger.info("Attempting to get package rating")];
             case 2:
                 _a.sent();
-                package_id = parseInt(req.params.packageId);
+                package_id = parseInt(req.params.id);
                 return [4 /*yield*/, logger_1.logger.debug("Attempting to rate package with id: ".concat(package_id))];
             case 3:
                 _a.sent();
@@ -454,35 +454,37 @@ app.get('/package/:packageId/rate', function (req, res) { return __awaiter(void 
             case 6:
                 _a.sent();
                 return [2 /*return*/, res.status(404).json({ error: 'Package not found' })];
-            case 7:
-                scores = package_data.rating;
-                if (!!scores) return [3 /*break*/, 10];
-                return [4 /*yield*/, logger_1.logger.error("No rate data found for package with id: ".concat(package_id))];
+            case 7: return [4 /*yield*/, logger_1.logger.info("Received package data from RDS: ".concat(package_data))];
             case 8:
                 _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                scores = package_data.rating;
+                if (!!scores) return [3 /*break*/, 11];
+                return [4 /*yield*/, logger_1.logger.error("No rate data found for package with id: ".concat(package_id))];
             case 9:
                 _a.sent();
-                return [2 /*return*/, res.status(404).send('Rate data not found.')];
-            case 10: return [4 /*yield*/, logger_1.logger.info("Rate data found for package with id: ".concat(package_id, ", rateData: ").concat(scores.busFactor, ", ").concat(scores.rampup, ", ").concat(scores.license, ", ").concat(scores.correctness, ", ").concat(scores.maintainer, ", ").concat(scores.pullRequest, ", ").concat(scores.pinning, ", ").concat(scores.score))];
-            case 11:
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 10:
                 _a.sent();
-                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
+                return [2 /*return*/, res.status(404).send('Rate data not found.')];
+            case 11: return [4 /*yield*/, logger_1.logger.info("Rate data found for package with id: ".concat(package_id, ", rateData: ").concat(scores.BusFactor, ", ").concat(scores.RampUp, ", ").concat(scores.LicenseScore, ", ").concat(scores.Correctness, ", ").concat(scores.ResponsiveMaintainer, ", ").concat(scores.PullRequest, ", ").concat(scores.GoodPinningPractice, ", ").concat(scores.NetScore))];
             case 12:
                 _a.sent();
-                res.status(200).json(scores);
-                return [3 /*break*/, 16];
+                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
             case 13:
+                _a.sent();
+                res.status(200).json(scores);
+                return [3 /*break*/, 17];
+            case 14:
                 error_3 = _a.sent();
                 return [4 /*yield*/, logger_1.logger.error('Error rating package:', error_3)];
-            case 14:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 15:
                 _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 16:
+                _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 16];
-            case 16: return [2 /*return*/];
+                return [3 /*break*/, 17];
+            case 17: return [2 /*return*/];
         }
     });
 }); });
