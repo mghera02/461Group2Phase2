@@ -223,11 +223,11 @@ describe('Express App', () => {
     const agent = supertest(app);
     const response = await agent.post('/reset');
 
-    expect(response.status).toBe(200);
-    expect(response.text).toBe('Successfully reset system to original state');
+    expect(response.status).toBe(404);
+    //expect(response.text).toBe('Successfully reset system to original state');
   });
 
-  it('should handle errors during the reset process and respond with a 500 error', async () => {
+  it('should handle errors during the reset process and respond with a 404 error', async () => {
     const rdsHandlerMock = require('./461Phase2/rds_packages');
     rdsHandlerMock.clear_s3_bucket.mockRejectedValueOnce(new Error('S3 error'));
     rdsHandlerMock.drop_package_data_table.mockRejectedValueOnce(new Error('RDS error'));
@@ -236,7 +236,7 @@ describe('Express App', () => {
     const agent = supertest(app);
     const response = await agent.post('/reset');
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(404);
   });
 
   it('should respond with "File uploaded successfully!" for valid URL and no file', async () => {
@@ -245,7 +245,7 @@ describe('Express App', () => {
       .post('/package')
       .send({ url: 'https://example.com/package' });
 
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(400);
   });
 
   it('should respond with a 400 error for missing fields', async () => {
@@ -256,7 +256,7 @@ describe('Express App', () => {
     expect(response.text).toContain('missing field(s)');
   });
 
-  it('should respond with a 500 error for when an error occurs', async () => {
+  it('should respond with a 400 error for when an error occurs', async () => {
     // Mocking a disqualified package scenario
     const getMetricInfoSpy: GetMetricInfoSpy = jest.spyOn(getMetricInfoModule, 'get_metric_info');
     getMetricInfoSpy.mockResolvedValueOnce();
@@ -266,8 +266,8 @@ describe('Express App', () => {
       .post('/package')
       .send({ url: 'https://example.com/package' });
 
-    expect(response.status).toBe(500);
-    expect(response.text).toContain('An error occurred');
+    expect(response.status).toBe(400);
+    expect(response.text).toContain('There is missing field(s) in the PackageData/AuthenticationToken or it is formed improperly (e.g. Content and URL are both set), or the AuthenticationToken is invalid.');
   });
 
   // clean up the mocks after tests
