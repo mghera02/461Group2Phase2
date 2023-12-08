@@ -621,6 +621,7 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                 return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
             case 18:
                 _a.sent();
+                res.setHeader('offset', offsetValue + 2);
                 res.status(200).json(package_names);
                 return [3 /*break*/, 22];
             case 19:
