@@ -423,6 +423,7 @@ app.post('/packages', async (req, res) => {
     const package_names = searchResults.map((data) => ({
         Version: data.version,
         Name: data.name,
+        ID: data.id,
     }));
 
     await logger.info(`Successfully got packages (/packages): ${package_names}`);

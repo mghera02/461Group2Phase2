@@ -614,6 +614,7 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                 package_names = searchResults.map(function (data) { return ({
                     Version: data.version,
                     Name: data.name,
+                    ID: data.id,
                 }); });
                 return [4 /*yield*/, logger_1.logger.info("Successfully got packages (/packages): ".concat(package_names))];
             case 17:
