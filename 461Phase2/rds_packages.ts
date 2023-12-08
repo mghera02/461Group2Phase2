@@ -153,7 +153,7 @@ async function match_rds_rows_with_pagination(regex: string, version: string, us
           query = `
               SELECT * FROM ${TABLE_NAME}
               WHERE name = $1
-              AND version = $4
+              AND version ~ $4
               LIMIT $2 OFFSET $3;
           `;
           values.push(limit.toString(), offset.toString(), version.toString());
@@ -161,7 +161,7 @@ async function match_rds_rows_with_pagination(regex: string, version: string, us
           query = `
               SELECT * FROM ${TABLE_NAME}
               WHERE name ~ $1
-              AND version = $4
+              AND version ~ $4
               LIMIT $2 OFFSET $3;
           `;
           values.push(limit.toString(), offset.toString(), version.toString());
