@@ -612,7 +612,7 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                 _a.label = 16;
             case 16:
                 package_names = searchResults.map(function (data) { return data.package_name; });
-                return [4 /*yield*/, logger_1.logger.info("Successfully got packages (/packages)")];
+                return [4 /*yield*/, logger_1.logger.info("Successfully got packages (/packages): ".concat(package_names))];
             case 17:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];

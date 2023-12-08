@@ -422,7 +422,7 @@ app.post('/packages', async (req, res) => {
     }
     const package_names = searchResults.map((data:any) => data.package_name);
 
-    await logger.info(`Successfully got packages (/packages)`)
+    await logger.info(`Successfully got packages (/packages): ${package_names}`);
     await time.info("Finished at this time\n")
     res.status(200).json(package_names);
   } catch (error) {
