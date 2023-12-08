@@ -188,30 +188,27 @@ function match_rds_rows_with_pagination(regex, version, useExactMatch, offset) {
     if (useExactMatch === void 0) { useExactMatch = false; }
     if (offset === void 0) { offset = 0; }
     return __awaiter(this, void 0, void 0, function () {
-        var client, limit, query, values, result, error_5;
+        var client, query, values, result, error_5;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, (0, rds_config_1.get_rds_connection)()];
                 case 1:
                     client = _a.sent();
-                    limit = 2;
                     _a.label = 2;
                 case 2:
                     _a.trys.push([2, 4, 5, 7]);
                     query = void 0;
-                    values = [regex];
                     if (useExactMatch) {
-                        query = "\n              SELECT * FROM ".concat(rds_config_1.TABLE_NAME, "\n              WHERE name = $1\n              AND version = $4\n              LIMIT $2 OFFSET $3;\n          ");
-                        values.push(limit.toString(), offset.toString(), version.toString());
+                        query = "\n            SELECT * FROM ".concat(rds_config_1.TABLE_NAME, "\n            WHERE name = $1;\n        ");
                     }
                     else {
-                        query = "\n              SELECT * FROM ".concat(rds_config_1.TABLE_NAME, "\n              WHERE name ~ $1\n              AND version = $4\n              LIMIT $2 OFFSET $3;\n          ");
-                        values.push(limit.toString(), offset.toString(), version.toString());
+                        query = "\n            SELECT * FROM ".concat(rds_config_1.TABLE_NAME, "\n            WHERE name ~ $1;\n        ");
                     }
+                    values = [regex];
                     return [4 /*yield*/, client.query(query, values)];
                 case 3:
                     result = _a.sent();
-                    logger_1.logger.debug('Query result:', JSON.stringify(result));
+                    logger_1.logger.debug('Query result:', result.rows);
                     return [2 /*return*/, result.rows];
                 case 4:
                     error_5 = _a.sent();
