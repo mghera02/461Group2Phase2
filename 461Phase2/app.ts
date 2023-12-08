@@ -426,7 +426,7 @@ app.post('/packages', async (req, res) => {
         ID: data.id,
     }));
 
-    await logger.info(`Successfully got packages (/packages): ${package_names}`);
+    await logger.info(`Successfully got packages (/packages): ${JSON.stringify(package_names)}`);
     await time.info("Finished at this time\n")
     res.setHeader('offset', offsetValue + 2);
     res.status(200).json(package_names);

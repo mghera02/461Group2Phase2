@@ -616,7 +616,7 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                     Name: data.name,
                     ID: data.id,
                 }); });
-                return [4 /*yield*/, logger_1.logger.info("Successfully got packages (/packages): ".concat(package_names))];
+                return [4 /*yield*/, logger_1.logger.info("Successfully got packages (/packages): ".concat(JSON.stringify(package_names)))];
             case 17:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
