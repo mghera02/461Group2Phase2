@@ -572,6 +572,9 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                 return [4 /*yield*/, logger_1.logger.info("Got req.body.Name:".concat(req.body[0].Name, ", req.body.Version:").concat(req.body[0].Version))];
             case 4:
                 _a.sent();
+                if (version == undefined || version == "*") {
+                    version = ".*";
+                }
                 if (!(!packageName && !version)) return [3 /*break*/, 7];
                 return [4 /*yield*/, logger_1.logger.error('No name was given')];
             case 5:

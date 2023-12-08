@@ -394,9 +394,14 @@ app.post('/packages', async (req, res) => {
     await logger.info("Attempting to get packages (/packages)")
 
     const packageName = req.body[0].Name;
-    const version = req.body[0].Version;
+    let version = req.body[0].Version;
     await logger.info(`Length of req body: ${req.body.length}`);
     await logger.info(`Got req.body.Name:${req.body[0].Name}, req.body.Version:${req.body[0].Version}`);
+
+    if(version == undefined || version == "*") {
+      version = ".*";
+    }
+
     if (!packageName && !version) {
       await logger.error('No name was given');
       await time.error('Error occurred at this time\n');
