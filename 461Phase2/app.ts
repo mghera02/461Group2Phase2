@@ -417,10 +417,10 @@ app.post('/packages', async (req, res) => {
     let searchResults;
     if(packageName == "*") {
       //searchResults = await rds_handler.match_rds_rows_with_pagination(`.*`, version, false, offsetValue);
-      searchResults = await rds_handler.match_rds_rows(`.*`, version);
+      searchResults = await rds_handler.match_rds_rows(`.*`);
     } else {
       //searchResults = await rds_handler.match_rds_rows_with_pagination(`${packageName}`, version, true, offsetValue);
-      searchResults = await rds_handler.match_rds_rows(`${packageName}`, version);
+      searchResults = await rds_handler.match_rds_rows(`${packageName}`);
     }
     const package_names = searchResults.map((data:any) => data.package_name);
 
