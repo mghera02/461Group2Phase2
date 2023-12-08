@@ -143,34 +143,42 @@ async function match_rds_rows(regex: string, useExactMatch: boolean = false): Pr
 
 async function match_rds_rows_with_pagination(regex: string, version: string, useExactMatch: boolean = false, offset: number = 0): Promise<any> {
   const client = await get_rds_connection();
+  let limit = 2;
 
   try {
       let query;
-      if(useExactMatch) {
-        query = `
-            SELECT * FROM ${TABLE_NAME}
-            WHERE name = $1;
-        `;
+      const values = [regex];
+
+      if (useExactMatch) {
+          query = `
+              SELECT * FROM ${TABLE_NAME}
+              WHERE name = $1
+              AND version = $4
+              LIMIT $2 OFFSET $3;
+          `;
+          values.push(limit.toString(), offset.toString(), version.toString());
       } else {
-        query = `
-            SELECT * FROM ${TABLE_NAME}
-            WHERE name ~ $1;
-        `;
+          query = `
+              SELECT * FROM ${TABLE_NAME}
+              WHERE name ~ $1
+              AND version = $4
+              LIMIT $2 OFFSET $3;
+          `;
+          values.push(limit.toString(), offset.toString(), version.toString());
       }
-      const values = [regex]
 
       const result = await client.query(query, values);
 
-      logger.debug('Query result:', result.rows);
-  
+      logger.debug('Query result:', JSON.stringify(result));
+
       return result.rows;
 
-    } catch (error) {
+  } catch (error) {
       logger.error('Error searching data:', error);
       return [];
-    } finally {
+  } finally {
       await client.end();
-    }
+  }
 }
 
 
