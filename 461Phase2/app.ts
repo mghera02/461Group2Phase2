@@ -416,13 +416,14 @@ app.post('/packages', async (req, res) => {
 
     let searchResults;
     if(packageName == "*") {
-      //searchResults = await rds_handler.match_rds_rows_with_pagination(`.*`, version, false, offsetValue);
-      searchResults = await rds_handler.match_rds_rows(`.*`);
+      searchResults = await rds_handler.match_rds_rows_with_pagination(`.*`, version, false, offsetValue);
     } else {
-      //searchResults = await rds_handler.match_rds_rows_with_pagination(`${packageName}`, version, true, offsetValue);
-      searchResults = await rds_handler.match_rds_rows(`${packageName}`);
+      searchResults = await rds_handler.match_rds_rows_with_pagination(`${packageName}`, version, true, offsetValue);
     }
-    const package_names = searchResults.map((data:any) => data.package_name);
+    const package_names = searchResults.map((data) => ({
+        Version: data.version,
+        Name: data.name,
+    }));
 
     await logger.info(`Successfully got packages (/packages): ${package_names}`);
     await time.info("Finished at this time\n")

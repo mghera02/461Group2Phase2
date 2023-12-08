@@ -602,18 +602,19 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
             case 12:
                 searchResults = void 0;
                 if (!(packageName == "*")) return [3 /*break*/, 14];
-                return [4 /*yield*/, rds_handler.match_rds_rows(".*")];
+                return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination(".*", version, false, offsetValue)];
             case 13:
-                //searchResults = await rds_handler.match_rds_rows_with_pagination(`.*`, version, false, offsetValue);
                 searchResults = _a.sent();
                 return [3 /*break*/, 16];
-            case 14: return [4 /*yield*/, rds_handler.match_rds_rows("".concat(packageName))];
+            case 14: return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination("".concat(packageName), version, true, offsetValue)];
             case 15:
-                //searchResults = await rds_handler.match_rds_rows_with_pagination(`${packageName}`, version, true, offsetValue);
                 searchResults = _a.sent();
                 _a.label = 16;
             case 16:
-                package_names = searchResults.map(function (data) { return data.package_name; });
+                package_names = searchResults.map(function (data) { return ({
+                    Version: data.version,
+                    Name: data.name,
+                }); });
                 return [4 /*yield*/, logger_1.logger.info("Successfully got packages (/packages): ".concat(package_names))];
             case 17:
                 _a.sent();
