@@ -60,7 +60,7 @@
             console.log(`this.numSearchAllPress:${this.numSearchAllPress - 1}`)
             if(this.searchBarVal == "*") {
               try {
-                const response = await axios.post(`http://${this.ip}:8080/packages/?offset=${this.numSearchAllPress - 1}`, [{ "Name": "*" }], {
+                const response = await axios.post(`http://${this.ip}:8080/packages/?offset=${this.numSearchAllPress - 1}`, [{ "Name": "*" }, { "Version": "*" }], {
                   headers: {
                     'Content-Type': 'application/json',
                   },
