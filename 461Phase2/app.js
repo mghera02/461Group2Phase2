@@ -602,11 +602,11 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
             case 12:
                 searchResults = void 0;
                 if (!(packageName == "*")) return [3 /*break*/, 14];
-                return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination(".*", false, offsetValue)];
+                return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination(".*", version, false, offsetValue)];
             case 13:
                 searchResults = _a.sent();
                 return [3 /*break*/, 16];
-            case 14: return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination("".concat(packageName), true, offsetValue)];
+            case 14: return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination("".concat(packageName), version, true, offsetValue)];
             case 15:
                 searchResults = _a.sent();
                 _a.label = 16;
