@@ -152,14 +152,14 @@ async function match_rds_rows_with_pagination(regex: string, useExactMatch: bool
       if (useExactMatch) {
           query = `
               SELECT * FROM ${TABLE_NAME}
-              WHERE package_name = $1
+              WHERE name = $1
               LIMIT $2 OFFSET $3;
           `;
           values.push(limit.toString(), offset.toString());
       } else {
           query = `
               SELECT * FROM ${TABLE_NAME}
-              WHERE package_name ~ $1
+              WHERE name ~ $1
               LIMIT $2 OFFSET $3;
           `;
           values.push(limit.toString(), offset.toString());

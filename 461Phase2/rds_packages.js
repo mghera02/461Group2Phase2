@@ -201,11 +201,11 @@ function match_rds_rows_with_pagination(regex, useExactMatch, offset) {
                     query = void 0;
                     values = [regex];
                     if (useExactMatch) {
-                        query = "\n              SELECT * FROM ".concat(rds_config_1.TABLE_NAME, "\n              WHERE package_name = $1\n              LIMIT $2 OFFSET $3;\n          ");
+                        query = "\n              SELECT * FROM ".concat(rds_config_1.TABLE_NAME, "\n              WHERE name = $1\n              LIMIT $2 OFFSET $3;\n          ");
                         values.push(limit.toString(), offset.toString());
                     }
                     else {
-                        query = "\n              SELECT * FROM ".concat(rds_config_1.TABLE_NAME, "\n              WHERE package_name ~ $1\n              LIMIT $2 OFFSET $3;\n          ");
+                        query = "\n              SELECT * FROM ".concat(rds_config_1.TABLE_NAME, "\n              WHERE name ~ $1\n              LIMIT $2 OFFSET $3;\n          ");
                         values.push(limit.toString(), offset.toString());
                     }
                     return [4 /*yield*/, client.query(query, values)];
