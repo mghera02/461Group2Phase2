@@ -5,13 +5,13 @@ interface Package {
 }
 
 interface PackageMetadata {
-    name: string,
-    version: string,
+    Name: string,
+    Version: string,
     ID: string,
 }
 
 interface PackageData {
-    content?: string,
+    Content?: string,
     URL?: string,
     JSProgram?: string,
 }

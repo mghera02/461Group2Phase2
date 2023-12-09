@@ -137,8 +137,8 @@ app.post('/package', upload.single('file'), async (req, res) => {
       //TODO: add in the support for different versions
       const package_version = "0.0.0" //for now 
       const metadata: PackageMetadata = {
-        name: npmPackageName,
-        version: package_version,
+        Name: npmPackageName,
+        Version: package_version,
         ID: generate_id(npmPackageName, package_version)
       }
 
@@ -184,7 +184,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
       let response: Package = {
         metadata: metadata,
         data: {
-          content: zippedFile.buffer,
+          Content: zippedFile.buffer,
           JSProgram: "Not Implementing",
         },
       }
@@ -263,8 +263,8 @@ app.post('/package', upload.single('file'), async (req, res) => {
           //const name = req.file.originalname.replace(/\.zip$/, '');
           const version = "0.0.0"
           const metadata: PackageMetadata = {
-            name: repo,
-            version: version,
+            Name: repo,
+            Version: version,
             ID: generate_id(repo, version),
           }
 
@@ -299,7 +299,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
           let response: Package = {
             metadata: metadata,
             data: {
-              content: String(binaryData),
+              Content: String(binaryData),
               JSProgram: "Not Implementing",
             },
           }
@@ -327,15 +327,13 @@ app.get('/package/:id/rate', async (req, res) => {
     const package_id = req.params.id;
     await logger.debug(`Attempting to rate package with id: ${package_id}`)
 
-    const package_data = await rds_handler.get_package_data(package_id);
-    if (package_data === null) {
+    const scores = await rds_handler.get_package_rating(package_id);
+    if (scores === null) {
       await logger.error(`No package found with id: ${package_id}`)
       await time.error('Error occurred at this time\n');
       return res.status(404).json('Package does not exist.');
     }
-    await logger.info(`Received package data from RDS: ${package_data}`);
-
-    const scores = package_data.rating;
+    await logger.info(`Received package data from RDS: ${scores}`);
     
     if (!scores) {
       await logger.error(`No rate data found for package with id: ${package_id}`)
@@ -353,36 +351,41 @@ app.get('/package/:id/rate', async (req, res) => {
   }
 });
 
-app.get('/download/:packageId', async (req, res) => {
+app.get('/package/:packageId', async (req, res) => {
   try {
     await time.info("Starting time")
     await logger.info("Attempting to download package")
 
     const package_id = parseInt(req.params.packageId);
 
-    const package_data = await rds_handler.get_package_data(package_id)
-    if (package_data === null) {
+    const metadata = await rds_handler.get_package_metadata(package_id)
+    if (metadata === null) {
       await logger.error(`No package found with id: ${package_id}`);
       await time.error('Error occurred at this time\n');
-      return res.status(404).json({ error: 'Package not found' });
+      return res.status(404).json({ error: 'Package metadata not found' });
     }
 
     await logger.debug(`Package data found for package with id: ${package_id}`);
-    const package_name = package_data.name;
+    const package_name = metadata.Name;
 
-    const package_buffer = await download_package(package_id);
-    if (package_buffer === null) {
+    const data = await download_package(package_id);
+    if (data === null) {
       await logger.error(`Package with id: ${package_id} not found in S3`);
       await time.error('Error occurred at this time\n');
-      return res.status(404).json({ error: 'Package file not found' });
+      return res.status(404).json({ error: 'Package data not found' });
     }
 
     res.attachment(package_name + '.zip'); // Set the desired new file name here
     res.setHeader('Content-Type', 'application/zip');
 
+    const pkg : Package = {
+      metadata: metadata,
+      data: data,
+    }
+
     await logger.info(`Successfully downloaded package with id ${package_id}`)
     await time.info("Finished at this time\n")
-    res.status(200).send(package_buffer);
+    res.status(200).json(pkg);
     } catch (error) {
     await logger.error('Error downloading package:', error);
     await time.error('Error occurred at this time\n')

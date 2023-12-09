@@ -46,7 +46,7 @@ async function upload_package(package_id: string, file: any) : Promise<string | 
     }
 }
 
-async function download_package(package_id: number) : Promise<Buffer | null> {
+async function download_package(package_id: number) : Promise<PackageData | null> {
     const params = {
         Bucket: BUCKET_NAME,
         Key: `package_ID_${package_id}`
@@ -56,7 +56,13 @@ async function download_package(package_id: number) : Promise<Buffer | null> {
         const file = await s3.getObject(params).promise();
 
         logger.debug(`File downloaded successfully.`);
-        return file.Body as Buffer;
+        //return file.Body as Buffer; ORIGINAL
+        const data : PackageData = {
+            Content: file.Body as string,
+            JSProgram: "",
+        }
+
+        return data;
     } catch (error) {
         logger.error('Error downloading file from S3:', error);
         return null;

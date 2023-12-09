@@ -33,6 +33,20 @@ interface Row {
   num_downloads: number,
 } // This is a makeshift ORM, kind of a bandaid fix lol
 
+function row_to_metadata(row: Row | null) : PackageMetadata | null {
+  if (row === null) {
+    return null
+  }
+
+  const metadata : PackageMetadata = {
+    Name: row.name,
+    Version: row.version,
+    ID: row.id,
+  }
+
+  return metadata;
+}
+
 // Adds data to the amazon RDS instance. That data is assigned a unique ID that is returned.
 // This ID is used to locate the package contents in the S3 bucket.
 async function add_rds_package_data(metadata: PackageMetadata, rating: PackageRating) : Promise<string | null> {
@@ -43,7 +57,7 @@ async function add_rds_package_data(metadata: PackageMetadata, rating: PackageRa
         INSERT INTO package_data(name, version, id, rating, num_downloads) VALUES($1, $2, $3, $4, $5)
         RETURNING id;
       `;
-      const values = [metadata.name, metadata.version, metadata.ID, rating, 0]
+      const values = [metadata.Name, metadata.Version, metadata.ID, rating, 0]
       const result: QueryResult<Row> = await client.query(query, values);
 
       // Making sure something is returned at all
@@ -85,7 +99,7 @@ async function update_rds_package_data(name: string, rating: object, content: st
   }
 }
 
-async function get_package_data(package_id: number) : Promise<Row | null> {
+async function get_package_metadata(package_id: number) : Promise<PackageMetadata | null> {
   const client = await get_rds_connection();
 
   try {
@@ -100,7 +114,35 @@ async function get_package_data(package_id: number) : Promise<Row | null> {
         return null;
       }
 
-      return data.rows[0];
+      const metadata = row_to_metadata(data.rows[0])
+
+      return metadata;
+    } catch (error) {
+      logger.error('Error grabbing data:', error);
+      return null;
+    } finally {
+      await client.end();
+    }
+}
+
+async function get_package_rating(package_id: number) : Promise<PackageRating | null> {
+  const client = await get_rds_connection();
+
+  try {
+      const query = `
+        SELECT rating FROM ${TABLE_NAME} WHERE id = $1
+      `;
+      const values = [package_id]
+      const data: QueryResult<PackageRating> = await client.query(query, values);
+
+      // Making sure something is returned at all
+      if (data.rowCount == 0) {
+        return null;
+      }
+
+      const rating : PackageRating = data.rows[0];
+
+      return rating;
     } catch (error) {
       logger.error('Error grabbing data:', error);
       return null;
@@ -186,7 +228,8 @@ async function match_rds_rows_with_pagination(regex: string, version: string, us
 export {
     add_rds_package_data,
     update_rds_package_data,
-    get_package_data,
+    get_package_metadata,
+    get_package_rating,
     match_rds_rows,
     match_rds_rows_with_pagination,
     PackageData,
