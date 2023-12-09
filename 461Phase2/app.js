@@ -772,7 +772,7 @@ app.get('/packageId/:packageName', function (req, res) { return __awaiter(void 0
                 _a.sent();
                 return [2 /*return*/, res.status(404).json({ error: 'Package not found' })];
             case 6:
-                package_id = searchResults.map(function (data) { return data.package_id; });
+                package_id = searchResults.map(function (data) { return data.id; });
                 return [4 /*yield*/, logger_1.logger.debug("Package ID found for package '".concat(packageName, "': ").concat(package_id))];
             case 7:
                 _a.sent();

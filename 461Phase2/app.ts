@@ -519,7 +519,7 @@ app.get('/packageId/:packageName', async (req, res) => {
       return res.status(404).json({ error: 'Package not found' });
     }
 
-    const package_id = searchResults.map((data) => data.package_id);
+    const package_id = searchResults.map((data) => data.id);
 
     await logger.debug(`Package ID found for package '${packageName}': ${package_id}`);
     await time.info("Finished at this time\n");
