@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.match_rds_rows_with_pagination = exports.match_rds_rows = exports.get_package_data = exports.update_rds_package_data = exports.add_rds_package_data = void 0;
+exports.update_rds_package_data = exports.match_rds_rows_with_pagination = exports.match_rds_rows = exports.get_package_data = exports.add_rds_package_data = void 0;
 var rds_config_1 = require("./rds_config");
 var logger_1 = require("./logger");
 // Adds data to the amazon RDS instance. That data is assigned a unique ID that is returned.
@@ -76,7 +76,7 @@ function add_rds_package_data(metadata, rating) {
     });
 }
 exports.add_rds_package_data = add_rds_package_data;
-function update_rds_package_data(name, rating, content, url, jsProgram) {
+function update_rds_package_data(id, newName, newVersion) {
     return __awaiter(this, void 0, void 0, function () {
         var client, query, values, result, error_2;
         return __generator(this, function (_a) {
@@ -87,19 +87,17 @@ function update_rds_package_data(name, rating, content, url, jsProgram) {
                     _a.label = 2;
                 case 2:
                     _a.trys.push([2, 4, 5, 7]);
-                    query = "\n      UPDATE package_data\n      SET rating = $2, content = $4, url = $5, js_program = $6\n      WHERE package_name = $1\n      RETURNING package_id;\n    ";
-                    values = [name, rating, 0, content, url, jsProgram];
+                    query = "\n      UPDATE package_data \n      SET name = $1, version = $2\n      WHERE id = $3\n    ";
+                    values = [newName, newVersion, id];
                     return [4 /*yield*/, client.query(query, values)];
                 case 3:
                     result = _a.sent();
-                    if (result.rowCount === 0) {
-                        return [2 /*return*/, null];
-                    }
-                    return [2 /*return*/, result.rows[0].package_id];
+                    // Check if any rows were affected
+                    return [2 /*return*/, result.rowCount];
                 case 4:
                     error_2 = _a.sent();
                     logger_1.logger.error('Error updating data:', error_2);
-                    return [2 /*return*/, null];
+                    return [2 /*return*/, 0];
                 case 5: return [4 /*yield*/, client.end()];
                 case 6:
                     _a.sent();

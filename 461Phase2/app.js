@@ -795,6 +795,121 @@ app.get('/packageId/:packageName', function (req, res) { return __awaiter(void 0
         }
     });
 }); });
+app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, metadata, data, Name, Version, ID, Content, URL_1, JSProgram, existingPackage, rowsUpdated, npmURL, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, zippedFileContent, zippedFile, s3_response, binaryData, file, s3Url, error_9;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 25, , 28]);
+                return [4 /*yield*/, logger_1.time.info("Starting time")];
+            case 1:
+                _b.sent();
+                return [4 /*yield*/, logger_1.logger.info("Attempting to update package content")];
+            case 2:
+                _b.sent();
+                _a = req.body, metadata = _a.metadata, data = _a.data;
+                Name = metadata.Name, Version = metadata.Version, ID = metadata.ID;
+                Content = data.Content, URL_1 = data.URL, JSProgram = data.JSProgram;
+                return [4 /*yield*/, rds_handler.get_package_data(ID)];
+            case 3:
+                existingPackage = _b.sent();
+                if (!!existingPackage) return [3 /*break*/, 6];
+                return [4 /*yield*/, logger_1.logger.error("No package found with ID: ".concat(ID))];
+            case 4:
+                _b.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 5:
+                _b.sent();
+                return [2 /*return*/, res.status(404).json('Package does not exist.')];
+            case 6: return [4 /*yield*/, rds_handler.update_rds_package_data(ID, Name, Version)];
+            case 7:
+                rowsUpdated = _b.sent();
+                if (!(URL_1 && !Content)) return [3 /*break*/, 19];
+                npmURL = void 0;
+                if (!URL_1.includes("github")) return [3 /*break*/, 9];
+                parts = URL_1.split('/');
+                repositoryName = parts[parts.length - 1];
+                // Constructing the npm package URL
+                npmURL = "https://www.npmjs.com/package/".concat(repositoryName);
+                return [4 /*yield*/, logger_1.logger.info("constructed npm package url: ".concat(npmURL))];
+            case 8:
+                _b.sent();
+                _b.label = 9;
+            case 9:
+                npmPackageName = (0, metrics_1.get_npm_package_name)(String(npmURL));
+                return [4 /*yield*/, logger_1.logger.info("package name: ".concat(npmPackageName))];
+            case 10:
+                _b.sent();
+                output = (0, child_process_1.execSync)("npm view ".concat(npmPackageName, " --json --silent"), { encoding: 'utf8' });
+                fs.writeFileSync("./temp_npm_json/".concat(npmPackageName, "_info.json"), output); // write json to file
+                return [4 /*yield*/, logger_1.logger.info("wrote json file")];
+            case 11:
+                _b.sent();
+                file = "./temp_npm_json/".concat(npmPackageName, "_info.json");
+                return [4 /*yield*/, (0, metrics_1.check_npm_for_open_source)(file)];
+            case 12:
+                gitUrl = _b.sent();
+                return [4 /*yield*/, logger_1.logger.info("gitUrl: ".concat(gitUrl))];
+            case 13:
+                _b.sent();
+                destinationPath = 'temp_linter_test';
+                return [4 /*yield*/, (0, metrics_1.cloneRepo)(gitUrl, destinationPath)];
+            case 14:
+                cloneRepoOut = _b.sent();
+                return [4 /*yield*/, logger_1.logger.info("finished cloning")];
+            case 15:
+                _b.sent();
+                return [4 /*yield*/, (0, metrics_1.zipDirectory)(cloneRepoOut[1], "./tempZip.zip")];
+            case 16:
+                zipFilePath = _b.sent();
+                zippedFileContent = fs.readFileSync(zipFilePath);
+                return [4 /*yield*/, logger_1.logger.debug("got zipped file content")
+                    // Create Express.Multer.File object
+                ];
+            case 17:
+                _b.sent();
+                zippedFile = {
+                    fieldname: 'file',
+                    originalname: 'zipped_directory.zip',
+                    encoding: '7bit',
+                    mimetype: 'application/zip',
+                    buffer: zippedFileContent // Buffer of the zipped file content
+                };
+                return [4 /*yield*/, (0, s3_packages_1.upload_package)(ID, zippedFile)];
+            case 18:
+                s3_response = _b.sent();
+                return [3 /*break*/, 22];
+            case 19:
+                if (!(!URL_1 && Content)) return [3 /*break*/, 21];
+                binaryData = Buffer.from(req.body.Content, 'base64');
+                file = { buffer: binaryData };
+                return [4 /*yield*/, (0, s3_packages_1.updateS3Package)(ID, file)];
+            case 20:
+                s3Url = _b.sent();
+                return [3 /*break*/, 22];
+            case 21: return [2 /*return*/, res.status(400).json('Package does not exist.')];
+            case 22: return [4 /*yield*/, logger_1.logger.info("There is missing field(s) in the PackageID/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.")];
+            case 23:
+                _b.sent();
+                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
+            case 24:
+                _b.sent();
+                res.status(200).send('Version is updated.');
+                return [3 /*break*/, 28];
+            case 25:
+                error_9 = _b.sent();
+                return [4 /*yield*/, logger_1.logger.error('Error updating package content:', error_9)];
+            case 26:
+                _b.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 27:
+                _b.sent();
+                res.status(500).send('An error occurred.');
+                return [3 /*break*/, 28];
+            case 28: return [2 /*return*/];
+        }
+    });
+}); });
 app.put('/authenticate', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
         res.status(500).send('This system does not support authentication.');

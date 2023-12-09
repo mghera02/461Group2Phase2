@@ -16,6 +16,7 @@ import {
   upload_package,
   download_package,
   clear_s3_bucket,
+  updateS3Package
 } from './s3_packages';
 import {get_metric_info, cloneRepo, check_npm_for_open_source, get_github_info, get_npm_package_name, zipDirectory} from './src/assets/metrics';
 import { 
@@ -527,6 +528,84 @@ app.get('/packageId/:packageName', async (req, res) => {
     res.status(200).json({ package_id });
   } catch (error) {
     await logger.error('Error getting package ID by name:', error);
+    await time.error('Error occurred at this time\n');
+    res.status(500).send('An error occurred.');
+  }
+});
+
+app.put('/package/:id', async (req: any, res: any) => {
+  try {
+    await time.info("Starting time");
+    await logger.info("Attempting to update package content");
+
+    const { metadata, data } = req.body;
+
+    // Extract relevant data from the request body
+    const { Name, Version, ID } = metadata;
+    const { Content, URL, JSProgram } = data;
+
+    const existingPackage = await rds_handler.get_package_data(ID);
+
+    if (!existingPackage) {
+      await logger.error(`No package found with ID: ${ID}`);
+      await time.error('Error occurred at this time\n');
+      return res.status(404).json('Package does not exist.');
+    }
+
+    let rowsUpdated = await rds_handler.update_rds_package_data(ID, Name, Version);
+
+    if(URL && !Content) {
+      let npmURL;
+      if(URL.includes("github")) {
+        const parts = URL.split('/');
+        const repositoryName = parts[parts.length - 1];
+        // Constructing the npm package URL
+        npmURL = `https://www.npmjs.com/package/${repositoryName}`;
+        await logger.info(`constructed npm package url: ${npmURL}`);
+      }
+  
+      const npmPackageName: string = get_npm_package_name(String(npmURL));
+      await logger.info(`package name: ${npmPackageName}`);
+  
+      const output = execSync(`npm view ${npmPackageName} --json --silent`, { encoding: 'utf8' }); // shell cmd to get json
+      fs.writeFileSync(`./temp_npm_json/${npmPackageName}_info.json`, output); // write json to file
+      await logger.info(`wrote json file`);
+      const file = `./temp_npm_json/${npmPackageName}_info.json`; // file path
+      const gitUrl:string = await check_npm_for_open_source(file);
+      await logger.info(`gitUrl: ${gitUrl}`);
+      let destinationPath = 'temp_linter_test';
+      const cloneRepoOut = await cloneRepo(gitUrl, destinationPath);
+      await logger.info(`finished cloning`);
+      const zipFilePath = await zipDirectory(cloneRepoOut[1], `./tempZip.zip`);
+  
+      // Upload the actual package to s3
+      // Read the zipped file content
+      const zippedFileContent = fs.readFileSync(zipFilePath);
+      await logger.debug(`got zipped file content`)
+  
+      // Create Express.Multer.File object
+      const zippedFile = {
+          fieldname: 'file',
+          originalname: 'zipped_directory.zip',
+          encoding: '7bit',
+          mimetype: 'application/zip',
+          buffer: zippedFileContent // Buffer of the zipped file content
+      };
+      const s3_response = await upload_package(ID, zippedFile);
+    } else if(!URL && Content) {
+      const binaryData = Buffer.from(req.body.Content, 'base64');
+      const file = {buffer: binaryData}
+      let s3Url = await updateS3Package(ID, file);
+    } else {
+      return res.status(400).json('Package does not exist.');
+    }
+
+    await logger.info(`There is missing field(s) in the PackageID/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.`);
+    await time.info("Finished at this time\n");
+
+    res.status(200).send('Version is updated.');
+  } catch (error) {
+    await logger.error('Error updating package content:', error);
     await time.error('Error occurred at this time\n');
     res.status(500).send('An error occurred.');
   }
