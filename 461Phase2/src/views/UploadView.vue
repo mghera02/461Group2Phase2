@@ -1,3 +1,4 @@
+<!--This is the frontend page for the upload page where you can use the upload endpoint. -->
 <style lang="css" src="../assets/css/uploadDownload.css"></style>
 
 <template>
@@ -22,36 +23,48 @@
 </template>
 
 <script>
-    import { ref} from "vue"
-    import axios from "axios"
+    // Importing necessary modules from Vue and Axios
+    import { ref } from "vue";
+    import axios from "axios";
 
     export default {
-        name:'Add',
+        // Component name
+        name: 'Add',
+
+        // Data properties for the component
         data() {
-             return {
+            return {
+                // IP address for server connection
                 ip: "3.139.57.32",
+                // Status for file upload process
                 uploadStatus: "",
+                // URL for npm ingest process
                 npmUrl: "",
+                // Status for npm ingest process
                 ingestStatus: "",
-             }
+            }
         },
+
+        // Methods defined in the component
         methods: {
+            // Method to handle file upload
             async handleFileUpload() {
                 const file = this.$refs.file;
-                // debugger;
                 console.log("selected file", file.files)
                 this.uploadStatus = "Uploading...";
-                //Upload to server
+
+                // Access the selected file
                 const selectedFile = file.files[0]
-                // Read the selected file
                 const reader = new FileReader();
+
+                // Read the selected file content
                 reader.onload = async (event) => {
                     const fileContent = event.target.result;
 
-                    // Convert the file content to base64
-                    const base64String = fileContent.split(',')[1]; // Extract base64 string
+                    // Extract base64 content
+                    const base64String = fileContent.split(',')[1];
 
-                    // Make a POST request using Axios
+                    // Make a POST request using Axios to upload the file
                     try {
                         const response = await axios.post(`http://3.139.57.32:8080/package`, {"Content": base64String}, {
                             headers: {
@@ -66,20 +79,23 @@
                     }
                 };
 
-                // Read file as data URL (base64)
+                // Read the file as a data URL (base64)
                 reader.readAsDataURL(selectedFile);
             },
+
+            // Method to perform npm ingestion
             async npmIngest() {
                 console.log("url: ", this.npmUrl);
                 this.ingestStatus = "Ingesting...";
 
+                // Perform a POST request for npm ingestion using fetch API
                 try {
                     const response = await fetch(`http://${this.ip}:8080/package`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ URL: this.npmUrl }), // stringify the object
+                        body: JSON.stringify({ URL: this.npmUrl }),
                     });
 
                     if (!response.ok) {
