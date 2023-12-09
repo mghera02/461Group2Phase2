@@ -1,3 +1,5 @@
+// This is a copy of our app.ts in our 461phase2 folder for unit testing purposes, 
+// please look at the ./461Phase2/app.ts for the real file
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs');

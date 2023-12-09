@@ -1,3 +1,4 @@
+// This file contains all the code mock the and test the endpoints (this is our unit tests)
 import express from 'express';
 import multer from 'multer';
 import AWS from 'aws-sdk';

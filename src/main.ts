@@ -1,3 +1,5 @@
+// This file contains all of the code to initialize the beginning of the calculations 
+// for the metrics such as calling the parsing helpers and calling the output function
 import { Octokit, App } from "octokit"; // Octokit v17
 import * as fs from 'fs'; // use filesystem
 import { execSync } from 'child_process'; // to execute shell cmds

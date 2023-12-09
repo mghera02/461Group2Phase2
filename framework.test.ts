@@ -1,3 +1,5 @@
+// This file contains the unit tests for the phase 1 metric code
+
 //imported functions
 const { check_npm_for_open_source } = require('./src/main.ts');
 const { fetchRepoInfo, fetchRepoContributors, fetchRepoLicense, fetchRepoReadme, fetchRepoIssues, 

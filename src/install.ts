@@ -1,3 +1,4 @@
+// This file contains the code to install the dependencies
 import { execSync } from 'child_process';
 
 const dependencies: string[] = ["octokit",

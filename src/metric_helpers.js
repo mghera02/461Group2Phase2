@@ -14,7 +14,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -35,7 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.fetchRepoPullRequest = exports.fetchRepoPinning = exports.fetchRepoInfo = exports.fetchRepoIssues = exports.fetchLintOutput = exports.fetchRepoReadme = exports.fetchRepoLicense = exports.fetchRepoContributors = exports.createLintDirs = void 0;
 //////////////////////////////////////////////////////////////////////
 // here we are getting everything we need for our metrics from the api  (contributors, license, readme, issues, etc)
@@ -381,8 +381,8 @@ function fetchRepoIssues(username, repo) {
                             repo: repo,
                             state: "all",
                             headers: {
-                                'X-GitHub-Api-Version': '2022-11-28'
-                            }
+                                'X-GitHub-Api-Version': '2022-11-28',
+                            },
                         })];
                 case 1:
                     response = _a.sent();
@@ -428,7 +428,7 @@ function fetchRepoPinning(username, repo) {
                     _a.trys.push([0, 2, , 3]);
                     return [4 /*yield*/, main_1.octokit.request('GET /repos/{owner}/{repo}/contents/package.json', {
                             owner: username,
-                            repo: repo
+                            repo: repo,
                         })];
                 case 1:
                     response = _a.sent();
@@ -472,7 +472,7 @@ function fetchRepoPullRequest(username, repo) {
                     return [4 /*yield*/, main_1.octokit.paginate("GET /repos/{owner}/{repo}/pulls", {
                             owner: username,
                             repo: repo,
-                            state: "closed"
+                            state: "closed",
                         })];
                 case 1:
                     pullRequests = _b.sent();
@@ -491,7 +491,7 @@ function fetchRepoPullRequest(username, repo) {
                     return [4 /*yield*/, main_1.octokit.paginate("GET /repos/{owner}/{repo}/pulls/{pull_number}/files", {
                             owner: username,
                             repo: repo,
-                            pull_number: pr.number
+                            pull_number: pr.number,
                         })];
                 case 3:
                     files = _b.sent();
@@ -504,7 +504,7 @@ function fetchRepoPullRequest(username, repo) {
                                     return [4 /*yield*/, main_1.octokit.paginate("GET /repos/{owner}/{repo}/pulls/{pull_number}/comments", {
                                             owner: username,
                                             repo: repo,
-                                            pull_number: pr.number
+                                            pull_number: pr.number,
                                         })];
                                 case 1:
                                     reviewComments = _c.sent();
