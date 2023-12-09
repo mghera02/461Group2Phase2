@@ -127,14 +127,14 @@
                               packageVersion: packageObj.Version,
                               packageId: id,
                               // Ratings for various aspects of the package
-                              busFactor: ratings.busFactor,
-                              rampup: ratings.rampup,
-                              license: ratings.license,
-                              correctness: ratings.correctness,
-                              maintainer: ratings.maintainer,
-                              pullRequest: ratings.pullRequest,
-                              pinning: ratings.pinning,
-                              score: ratings.score,
+                              busFactor: ratings.BusFactor,
+                              rampup: ratings.RampUp,
+                              license: ratings.LicenseScore,
+                              correctness: ratings.Correctness,
+                              maintainer: ratings.ResponsiveMaintainer,
+                              pullRequest: ratings.PullRequest,
+                              pinning: ratings.GoodPinningPractice,
+                              score: ratings.NetScore,
                           });
                       }
                   } catch (error) {
