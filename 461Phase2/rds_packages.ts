@@ -90,7 +90,7 @@ async function get_package_data(package_id: number) : Promise<Row | null> {
 
   try {
       const query = `
-        SELECT * FROM ${TABLE_NAME} WHERE package_id = $1
+        SELECT * FROM ${TABLE_NAME} WHERE id = $1
       `;
       const values = [package_id]
       const data: QueryResult<Row> = await client.query(query, values);

@@ -121,7 +121,7 @@ function get_package_data(package_id) {
                     _a.label = 2;
                 case 2:
                     _a.trys.push([2, 4, 5, 7]);
-                    query = "\n        SELECT * FROM ".concat(rds_config_1.TABLE_NAME, " WHERE package_id = $1\n      ");
+                    query = "\n        SELECT * FROM ".concat(rds_config_1.TABLE_NAME, " WHERE id = $1\n      ");
                     values = [package_id];
                     return [4 /*yield*/, client.query(query, values)];
                 case 3:
