@@ -156,7 +156,7 @@
           // Method to fetch package ratings based on ID
           async getPackageRatings(id) {
               try {
-                  const response = await axios.get(`http://${this.ip}:8080/rate/${id}`, {
+                  const response = await axios.get(`http://${this.ip}:8080/package/${id}/rate`, {
                       headers: {
                           "Content-Type": "multipart/form-data",
                       },
