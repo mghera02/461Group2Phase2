@@ -1,3 +1,5 @@
+// This is the router that creates the routes for the vue app
+
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 

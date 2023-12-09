@@ -1,3 +1,4 @@
+<!--This is the frontend code for the component to display the packages on the home page-->
 <style lang="css" src="../assets/css/packageContainer.css"></style>
 
 <template>

@@ -1,3 +1,4 @@
+<!--This is an example page that is not used in the project, so please ignore-->
 <template>
   <div class="about">
     <h1>This is an about page</h1>

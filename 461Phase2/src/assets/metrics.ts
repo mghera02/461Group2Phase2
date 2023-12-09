@@ -1,3 +1,8 @@
+/*
+    This is file contains all the code that the endpoints use to calculate the metrics.
+    Any code needed to calculate the metrics for the rate endpoint is here.
+*/
+
 import { Octokit, App } from "octokit"; // Octokit v17
 const { exec } = require('child_process'); // to execute shell cmds async version
 import { execSync } from 'child_process'; // to execute shell cmds

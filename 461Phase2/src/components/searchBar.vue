@@ -1,3 +1,4 @@
+<!--This is the code for the component on the frontend for the search bar on the home page-->
 <template>
   <main class="topNav">
     <input id="searchBar" v-on:keyup.enter="sendSearchToParent" type="text" v-model="searchBarVal" placeholder="Search for a package using regex"/>
