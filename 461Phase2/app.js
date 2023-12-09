@@ -441,7 +441,7 @@ app.get('/package/:id/rate', function (req, res) { return __awaiter(void 0, void
                 return [4 /*yield*/, logger_1.logger.info("Attempting to get package rating")];
             case 2:
                 _a.sent();
-                package_id = parseInt(req.params.id);
+                package_id = req.params.id;
                 return [4 /*yield*/, logger_1.logger.debug("Attempting to rate package with id: ".concat(package_id))];
             case 3:
                 _a.sent();
@@ -455,7 +455,7 @@ app.get('/package/:id/rate', function (req, res) { return __awaiter(void 0, void
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 6:
                 _a.sent();
-                return [2 /*return*/, res.status(404).json({ error: 'Package not found' })];
+                return [2 /*return*/, res.status(404).json('Package does not exist.')];
             case 7: return [4 /*yield*/, logger_1.logger.info("Received package data from RDS: ".concat(package_data))];
             case 8:
                 _a.sent();

@@ -324,14 +324,14 @@ app.get('/package/:id/rate', async (req, res) => {
     await time.info("Starting time")
     await logger.info("Attempting to get package rating")
 
-    const package_id = parseInt(req.params.id);
+    const package_id = req.params.id;
     await logger.debug(`Attempting to rate package with id: ${package_id}`)
 
     const package_data = await rds_handler.get_package_data(package_id);
     if (package_data === null) {
       await logger.error(`No package found with id: ${package_id}`)
       await time.error('Error occurred at this time\n');
-      return res.status(404).json({ error: 'Package not found' });
+      return res.status(404).json('Package does not exist.');
     }
     await logger.info(`Received package data from RDS: ${package_data}`);
 
