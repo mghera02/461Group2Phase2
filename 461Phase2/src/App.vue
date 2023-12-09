@@ -1,3 +1,4 @@
+<!--This is just the general page for setting up the vue app-->
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 </script>

@@ -1,4 +1,5 @@
 "use strict";
+// This is our logger. Any code to setup our logger lives here.
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.time = exports.logger = exports.getLogger = void 0;
 var winston = require('winston'); //Logging library

@@ -1,3 +1,5 @@
+// This is our logger. Any code to setup our logger lives here.
+
 const winston = require('winston'); //Logging library
 import * as dotenv from 'dotenv';
 

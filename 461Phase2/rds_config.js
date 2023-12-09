@@ -1,4 +1,6 @@
 "use strict";
+// This file contains all of the functions to make large scale changes 
+// with the RDS such as setting up a connection, setting up the tables, clearing the tables and so on.
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {

@@ -37,6 +37,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.app = void 0;
+// This is the file that contains all the code for our endpoints. 
+// Any bit of code that handles the request from any of the endpoints lives here.
 var express = require('express');
 var multer = require('multer');
 var fs = require('fs');

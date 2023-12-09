@@ -1,3 +1,5 @@
+// This is the file that contains all the code for our endpoints. 
+// Any bit of code that handles the request from any of the endpoints lives here.
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs');

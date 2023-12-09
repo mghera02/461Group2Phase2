@@ -1,3 +1,5 @@
+// This file contains all the code that interacts with the s3 buckets we are using in AWS
+
 import * as AWS from 'aws-sdk';
 import * as fs from 'fs';
 import * as dotenv from 'dotenv';

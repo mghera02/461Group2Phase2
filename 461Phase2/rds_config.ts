@@ -1,3 +1,6 @@
+// This file contains all of the functions to make large scale changes 
+// with the RDS such as setting up a connection, setting up the tables, clearing the tables and so on.
+
 // ALL FUNCTIONS IN THIS FOLDER ARE EXPORTED TO app.mjs
 // TO RUN THESE FUNCTIONS, RUN app.mjs
 import { Client } from 'pg';

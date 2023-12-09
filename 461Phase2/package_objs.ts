@@ -1,4 +1,4 @@
-
+// This file contains all of the objects for our packages
 interface Package {
     metadata: PackageMetadata,
     data: PackageData,
