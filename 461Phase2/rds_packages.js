@@ -36,9 +36,20 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.match_rds_rows_with_pagination = exports.match_rds_rows = exports.get_package_data = exports.update_rds_package_data = exports.add_rds_package_data = void 0;
+exports.update_rds_package_data = exports.match_rds_rows_with_pagination = exports.match_rds_rows = exports.get_package_rating = exports.get_package_metadata = exports.add_rds_package_data = void 0;
 var rds_config_1 = require("./rds_config");
 var logger_1 = require("./logger");
+function row_to_metadata(row) {
+    if (row === null) {
+        return null;
+    }
+    var metadata = {
+        Name: row.name,
+        Version: row.version,
+        ID: row.id,
+    };
+    return metadata;
+}
 // Adds data to the amazon RDS instance. That data is assigned a unique ID that is returned.
 // This ID is used to locate the package contents in the S3 bucket.
 function add_rds_package_data(metadata, rating) {
@@ -53,7 +64,7 @@ function add_rds_package_data(metadata, rating) {
                 case 2:
                     _a.trys.push([2, 4, 5, 7]);
                     query = "\n        INSERT INTO package_data(name, version, id, rating, num_downloads) VALUES($1, $2, $3, $4, $5)\n        RETURNING id;\n      ";
-                    values = [metadata.name, metadata.version, metadata.ID, rating, 0];
+                    values = [metadata.Name, metadata.Version, metadata.ID, rating, 0];
                     return [4 /*yield*/, client.query(query, values)];
                 case 3:
                     result = _a.sent();
@@ -76,7 +87,7 @@ function add_rds_package_data(metadata, rating) {
     });
 }
 exports.add_rds_package_data = add_rds_package_data;
-function update_rds_package_data(name, rating, content, url, jsProgram) {
+function update_rds_package_data(id, newName, newVersion) {
     return __awaiter(this, void 0, void 0, function () {
         var client, query, values, result, error_2;
         return __generator(this, function (_a) {
@@ -87,19 +98,17 @@ function update_rds_package_data(name, rating, content, url, jsProgram) {
                     _a.label = 2;
                 case 2:
                     _a.trys.push([2, 4, 5, 7]);
-                    query = "\n      UPDATE package_data\n      SET rating = $2, content = $4, url = $5, js_program = $6\n      WHERE package_name = $1\n      RETURNING package_id;\n    ";
-                    values = [name, rating, 0, content, url, jsProgram];
+                    query = "\n      UPDATE package_data \n      SET name = $1, version = $2\n      WHERE id = $3\n    ";
+                    values = [newName, newVersion, id];
                     return [4 /*yield*/, client.query(query, values)];
                 case 3:
                     result = _a.sent();
-                    if (result.rowCount === 0) {
-                        return [2 /*return*/, null];
-                    }
-                    return [2 /*return*/, result.rows[0].package_id];
+                    // Check if any rows were affected
+                    return [2 /*return*/, result.rowCount];
                 case 4:
                     error_2 = _a.sent();
                     logger_1.logger.error('Error updating data:', error_2);
-                    return [2 /*return*/, null];
+                    return [2 /*return*/, 0];
                 case 5: return [4 /*yield*/, client.end()];
                 case 6:
                     _a.sent();
@@ -110,9 +119,9 @@ function update_rds_package_data(name, rating, content, url, jsProgram) {
     });
 }
 exports.update_rds_package_data = update_rds_package_data;
-function get_package_data(package_id) {
+function get_package_metadata(package_id) {
     return __awaiter(this, void 0, void 0, function () {
-        var client, query, values, data, error_3;
+        var client, query, values, data, metadata, error_3;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, (0, rds_config_1.get_rds_connection)()];
@@ -130,7 +139,8 @@ function get_package_data(package_id) {
                     if (data.rowCount == 0) {
                         return [2 /*return*/, null];
                     }
-                    return [2 /*return*/, data.rows[0]];
+                    metadata = row_to_metadata(data.rows[0]);
+                    return [2 /*return*/, metadata];
                 case 4:
                     error_3 = _a.sent();
                     logger_1.logger.error('Error grabbing data:', error_3);
@@ -144,11 +154,47 @@ function get_package_data(package_id) {
         });
     });
 }
-exports.get_package_data = get_package_data;
+exports.get_package_metadata = get_package_metadata;
+function get_package_rating(package_id) {
+    return __awaiter(this, void 0, void 0, function () {
+        var client, query, values, data, rating, error_4;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, (0, rds_config_1.get_rds_connection)()];
+                case 1:
+                    client = _a.sent();
+                    _a.label = 2;
+                case 2:
+                    _a.trys.push([2, 4, 5, 7]);
+                    query = "\n        SELECT rating FROM ".concat(rds_config_1.TABLE_NAME, " WHERE id = $1\n      ");
+                    values = [package_id];
+                    return [4 /*yield*/, client.query(query, values)];
+                case 3:
+                    data = _a.sent();
+                    // Making sure something is returned at all
+                    if (data.rowCount == 0) {
+                        return [2 /*return*/, null];
+                    }
+                    rating = data.rows[0];
+                    return [2 /*return*/, rating];
+                case 4:
+                    error_4 = _a.sent();
+                    logger_1.logger.error('Error grabbing data:', error_4);
+                    return [2 /*return*/, null];
+                case 5: return [4 /*yield*/, client.end()];
+                case 6:
+                    _a.sent();
+                    return [7 /*endfinally*/];
+                case 7: return [2 /*return*/];
+            }
+        });
+    });
+}
+exports.get_package_rating = get_package_rating;
 function match_rds_rows(regex, useExactMatch) {
     if (useExactMatch === void 0) { useExactMatch = false; }
     return __awaiter(this, void 0, void 0, function () {
-        var client, query, values, result, error_4;
+        var client, query, values, result, error_5;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, (0, rds_config_1.get_rds_connection)()];
@@ -171,8 +217,8 @@ function match_rds_rows(regex, useExactMatch) {
                     logger_1.logger.debug('Query result:', result.rows);
                     return [2 /*return*/, result.rows];
                 case 4:
-                    error_4 = _a.sent();
-                    logger_1.logger.error('Error searching data:', error_4);
+                    error_5 = _a.sent();
+                    logger_1.logger.error('Error searching data:', error_5);
                     return [2 /*return*/, []];
                 case 5: return [4 /*yield*/, client.end()];
                 case 6:
@@ -188,7 +234,7 @@ function match_rds_rows_with_pagination(regex, version, useExactMatch, offset) {
     if (useExactMatch === void 0) { useExactMatch = false; }
     if (offset === void 0) { offset = 0; }
     return __awaiter(this, void 0, void 0, function () {
-        var client, limit, query, values, result, error_5;
+        var client, limit, query, values, result, error_6;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, (0, rds_config_1.get_rds_connection)()];
@@ -214,8 +260,8 @@ function match_rds_rows_with_pagination(regex, version, useExactMatch, offset) {
                     logger_1.logger.debug('Query result:', JSON.stringify(result));
                     return [2 /*return*/, result.rows];
                 case 4:
-                    error_5 = _a.sent();
-                    logger_1.logger.error('Error searching data:', error_5);
+                    error_6 = _a.sent();
+                    logger_1.logger.error('Error searching data:', error_6);
                     return [2 /*return*/, []];
                 case 5: return [4 /*yield*/, client.end()];
                 case 6:

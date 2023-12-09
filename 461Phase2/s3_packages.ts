@@ -90,8 +90,30 @@ async function clear_s3_bucket() {
     }
 }
 
+async function updateS3Package(package_id: string, newFile: any): Promise<string | null> {
+    const file_content = newFile.buffer;
+  
+    const params: AWS.S3.PutObjectRequest = {
+      Bucket: BUCKET_NAME,
+      Key: package_id,
+      Body: file_content,
+    };
+  
+    try {
+      await s3.putObject(params).promise();
+      const file_url = `https://${BUCKET_NAME}.s3.${AWS.config.region}.amazonaws.com/${package_id}`;
+      logger.debug(`File updated successfully in S3. URL: ${file_url}`);
+  
+      return file_url;
+    } catch (error) {
+      logger.error('Error updating file in S3:', error);
+      return null;
+    }
+  }
+
 export {
     upload_package,
     download_package,
     clear_s3_bucket,
+    updateS3Package
 }

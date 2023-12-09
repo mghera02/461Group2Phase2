@@ -74,26 +74,23 @@ async function add_rds_package_data(metadata: PackageMetadata, rating: PackageRa
     }
 }
 
-async function update_rds_package_data(name: string, rating: object, content: string, url: string, jsProgram: string): Promise<number | null> {
+async function update_rds_package_data(id: string, newName: string, newVersion: string): Promise<number | null> {
   const client = await get_rds_connection();
 
   try {
     const query = `
-      UPDATE package_data
-      SET rating = $2, content = $4, url = $5, js_program = $6
-      WHERE package_name = $1
-      RETURNING package_id;
+      UPDATE package_data 
+      SET name = $1, version = $2
+      WHERE id = $3
     `;
-    const values = [name, rating, 0, content, url, jsProgram];
-    const result: QueryResult<PackageData> = await client.query(query, values);
-    if (result.rowCount === 0) {
-      return null;
-    }
+    const values = [newName, newVersion, id];
+    const result: QueryResult<Row> = await client.query(query, values);
 
-    return result.rows[0].package_id;
+    // Check if any rows were affected
+    return result.rowCount;
   } catch (error) {
     logger.error('Error updating data:', error);
-    return null;
+    return 0;
   } finally {
     await client.end();
   }
@@ -227,10 +224,10 @@ async function match_rds_rows_with_pagination(regex: string, version: string, us
 
 export {
     add_rds_package_data,
-    update_rds_package_data,
     get_package_metadata,
     get_package_rating,
     match_rds_rows,
     match_rds_rows_with_pagination,
+    update_rds_package_data,
     PackageData,
 }

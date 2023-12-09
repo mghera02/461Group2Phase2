@@ -37,7 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clear_s3_bucket = exports.download_package = exports.upload_package = void 0;
+exports.updateS3Package = exports.clear_s3_bucket = exports.download_package = exports.upload_package = void 0;
 var AWS = require("aws-sdk");
 var dotenv = require("dotenv");
 var logger_1 = require("./logger");
@@ -87,7 +87,7 @@ function upload_package(package_id, file) {
 exports.upload_package = upload_package;
 function download_package(package_id) {
     return __awaiter(this, void 0, void 0, function () {
-        var params, file, error_2;
+        var params, file, data, error_2;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -102,7 +102,11 @@ function download_package(package_id) {
                 case 2:
                     file = _a.sent();
                     logger_1.logger.debug("File downloaded successfully.");
-                    return [2 /*return*/, file.Body];
+                    data = {
+                        Content: file.Body,
+                        JSProgram: "",
+                    };
+                    return [2 /*return*/, data];
                 case 3:
                     error_2 = _a.sent();
                     logger_1.logger.error('Error downloading file from S3:', error_2);
@@ -150,3 +154,34 @@ function clear_s3_bucket() {
     });
 }
 exports.clear_s3_bucket = clear_s3_bucket;
+function updateS3Package(package_id, newFile) {
+    return __awaiter(this, void 0, void 0, function () {
+        var file_content, params, file_url, error_4;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    file_content = newFile.buffer;
+                    params = {
+                        Bucket: BUCKET_NAME,
+                        Key: package_id,
+                        Body: file_content,
+                    };
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, s3.putObject(params).promise()];
+                case 2:
+                    _a.sent();
+                    file_url = "https://".concat(BUCKET_NAME, ".s3.").concat(AWS.config.region, ".amazonaws.com/").concat(package_id);
+                    logger_1.logger.debug("File updated successfully in S3. URL: ".concat(file_url));
+                    return [2 /*return*/, file_url];
+                case 3:
+                    error_4 = _a.sent();
+                    logger_1.logger.error('Error updating file in S3:', error_4);
+                    return [2 /*return*/, null];
+                case 4: return [2 /*return*/];
+            }
+        });
+    });
+}
+exports.updateS3Package = updateS3Package;
