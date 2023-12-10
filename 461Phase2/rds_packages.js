@@ -175,7 +175,7 @@ function get_package_rating(package_id) {
                     if (data.rowCount == 0) {
                         return [2 /*return*/, null];
                     }
-                    rating = data.rows[0];
+                    rating = data.rows[0].rating;
                     return [2 /*return*/, rating];
                 case 4:
                     error_4 = _a.sent();

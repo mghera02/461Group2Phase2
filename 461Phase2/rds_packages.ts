@@ -130,14 +130,14 @@ async function get_package_rating(package_id: number) : Promise<PackageRating | 
         SELECT rating FROM ${TABLE_NAME} WHERE id = $1
       `;
       const values = [package_id]
-      const data: QueryResult<PackageRating> = await client.query(query, values);
+      const data: QueryResult<Row> = await client.query(query, values);
 
       // Making sure something is returned at all
       if (data.rowCount == 0) {
         return null;
       }
 
-      const rating : PackageRating = data.rows[0];
+      const rating : PackageRating = data.rows[0].rating;
 
       return rating;
     } catch (error) {
