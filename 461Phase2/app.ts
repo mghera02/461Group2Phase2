@@ -280,7 +280,6 @@ app.post('/package', upload.single('file'), async (req, res) => {
           await logger.debug(`Uploaded package to rds with id: ${package_id}`)
 
           // Upload the actual package to s3
-          const file = {buffer: binaryData}
           const s3_response = await upload_package(package_id, file);
 
           // Check to see if package data was uploaded to S3
@@ -300,7 +299,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
           let response: Package = {
             metadata: metadata,
             data: {
-              Content: String(binaryData),
+              Content: String(req.body.Content),
               JSProgram: "Not Implementing",
             },
           }

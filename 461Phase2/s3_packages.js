@@ -56,15 +56,14 @@ var s3 = new AWS.S3();
 var BUCKET_NAME = "461s3bucketv2";
 function upload_package(package_id, file) {
     return __awaiter(this, void 0, void 0, function () {
-        var file_content, params, file_url, error_1;
+        var params, file_url, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    file_content = file.buffer;
                     params = {
                         Bucket: BUCKET_NAME,
                         Key: package_id,
-                        Body: file_content,
+                        Body: file,
                     };
                     _a.label = 1;
                 case 1:

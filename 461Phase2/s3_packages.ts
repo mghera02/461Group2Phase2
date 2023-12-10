@@ -25,13 +25,11 @@ AWS.config.update({
 const s3 = new AWS.S3();
 const BUCKET_NAME = "461s3bucketv2";
 
-async function upload_package(package_id: string, file: any) : Promise<string | null> {
-    const file_content = file.buffer;
-
+async function upload_package(package_id: string, file: string) : Promise<string | null> {
     const params: AWS.S3.PutObjectRequest = {
         Bucket: BUCKET_NAME,
         Key: package_id,
-        Body: file_content,
+        Body: file,
       };
     
     try {
