@@ -26,7 +26,7 @@
         data() {
             return {
                 // IP address for server connection
-                ip: "3.139.57.32"
+                ip: "3.145.64.121"
             }
         },
 

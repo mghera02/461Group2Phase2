@@ -501,7 +501,7 @@ app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, vo
                 return [4 /*yield*/, logger_1.logger.info("Attempting to download package")];
             case 2:
                 _a.sent();
-                package_id = parseInt(req.params.packageId);
+                package_id = req.params.packageId;
                 return [4 /*yield*/, rds_handler.get_package_metadata(package_id)];
             case 3:
                 metadata = _a.sent();

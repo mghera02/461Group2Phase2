@@ -357,7 +357,7 @@ app.get('/package/:packageId', async (req, res) => {
     await time.info("Starting time")
     await logger.info("Attempting to download package")
 
-    const package_id = parseInt(req.params.packageId);
+    const package_id = req.params.packageId;
 
     const metadata = await rds_handler.get_package_metadata(package_id)
     if (metadata === null) {

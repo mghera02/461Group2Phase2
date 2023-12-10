@@ -39,7 +39,7 @@
               // Array to store packages
               packages: [],
               // IP address for server connection
-              ip: "3.139.57.32",
+              ip: "3.145.64.121",
               // Number of times search button pressed for all searches
               numSearchAllPress: 0,
               // Previous number of times search button pressed for all searches

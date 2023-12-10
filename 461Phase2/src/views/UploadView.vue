@@ -35,7 +35,7 @@
         data() {
             return {
                 // IP address for server connection
-                ip: "3.139.57.32",
+                ip: "3.145.64.121",
                 // Status for file upload process
                 uploadStatus: "",
                 // URL for npm ingest process
@@ -66,7 +66,7 @@
 
                     // Make a POST request using Axios to upload the file
                     try {
-                        const response = await axios.post(`http://3.139.57.32:8080/package`, {"Content": base64String}, {
+                        const response = await axios.post(`http://3.145.64.121:8080/package`, {"Content": base64String}, {
                             headers: {
                                 'Content-Type': 'application/json',
                             }
