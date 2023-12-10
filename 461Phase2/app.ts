@@ -182,10 +182,11 @@ app.post('/package', upload.single('file'), async (req, res) => {
       await logger.debug(`removed clone repo`)
       await time.info("Finished at this time\n")
 
+      const base64EncodedData = (zippedFileContent).toString('base64');
       let response: Package = {
         metadata: metadata,
         data: {
-          Content: zippedFile.buffer,
+          Content: base64EncodedData,
           JSProgram: "Not Implementing",
         },
       }
@@ -300,7 +301,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
           let response: Package = {
             metadata: metadata,
             data: {
-              Content: String(binaryData),
+              Content: String(req.body.Content),
               JSProgram: "Not Implementing",
             },
           }

@@ -115,7 +115,7 @@ function extractRepoUrl(zipFilePath, packageName) {
 }
 //TODO: if RDS succeeds to upload but S3 fails, remove the corresponding RDS entry
 app.post('/package', upload.single('file'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, username, repo, gitInfo, gitDetails, scores, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, response, error_1, packageName_1, binaryData_1, uploadDir, timestamp, zipFilePath_1, writeStream_1, error_2;
+    var url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, username, repo, gitInfo, gitDetails, scores, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, base64EncodedData, response, error_1, packageName_1, binaryData_1, uploadDir, timestamp, zipFilePath_1, writeStream_1, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -256,10 +256,11 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
             case 31:
                 _a.sent();
+                base64EncodedData = (zippedFileContent).toString('base64');
                 response = {
                     metadata: metadata,
                     data: {
-                        Content: zippedFile.buffer,
+                        Content: base64EncodedData,
                         JSProgram: "Not Implementing",
                     },
                 };
@@ -397,7 +398,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                                 response = {
                                     metadata: metadata,
                                     data: {
-                                        Content: String(binaryData_1),
+                                        Content: String(req.body.Content),
                                         JSProgram: "Not Implementing",
                                     },
                                 };

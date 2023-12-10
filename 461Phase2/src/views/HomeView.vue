@@ -127,14 +127,14 @@
                               packageVersion: packageObj.Version,
                               packageId: id,
                               // Ratings for various aspects of the package
-                              busFactor: ratings.BusFactor,
-                              rampup: ratings.RampUp,
-                              license: ratings.LicenseScore,
-                              correctness: ratings.Correctness,
-                              maintainer: ratings.ResponsiveMaintainer,
-                              pullRequest: ratings.PullRequest,
-                              pinning: ratings.GoodPinningPractice,
-                              score: ratings.NetScore,
+                              busFactor: ratings?.BusFactor || 0, // Default value if BusFactor is undefined
+                              rampup: ratings?.RampUp || 0,
+                              license: ratings?.LicenseScore || 0,
+                              correctness: ratings?.Correctness || 0,
+                              maintainer: ratings?.ResponsiveMaintainer || 0,
+                              pullRequest: ratings?.PullRequest || 0,
+                              pinning: ratings?.GoodPinningPractice || 0,
+                              score: ratings?.NetScore || 0,
                           });
                       }
                   } catch (error) {
