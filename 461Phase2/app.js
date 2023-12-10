@@ -60,7 +60,7 @@ var port = process.env.PORT || 8080;
 var upload = multer({ storage: multer.memoryStorage() });
 app.use(cors());
 app.use(express.json());
-function extractRepoUrl(zipFilePath, packageName) {
+function extractRepoInfo(zipFilePath) {
     var _this = this;
     return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
         var _this = this;
@@ -85,8 +85,12 @@ function extractRepoUrl(zipFilePath, packageName) {
                                 readStream.on('end', function () {
                                     try {
                                         var jsonObject = JSON.parse(fileContent);
-                                        if ('repository' in jsonObject && 'url' in jsonObject.repository) {
-                                            resolve(jsonObject.repository.url);
+                                        if ('repository' in jsonObject && 'url' in jsonObject.repository && 'version' in jsonObject) {
+                                            var info = {
+                                                version: jsonObject.version,
+                                                url: jsonObject.repository.url
+                                            };
+                                            resolve(info);
                                         }
                                         else {
                                             reject(new Error('Repository URL not found in package.json'));
@@ -115,7 +119,7 @@ function extractRepoUrl(zipFilePath, packageName) {
 }
 //TODO: if RDS succeeds to upload but S3 fails, remove the corresponding RDS entry
 app.post('/package', upload.single('file'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, username, repo, gitInfo, gitDetails, scores, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, base64EncodedData, response, error_1, packageName_1, binaryData_1, uploadDir, timestamp, zipFilePath_1, writeStream_1, error_2;
+    var url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, username, repo, gitInfo, gitDetails, scores, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, base64EncodedData, response, error_1, binaryData_1, uploadDir, timestamp, zipFilePath_1, writeStream_1, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -290,7 +294,6 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 return [4 /*yield*/, logger_1.logger.info('Attempting to upload package')];
             case 39:
                 _a.sent();
-                packageName_1 = "testFile";
                 binaryData_1 = Buffer.from(req.body.Content, 'base64');
                 return [4 /*yield*/, logger_1.logger.info("Got buffer/binary data")];
             case 40:
@@ -314,7 +317,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 _a.sent();
                 writeStream_1 = fs.createWriteStream(zipFilePath_1);
                 writeStream_1.write(binaryData_1, function (err) { return __awaiter(void 0, void 0, void 0, function () {
-                    var repoUrl, username, repo, regex, matches, gitDetails, scores, version, metadata, package_id, file, s3_response, response;
+                    var info, repoUrl, version, username, repo, regex, matches, gitDetails, scores, metadata, package_id, file, s3_response, response;
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
@@ -326,9 +329,11 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                             case 2: return [4 /*yield*/, logger_1.logger.info("zip file saved successfully")];
                             case 3:
                                 _a.sent();
-                                return [4 /*yield*/, extractRepoUrl(zipFilePath_1, packageName_1)];
+                                return [4 /*yield*/, extractRepoInfo(zipFilePath_1)];
                             case 4:
-                                repoUrl = _a.sent();
+                                info = _a.sent();
+                                repoUrl = info.url;
+                                version = info.version;
                                 return [4 /*yield*/, logger_1.logger.info("retrieved repo url: ".concat(repoUrl))];
                             case 5:
                                 _a.sent();
@@ -351,7 +356,6 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                             case 8:
                                 _a.sent();
                                 fs.unlinkSync(zipFilePath_1);
-                                version = "0.0.0";
                                 metadata = {
                                     Name: repo,
                                     Version: version,

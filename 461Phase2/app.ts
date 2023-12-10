@@ -33,7 +33,12 @@ const upload = multer({ storage: multer.memoryStorage() });
 app.use(cors());
 app.use(express.json());
 
-function extractRepoUrl(zipFilePath: string, packageName: string): Promise<string> {
+interface RepoInfo {
+  version: string,
+  url: string,
+}
+
+function extractRepoInfo(zipFilePath: string): Promise<RepoInfo> {
   return new Promise(async (resolve, reject) => {
     yauzl.open(zipFilePath, { lazyEntries: true }, (err: Error | null, zipfile: any | null) => {
       if (err || !zipfile) {
@@ -57,8 +62,12 @@ function extractRepoUrl(zipFilePath: string, packageName: string): Promise<strin
             readStream.on('end', () => {
               try {
                 const jsonObject = JSON.parse(fileContent);
-                if ('repository' in jsonObject && 'url' in jsonObject.repository) {
-                  resolve(jsonObject.repository.url);
+                if ('repository' in jsonObject && 'url' in jsonObject.repository && 'version' in jsonObject) {
+                  const info : RepoInfo = {
+                    version: jsonObject.version,
+                    url: jsonObject.repository.url
+                  }
+                  resolve(info)
                 } else {
                   reject(new Error('Repository URL not found in package.json'));
                 }
@@ -207,8 +216,6 @@ app.post('/package', upload.single('file'), async (req, res) => {
       await time.info("Starting time")
       await logger.info('Attempting to upload package')
 
-      let packageName = "testFile";
-
       const binaryData = Buffer.from(req.body.Content, 'base64');
       await logger.info(`Got buffer/binary data`);
       const uploadDir = './uploads';
@@ -244,7 +251,9 @@ app.post('/package', upload.single('file'), async (req, res) => {
               await logger.info(`here!`);
             });
           });*/
-          const repoUrl = await extractRepoUrl(zipFilePath, packageName);
+          const info = await extractRepoInfo(zipFilePath);
+          const repoUrl = info.url;
+          const version = info.version;
           await logger.info(`retrieved repo url: ${repoUrl}`);
           let username: string = ""; 
           let repo: string = ""; 
@@ -263,7 +272,6 @@ app.post('/package', upload.single('file'), async (req, res) => {
 
           // Currently using the repo name as the package name, not the zip file name
           //const name = req.file.originalname.replace(/\.zip$/, '');
-          const version = "0.0.0"
           const metadata: PackageMetadata = {
             Name: repo,
             Version: version,
