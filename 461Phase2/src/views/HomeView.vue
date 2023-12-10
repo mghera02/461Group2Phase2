@@ -162,7 +162,7 @@
                       },
                   });
                   console.log("Rate received successfully", response.data);
-                  return response.data;
+                  return response.data.rating;
               } catch (error) {
                   console.error("Error retrieving the rate.", error);
                   return null;
