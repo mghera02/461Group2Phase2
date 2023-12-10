@@ -93,7 +93,7 @@ function download_package(package_id) {
                 case 0:
                     params = {
                         Bucket: BUCKET_NAME,
-                        Key: "package_ID_".concat(package_id)
+                        Key: "".concat(package_id)
                     };
                     _a.label = 1;
                 case 1:

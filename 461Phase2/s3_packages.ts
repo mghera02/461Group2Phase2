@@ -49,7 +49,7 @@ async function upload_package(package_id: string, file: any) : Promise<string | 
 async function download_package(package_id: any) : Promise<PackageData | null> {
     const params = {
         Bucket: BUCKET_NAME,
-        Key: `package_ID_${package_id}`
+        Key: `${package_id}`
     }
 
     try {
