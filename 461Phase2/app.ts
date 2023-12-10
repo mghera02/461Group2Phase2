@@ -300,7 +300,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
           let response: Package = {
             metadata: metadata,
             data: {
-              Content: String(req.body.Content),
+              Content: String(binaryData),
               JSProgram: "Not Implementing",
             },
           }

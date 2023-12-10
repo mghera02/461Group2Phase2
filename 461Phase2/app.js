@@ -397,7 +397,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                                 response = {
                                     metadata: metadata,
                                     data: {
-                                        Content: String(req.body.Content),
+                                        Content: String(binaryData_1),
                                         JSProgram: "Not Implementing",
                                     },
                                 };
