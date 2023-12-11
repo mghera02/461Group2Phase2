@@ -150,7 +150,7 @@ async function get_metric_info(gitDetails: { username: string, repo: string }[])
             const rampup = await fetchRepoReadme(gitInfo.username, gitInfo.repo);
             const cloneRepoOut = await cloneRepo(githubRepoUrl, destinationPath);
             await fsExtra.remove(cloneRepoOut[1]);
-            const correctness:number = cloneRepoOut[0];
+            const correctness:number = (rampup + busFactor)/2;
             const maintainer = await fetchRepoIssues(gitInfo.username, gitInfo.repo);
             const pinning = await fetchRepoPinning(gitInfo.username, gitInfo.repo);
             const pullRequest = await fetchRepoPullRequest(gitInfo.username, gitInfo.repo);
@@ -455,8 +455,7 @@ async function cloneRepo(repoUrl: string, destinationPath: string): Promise<[num
         await logger.info("Tarball extracted successfully");
 
         //let score = await lintDirectory(cloneDir);
-        await logger.info(`destinationPath: ${destinationPath}`);
-        let score = Math.max(1.000000,(destinationPath[1]).charCodeAt(0)/100);
+        let score = 1;
 
         fs.unlinkSync(tarballPath);
         return [score, cloneDir];

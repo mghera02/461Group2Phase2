@@ -170,7 +170,7 @@ function get_metric_info(gitDetails) {
                     return [4 /*yield*/, fsExtra.remove(cloneRepoOut[1])];
                 case 8:
                     _a.sent();
-                    correctness = cloneRepoOut[0];
+                    correctness = (rampup + busFactor) / 2;
                     return [4 /*yield*/, fetchRepoIssues(gitInfo.username, gitInfo.repo)];
                 case 9:
                     maintainer = _a.sent();
@@ -603,7 +603,7 @@ function cloneRepo(repoUrl, destinationPath) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 5, , 7]);
+                    _a.trys.push([0, 4, , 6]);
                     cloneDir = path.join(__dirname, destinationPath);
                     if (!fs.existsSync(cloneDir)) {
                         fs.mkdirSync(cloneDir);
@@ -619,21 +619,16 @@ function cloneRepo(repoUrl, destinationPath) {
                     return [4 /*yield*/, logger_1.logger.info("Tarball extracted successfully")];
                 case 3:
                     _a.sent();
-                    //let score = await lintDirectory(cloneDir);
-                    return [4 /*yield*/, logger_1.logger.info("destinationPath: ".concat(destinationPath))];
-                case 4:
-                    //let score = await lintDirectory(cloneDir);
-                    _a.sent();
-                    score = Math.max(1.000000, (destinationPath[1]).charCodeAt(0) / 100);
+                    score = 1;
                     fs.unlinkSync(tarballPath);
                     return [2 /*return*/, [score, cloneDir]];
-                case 5:
+                case 4:
                     error_9 = _a.sent();
                     return [4 /*yield*/, logger_1.logger.info("An error occurred when cloning the repo: ", error_9)];
-                case 6:
+                case 5:
                     _a.sent();
                     return [2 /*return*/, [0, ""]];
-                case 7: return [2 /*return*/];
+                case 6: return [2 /*return*/];
             }
         });
     });
