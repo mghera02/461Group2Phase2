@@ -128,8 +128,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
       await logger.info(`finished cloning`);
       const zipFilePath = await zipDirectory(cloneRepoOut[1], `./tempZip.zip`);
 
-      let info: RepoInfo;
-
+      let version = "";
       fs.readFile(path.join('./src/assets/temp_linter_test', 'package.json'), 'utf8', async (err, data) => {
         if (err) {
           console.error('Error reading file:', err);
@@ -138,8 +137,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
       
         try {
           const packageJson = JSON.parse(data);
-          const version = packageJson.version;
-          info.version = version;
+          version = packageJson.version;
           await logger.info(`version found: ${version}`);
         } catch (error) {
           await logger.info(`error searching version: ${error}`);
@@ -151,7 +149,6 @@ app.post('/package', upload.single('file'), async (req, res) => {
       const gitInfo = get_github_info(gitUrl);
       username = gitInfo.username;
       repo = gitInfo.repo;
-      info.url = repo;
       await logger.info(`username and repo found successfully: ${username}, ${repo}`);
       let gitDetails = [{username: username, repo: repo}];
       let scores = await get_metric_info(gitDetails);
@@ -167,6 +164,10 @@ app.post('/package', upload.single('file'), async (req, res) => {
 
       // Now we start the upload
       //TODO: add in the support for different versions
+      const info : RepoInfo = {
+        version: version,
+        url: repo
+      }
       const package_version = info.version;
       const metadata: PackageMetadata = {
         Name: npmPackageName,

@@ -125,7 +125,7 @@ function extractRepoInfo(zipFilePath) {
 }
 //TODO: if RDS succeeds to upload but S3 fails, remove the corresponding RDS entry
 app.post('/package', upload.single('file'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, info_1, username, repo, gitInfo, gitDetails, scores, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, base64EncodedData, response, error_1, binaryData_1, uploadDir, timestamp, zipFilePath_1, writeStream_1, error_2;
+    var url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, version_1, username, repo, gitInfo, gitDetails, scores, info, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, base64EncodedData, response, error_1, binaryData_1, uploadDir, timestamp, zipFilePath_1, writeStream_1, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -182,8 +182,9 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 return [4 /*yield*/, (0, metrics_1.zipDirectory)(cloneRepoOut[1], "./tempZip.zip")];
             case 14:
                 zipFilePath = _a.sent();
+                version_1 = "";
                 fs.readFile(path.join('./src/assets/temp_linter_test', 'package.json'), 'utf8', function (err, data) { return __awaiter(void 0, void 0, void 0, function () {
-                    var packageJson, version, error_3;
+                    var packageJson, error_3;
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
@@ -195,9 +196,8 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                             case 1:
                                 _a.trys.push([1, 3, , 5]);
                                 packageJson = JSON.parse(data);
-                                version = packageJson.version;
-                                info_1.version = version;
-                                return [4 /*yield*/, logger_1.logger.info("version found: ".concat(version))];
+                                version_1 = packageJson.version;
+                                return [4 /*yield*/, logger_1.logger.info("version found: ".concat(version_1))];
                             case 2:
                                 _a.sent();
                                 return [3 /*break*/, 5];
@@ -216,7 +216,6 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 gitInfo = (0, metrics_1.get_github_info)(gitUrl);
                 username = gitInfo.username;
                 repo = gitInfo.repo;
-                info_1.url = repo;
                 return [4 /*yield*/, logger_1.logger.info("username and repo found successfully: ".concat(username, ", ").concat(repo))];
             case 15:
                 _a.sent();
@@ -235,7 +234,11 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                     logger_1.time.info('Aborted at this time\n');
                     res.status(424).send("Package is not uploaded due to the disqualified rating.");
                 }
-                package_version = info_1.version;
+                info = {
+                    version: version_1,
+                    url: repo
+                };
+                package_version = info.version;
                 metadata = {
                     Name: npmPackageName,
                     Version: package_version,
