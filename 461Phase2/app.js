@@ -330,7 +330,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                                 return [4 /*yield*/, logger_1.logger.info("failed to save zip file")];
                             case 1:
                                 _a.sent();
-                                return [3 /*break*/, 19];
+                                return [3 /*break*/, 20];
                             case 2: return [4 /*yield*/, logger_1.logger.info("zip file saved successfully")];
                             case 3:
                                 _a.sent();
@@ -354,9 +354,13 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                             case 6:
                                 _a.sent();
                                 gitDetails = [{ username: username, repo: repo }];
-                                scores = { BusFactor: 1, RampUp: 1, LicenseScore: 1, Correctness: 1, ResponsiveMaintainer: 1, PullRequest: 1, GoodPinningPractice: 1, NetScore: 1 };
-                                return [4 /*yield*/, logger_1.logger.info("retrieved scores from score calculator: ".concat(scores.BusFactor, ", ").concat(scores.RampUp, ", ").concat(scores.LicenseScore, ", ").concat(scores.Correctness, ", ").concat(scores.ResponsiveMaintainer, ", ").concat(scores.PullRequest, ", ").concat(scores.GoodPinningPractice, ", ").concat(scores.NetScore))];
+                                return [4 /*yield*/, (0, metrics_1.get_metric_info)(gitDetails)];
                             case 7:
+                                scores = _a.sent();
+                                //let scores = {BusFactor: 1, RampUp: 1, LicenseScore: 1, Correctness: 1, ResponsiveMaintainer: 1, PullRequest: 1, GoodPinningPractice: 1, NetScore: 1};
+                                return [4 /*yield*/, logger_1.logger.info("retrieved scores from score calculator: ".concat(scores.BusFactor, ", ").concat(scores.RampUp, ", ").concat(scores.LicenseScore, ", ").concat(scores.Correctness, ", ").concat(scores.ResponsiveMaintainer, ", ").concat(scores.PullRequest, ", ").concat(scores.GoodPinningPractice, ", ").concat(scores.NetScore))];
+                            case 8:
+                                //let scores = {BusFactor: 1, RampUp: 1, LicenseScore: 1, Correctness: 1, ResponsiveMaintainer: 1, PullRequest: 1, GoodPinningPractice: 1, NetScore: 1};
                                 _a.sent();
                                 fs.unlinkSync(zipFilePath_1);
                                 metadata = {
@@ -365,42 +369,42 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                                     ID: (0, package_objs_1.generate_id)(repo, version),
                                 };
                                 return [4 /*yield*/, rds_handler.add_rds_package_data(metadata, scores)];
-                            case 8:
-                                package_id = _a.sent();
-                                if (!(package_id === null)) return [3 /*break*/, 11];
-                                return [4 /*yield*/, logger_1.logger.error("Could not upload package data to RDS")];
                             case 9:
-                                _a.sent();
-                                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                                package_id = _a.sent();
+                                if (!(package_id === null)) return [3 /*break*/, 12];
+                                return [4 /*yield*/, logger_1.logger.error("Could not upload package data to RDS")];
                             case 10:
                                 _a.sent();
+                                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                            case 11:
+                                _a.sent();
                                 return [2 /*return*/, res.status(409).send('Package exists already.')];
-                            case 11: return [4 /*yield*/, logger_1.logger.debug("Uploaded package to rds with id: ".concat(package_id))
+                            case 12: return [4 /*yield*/, logger_1.logger.debug("Uploaded package to rds with id: ".concat(package_id))
                                 // Upload the actual package to s3
                             ];
-                            case 12:
+                            case 13:
                                 _a.sent();
                                 file = { buffer: binaryData_1 };
                                 return [4 /*yield*/, (0, s3_packages_1.upload_package)(package_id, file)];
-                            case 13:
-                                s3_response = _a.sent();
-                                if (!(s3_response === null)) return [3 /*break*/, 16];
-                                return [4 /*yield*/, logger_1.logger.error("Error uploading package to S3")];
                             case 14:
-                                _a.sent();
-                                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                                s3_response = _a.sent();
+                                if (!(s3_response === null)) return [3 /*break*/, 17];
+                                return [4 /*yield*/, logger_1.logger.error("Error uploading package to S3")];
                             case 15:
                                 _a.sent();
+                                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                            case 16:
+                                _a.sent();
                                 return [2 /*return*/, res.status(400).send('Could not add package data')];
-                            case 16: return [4 /*yield*/, logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id))];
-                            case 17:
+                            case 17: return [4 /*yield*/, logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id))];
+                            case 18:
                                 _a.sent();
                                 return [4 /*yield*/, logger_1.time.info("Finished at this time\n")
                                     // Original response
                                     //let response = {"metadata": {"Name": repo, "Version": "Not Implementing", "ID": package_id}, "data": {"Content": req.file.buffer, "JSProgram": "Not Implementing"}};
                                     //New response
                                 ];
-                            case 18:
+                            case 19:
                                 _a.sent();
                                 response = {
                                     metadata: metadata,
@@ -410,8 +414,8 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                                     },
                                 };
                                 res.status(201).json(response);
-                                _a.label = 19;
-                            case 19:
+                                _a.label = 20;
+                            case 20:
                                 writeStream_1.end();
                                 return [2 /*return*/];
                         }
