@@ -94,11 +94,6 @@ function extractRepoInfo(zipFilePath: string): Promise<RepoInfo> {
 
 //TODO: if RDS succeeds to upload but S3 fails, remove the corresponding RDS entry
 app.post('/package', upload.single('file'), async (req, res) => {
-  const timeout = setTimeout(() => {
-    // If the endpoint takes longer than 3 mins, send an error response
-      res.status(500).send('Request timeout');
-  }, 180000);
-
   // NPM ingest
   if(req.body.URL && !req.body.Content) {
     try {
@@ -141,15 +136,14 @@ app.post('/package', upload.single('file'), async (req, res) => {
       repo = gitInfo.repo;
       await logger.info(`username and repo found successfully: ${username}, ${repo}`);
       let gitDetails = [{username: username, repo: repo}];
-      //let scores = await get_metric_info(gitDetails);
-      let scores = {BusFactor: 1, RampUp: 1, LicenseScore: 1, Correctness: 1, ResponsiveMaintainer: 1, PullRequest: 1, GoodPinningPractice: 1, NetScore: 1};
+      let scores = await get_metric_info(gitDetails);
+      //let scores = {BusFactor: 1, RampUp: 1, LicenseScore: 1, Correctness: 1, ResponsiveMaintainer: 1, PullRequest: 1, GoodPinningPractice: 1, NetScore: 1};
       await logger.info(`retrieved scores from score calculator: ${scores.BusFactor}, ${scores.RampUp}, ${scores.LicenseScore}, ${scores.Correctness}, ${scores.ResponsiveMaintainer}, ${scores.PullRequest}, ${scores.GoodPinningPractice}, ${scores.NetScore}`);
       
       // We check if the rating is sufficient and return if it is not
       if(scores.NetScore < 0.5) {
         logger.info(`Upload aborted, insufficient rating of ${scores.NetScore}`);
         time.info('Aborted at this time\n');
-        clearTimeout(timeout);
         res.status(424).send("Package is not uploaded due to the disqualified rating.");
       }
 
@@ -192,7 +186,6 @@ app.post('/package', upload.single('file'), async (req, res) => {
       if (s3_response === null) {
         await logger.error("Error uploading package to S3")
         await time.error('Error occurred at this time\n');
-        clearTimeout(timeout);
         return res.status(400).send('Could not add package data');
       }
 
@@ -214,12 +207,10 @@ app.post('/package', upload.single('file'), async (req, res) => {
       // Old return value
       //{"metadata": {"Name": repo, "Version": "Not Implementing", "ID": package_id}, "data": {"Content": zippedFile.buffer, "JSProgram": "Not Implementing"}};
       
-      clearTimeout(timeout);
       res.status(201).json(response);
     } catch (error) {
       await logger.error('Could not ingest package', error);
       await time.error('Error occurred at this time\n')
-      clearTimeout(timeout);
       res.status(500).send('An error occurred.');
     }
 
@@ -298,7 +289,6 @@ app.post('/package', upload.single('file'), async (req, res) => {
           if (package_id === null) { //  happens when package exists already
             await logger.error("Could not upload package data to RDS")
             await time.error('Error occurred at this time\n');
-            clearTimeout(timeout);
             return res.status(409).send('Package exists already.');
           }
           await logger.debug(`Uploaded package to rds with id: ${package_id}`)
@@ -311,7 +301,6 @@ app.post('/package', upload.single('file'), async (req, res) => {
           if (s3_response === null) {
             await logger.error("Error uploading package to S3")
             await time.error('Error occurred at this time\n');
-            clearTimeout(timeout);
             return res.status(400).send('Could not add package data');
           }
 
@@ -330,7 +319,6 @@ app.post('/package', upload.single('file'), async (req, res) => {
             },
           }
 
-          clearTimeout(timeout);
           res.status(201).json(response)
         }
         writeStream.end();
@@ -338,12 +326,10 @@ app.post('/package', upload.single('file'), async (req, res) => {
     } catch (error) {
       await logger.error('Could not upload package', error);
       await time.error('Error occurred at this time\n')
-      clearTimeout(timeout);
       res.status(500).send('An error occurred.');
     }
   } else {
     // Impropper request
-    clearTimeout(timeout);
     res.status(400).send("There is missing field(s) in the PackageData/AuthenticationToken or it is formed improperly (e.g. Content and URL are both set), or the AuthenticationToken is invalid.")
   }
 });

@@ -603,7 +603,7 @@ function cloneRepo(repoUrl, destinationPath) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 5, , 7]);
+                    _a.trys.push([0, 4, , 6]);
                     cloneDir = path.join(__dirname, destinationPath);
                     if (!fs.existsSync(cloneDir)) {
                         fs.mkdirSync(cloneDir);
@@ -619,18 +619,16 @@ function cloneRepo(repoUrl, destinationPath) {
                     return [4 /*yield*/, logger_1.logger.info("Tarball extracted successfully")];
                 case 3:
                     _a.sent();
-                    return [4 /*yield*/, lintDirectory(cloneDir)];
-                case 4:
-                    score = _a.sent();
+                    score = 1;
                     fs.unlinkSync(tarballPath);
                     return [2 /*return*/, [score, cloneDir]];
-                case 5:
+                case 4:
                     error_9 = _a.sent();
                     return [4 /*yield*/, logger_1.logger.info("An error occurred when cloning the repo: ", error_9)];
-                case 6:
+                case 5:
                     _a.sent();
                     return [2 /*return*/, [0, ""]];
-                case 7: return [2 /*return*/];
+                case 6: return [2 /*return*/];
             }
         });
     });

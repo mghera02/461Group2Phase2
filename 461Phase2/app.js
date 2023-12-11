@@ -120,18 +120,14 @@ function extractRepoInfo(zipFilePath) {
 }
 //TODO: if RDS succeeds to upload but S3 fails, remove the corresponding RDS entry
 app.post('/package', upload.single('file'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var timeout, url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, info, username, repo, gitInfo, gitDetails, scores, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, base64EncodedData, response, error_1, binaryData_1, uploadDir, timestamp, zipFilePath_1, writeStream_1, error_2;
+    var url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, info, username, repo, gitInfo, gitDetails, scores, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, base64EncodedData, response, error_1, binaryData_1, uploadDir, timestamp, zipFilePath_1, writeStream_1, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                timeout = setTimeout(function () {
-                    // If the endpoint takes longer than 3 mins, send an error response
-                    res.status(500).send('Request timeout');
-                }, 180000);
-                if (!(req.body.URL && !req.body.Content)) return [3 /*break*/, 36];
+                if (!(req.body.URL && !req.body.Content)) return [3 /*break*/, 37];
                 _a.label = 1;
             case 1:
-                _a.trys.push([1, 32, , 35]);
+                _a.trys.push([1, 33, , 36]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 2:
                 _a.sent();
@@ -193,15 +189,18 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
             case 16:
                 _a.sent();
                 gitDetails = [{ username: username, repo: repo }];
-                scores = { BusFactor: 1, RampUp: 1, LicenseScore: 1, Correctness: 1, ResponsiveMaintainer: 1, PullRequest: 1, GoodPinningPractice: 1, NetScore: 1 };
-                return [4 /*yield*/, logger_1.logger.info("retrieved scores from score calculator: ".concat(scores.BusFactor, ", ").concat(scores.RampUp, ", ").concat(scores.LicenseScore, ", ").concat(scores.Correctness, ", ").concat(scores.ResponsiveMaintainer, ", ").concat(scores.PullRequest, ", ").concat(scores.GoodPinningPractice, ", ").concat(scores.NetScore))];
+                return [4 /*yield*/, (0, metrics_1.get_metric_info)(gitDetails)];
             case 17:
+                scores = _a.sent();
+                //let scores = {BusFactor: 1, RampUp: 1, LicenseScore: 1, Correctness: 1, ResponsiveMaintainer: 1, PullRequest: 1, GoodPinningPractice: 1, NetScore: 1};
+                return [4 /*yield*/, logger_1.logger.info("retrieved scores from score calculator: ".concat(scores.BusFactor, ", ").concat(scores.RampUp, ", ").concat(scores.LicenseScore, ", ").concat(scores.Correctness, ", ").concat(scores.ResponsiveMaintainer, ", ").concat(scores.PullRequest, ", ").concat(scores.GoodPinningPractice, ", ").concat(scores.NetScore))];
+            case 18:
+                //let scores = {BusFactor: 1, RampUp: 1, LicenseScore: 1, Correctness: 1, ResponsiveMaintainer: 1, PullRequest: 1, GoodPinningPractice: 1, NetScore: 1};
                 _a.sent();
                 // We check if the rating is sufficient and return if it is not
                 if (scores.NetScore < 0.5) {
                     logger_1.logger.info("Upload aborted, insufficient rating of ".concat(scores.NetScore));
                     logger_1.time.info('Aborted at this time\n');
-                    clearTimeout(timeout);
                     res.status(424).send("Package is not uploaded due to the disqualified rating.");
                 }
                 package_version = info.version;
@@ -211,27 +210,27 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                     ID: (0, package_objs_1.generate_id)(npmPackageName, package_version)
                 };
                 return [4 /*yield*/, rds_handler.add_rds_package_data(metadata, scores)];
-            case 18:
-                package_id = _a.sent();
-                if (!(package_id === null)) return [3 /*break*/, 21];
-                return [4 /*yield*/, logger_1.logger.error("Could not upload package data to RDS")];
             case 19:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                package_id = _a.sent();
+                if (!(package_id === null)) return [3 /*break*/, 22];
+                return [4 /*yield*/, logger_1.logger.error("Could not upload package data to RDS")];
             case 20:
                 _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 21:
+                _a.sent();
                 return [2 /*return*/, res.status(409).send('Package exists already.')];
-            case 21: return [4 /*yield*/, logger_1.logger.debug("ingest package to rds with id: ".concat(package_id))
+            case 22: return [4 /*yield*/, logger_1.logger.debug("ingest package to rds with id: ".concat(package_id))
                 // Upload the actual package to s3
                 // Read the zipped file content
             ];
-            case 22:
+            case 23:
                 _a.sent();
                 zippedFileContent = fs.readFileSync(zipFilePath);
                 return [4 /*yield*/, logger_1.logger.debug("got zipped file content")
                     // Create Express.Multer.File object
                 ];
-            case 23:
+            case 24:
                 _a.sent();
                 zippedFile = {
                     fieldname: 'file',
@@ -241,31 +240,30 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                     buffer: zippedFileContent // Buffer of the zipped file content
                 };
                 return [4 /*yield*/, (0, s3_packages_1.upload_package)(package_id, zippedFile)];
-            case 24:
-                s3_response = _a.sent();
-                if (!(s3_response === null)) return [3 /*break*/, 27];
-                return [4 /*yield*/, logger_1.logger.error("Error uploading package to S3")];
             case 25:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                s3_response = _a.sent();
+                if (!(s3_response === null)) return [3 /*break*/, 28];
+                return [4 /*yield*/, logger_1.logger.error("Error uploading package to S3")];
             case 26:
                 _a.sent();
-                clearTimeout(timeout);
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 27:
+                _a.sent();
                 return [2 /*return*/, res.status(400).send('Could not add package data')];
-            case 27: 
+            case 28: 
             // If you get to this point, the file has been successfully uploaded
             return [4 /*yield*/, logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id))];
-            case 28:
+            case 29:
                 // If you get to this point, the file has been successfully uploaded
                 _a.sent();
                 return [4 /*yield*/, fsExtra.remove(cloneRepoOut[1])];
-            case 29:
-                _a.sent();
-                return [4 /*yield*/, logger_1.logger.debug("removed clone repo")];
             case 30:
                 _a.sent();
-                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
+                return [4 /*yield*/, logger_1.logger.debug("removed clone repo")];
             case 31:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
+            case 32:
                 _a.sent();
                 base64EncodedData = (zippedFileContent).toString('base64');
                 response = {
@@ -277,52 +275,50 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 };
                 // Old return value
                 //{"metadata": {"Name": repo, "Version": "Not Implementing", "ID": package_id}, "data": {"Content": zippedFile.buffer, "JSProgram": "Not Implementing"}};
-                clearTimeout(timeout);
                 res.status(201).json(response);
-                return [3 /*break*/, 35];
-            case 32:
+                return [3 /*break*/, 36];
+            case 33:
                 error_1 = _a.sent();
                 return [4 /*yield*/, logger_1.logger.error('Could not ingest package', error_1)];
-            case 33:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 34:
                 _a.sent();
-                clearTimeout(timeout);
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 35:
+                _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 35];
-            case 35: return [3 /*break*/, 51];
-            case 36:
-                if (!(!req.body.URL && req.body.Content)) return [3 /*break*/, 50];
-                _a.label = 37;
+                return [3 /*break*/, 36];
+            case 36: return [3 /*break*/, 52];
             case 37:
-                _a.trys.push([37, 46, , 49]);
-                return [4 /*yield*/, logger_1.time.info("Starting time")];
+                if (!(!req.body.URL && req.body.Content)) return [3 /*break*/, 51];
+                _a.label = 38;
             case 38:
+                _a.trys.push([38, 47, , 50]);
+                return [4 /*yield*/, logger_1.time.info("Starting time")];
+            case 39:
                 _a.sent();
                 return [4 /*yield*/, logger_1.logger.info('Attempting to upload package')];
-            case 39:
+            case 40:
                 _a.sent();
                 binaryData_1 = Buffer.from(req.body.Content, 'base64');
                 return [4 /*yield*/, logger_1.logger.info("Got buffer/binary data")];
-            case 40:
-                _a.sent();
-                uploadDir = './uploads';
-                if (!!fs.existsSync(uploadDir)) return [3 /*break*/, 42];
-                fs.mkdirSync(uploadDir);
-                return [4 /*yield*/, logger_1.logger.info("created upload directory")];
             case 41:
                 _a.sent();
-                return [3 /*break*/, 44];
-            case 42: return [4 /*yield*/, logger_1.logger.info("upload directory exists already, no need to make it")];
-            case 43:
+                uploadDir = './uploads';
+                if (!!fs.existsSync(uploadDir)) return [3 /*break*/, 43];
+                fs.mkdirSync(uploadDir);
+                return [4 /*yield*/, logger_1.logger.info("created upload directory")];
+            case 42:
                 _a.sent();
-                _a.label = 44;
+                return [3 /*break*/, 45];
+            case 43: return [4 /*yield*/, logger_1.logger.info("upload directory exists already, no need to make it")];
             case 44:
+                _a.sent();
+                _a.label = 45;
+            case 45:
                 timestamp = Date.now();
                 zipFilePath_1 = path.join(uploadDir, "file_".concat(timestamp, ".zip"));
                 return [4 /*yield*/, logger_1.logger.info("Got zip file path: ".concat(zipFilePath_1))];
-            case 45:
+            case 46:
                 _a.sent();
                 writeStream_1 = fs.createWriteStream(zipFilePath_1);
                 writeStream_1.write(binaryData_1, function (err) { return __awaiter(void 0, void 0, void 0, function () {
@@ -378,7 +374,6 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
                             case 10:
                                 _a.sent();
-                                clearTimeout(timeout);
                                 return [2 /*return*/, res.status(409).send('Package exists already.')];
                             case 11: return [4 /*yield*/, logger_1.logger.debug("Uploaded package to rds with id: ".concat(package_id))
                                 // Upload the actual package to s3
@@ -396,7 +391,6 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
                             case 15:
                                 _a.sent();
-                                clearTimeout(timeout);
                                 return [2 /*return*/, res.status(400).send('Could not add package data')];
                             case 16: return [4 /*yield*/, logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id))];
                             case 17:
@@ -415,7 +409,6 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                                         JSProgram: "Not Implementing",
                                     },
                                 };
-                                clearTimeout(timeout);
                                 res.status(201).json(response);
                                 _a.label = 19;
                             case 19:
@@ -424,25 +417,23 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                         }
                     });
                 }); });
-                return [3 /*break*/, 49];
-            case 46:
+                return [3 /*break*/, 50];
+            case 47:
                 error_2 = _a.sent();
                 return [4 /*yield*/, logger_1.logger.error('Could not upload package', error_2)];
-            case 47:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 48:
                 _a.sent();
-                clearTimeout(timeout);
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 49:
+                _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 49];
-            case 49: return [3 /*break*/, 51];
-            case 50:
+                return [3 /*break*/, 50];
+            case 50: return [3 /*break*/, 52];
+            case 51:
                 // Impropper request
-                clearTimeout(timeout);
                 res.status(400).send("There is missing field(s) in the PackageData/AuthenticationToken or it is formed improperly (e.g. Content and URL are both set), or the AuthenticationToken is invalid.");
-                _a.label = 51;
-            case 51: return [2 /*return*/];
+                _a.label = 52;
+            case 52: return [2 /*return*/];
         }
     });
 }); });
