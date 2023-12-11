@@ -128,14 +128,30 @@ app.post('/package', upload.single('file'), async (req, res) => {
       await logger.info(`finished cloning`);
       const zipFilePath = await zipDirectory(cloneRepoOut[1], `./tempZip.zip`);
 
-      await logger.info(`zipFilePath: ${zipFilePath}`);
-      const info: RepoInfo = await extractRepoInfo(zipFilePath as string)
+      let info: RepoInfo;
+
+      fs.readFile(path.join('./src/assets/temp_linter_test', 'package.json'), 'utf8', async (err, data) => {
+        if (err) {
+          console.error('Error reading file:', err);
+          return;
+        }
+      
+        try {
+          const packageJson = JSON.parse(data);
+          const version = packageJson.version;
+          info.version = version;
+          await logger.info(`version found: ${version}`);
+        } catch (error) {
+          await logger.info(`error searching version: ${error}`);
+        }
+      });
 
       let username: string = ""; 
       let repo: string = ""; 
       const gitInfo = get_github_info(gitUrl);
       username = gitInfo.username;
       repo = gitInfo.repo;
+      info.url = repo;
       await logger.info(`username and repo found successfully: ${username}, ${repo}`);
       let gitDetails = [{username: username, repo: repo}];
       let scores = await get_metric_info(gitDetails);
