@@ -48,6 +48,7 @@ function extractRepoInfo(zipFilePath: string): Promise<RepoInfo> {
       }
 
       zipfile.on('entry', async (entry: any) => {
+        await logger.info('Entry Name:', entry.fileName);
         if (/\/package\.json$/.test(entry.fileName)) {
           zipfile.openReadStream(entry, (err: Error | null, readStream: NodeJS.ReadableStream | null) => {
             if (err || !readStream) {
@@ -127,6 +128,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
       await logger.info(`finished cloning`);
       const zipFilePath = await zipDirectory(cloneRepoOut[1], `./tempZip.zip`);
 
+      await logger.info(`zipFilePath: ${zipFilePath}`);
       const info: RepoInfo = await extractRepoInfo(zipFilePath as string)
 
       let username: string = ""; 
