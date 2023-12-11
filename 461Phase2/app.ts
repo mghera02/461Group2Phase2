@@ -515,6 +515,7 @@ app.post('/package/byRegEx', async (req, res) => {
     if (package_names.length === 0) {
       await logger.error(`No packages found that match ${searchString}`);
       await time.error('Finished at this time\n');
+      clearTimeout(timeout);
       return res.status(404).send("No package found under this regex")
     }
 

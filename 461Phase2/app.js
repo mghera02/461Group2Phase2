@@ -747,6 +747,7 @@ app.post('/package/byRegEx', function (req, res) { return __awaiter(void 0, void
                 return [4 /*yield*/, logger_1.time.error('Finished at this time\n')];
             case 9:
                 _a.sent();
+                clearTimeout(timeout);
                 return [2 /*return*/, res.status(404).send("No package found under this regex")];
             case 10: return [4 /*yield*/, logger_1.logger.info("Successfully searched packages")];
             case 11:
