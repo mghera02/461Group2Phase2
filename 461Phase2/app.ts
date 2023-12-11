@@ -48,7 +48,7 @@ function extractRepoInfo(zipFilePath: string): Promise<RepoInfo> {
       }
 
       zipfile.on('entry', async (entry: any) => {
-        await logger.info('Entry Name:', entry.fileName);
+        await logger.info(`Entry Name: ${entry.fileName}`);
         if (/\/package\.json$/.test(entry.fileName)) {
           zipfile.openReadStream(entry, (err: Error | null, readStream: NodeJS.ReadableStream | null) => {
             if (err || !readStream) {
