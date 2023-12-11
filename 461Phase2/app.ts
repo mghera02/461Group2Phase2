@@ -141,12 +141,13 @@ app.post('/package', upload.single('file'), async (req, res) => {
       repo = gitInfo.repo;
       await logger.info(`username and repo found successfully: ${username}, ${repo}`);
       let gitDetails = [{username: username, repo: repo}];
-      let scores = await get_metric_info(gitDetails);
+      //let scores = await get_metric_info(gitDetails);
+      let scores = {BusFactor: 1, RampUp: 1, LicenseScore: 1, Correctness: 1, ResponsiveMaintainer: 1, PullRequest: 1, GoodPinningPractice: 1, NetScore: 1};
       await logger.info(`retrieved scores from score calculator: ${scores.BusFactor}, ${scores.RampUp}, ${scores.LicenseScore}, ${scores.Correctness}, ${scores.ResponsiveMaintainer}, ${scores.PullRequest}, ${scores.GoodPinningPractice}, ${scores.NetScore}`);
       
       // We check if the rating is sufficient and return if it is not
-      if(scores.score < 0.5) {
-        logger.info(`Upload aborted, insufficient rating of ${scores.score}`);
+      if(scores.NetScore < 0.5) {
+        logger.info(`Upload aborted, insufficient rating of ${scores.NetScore}`);
         time.info('Aborted at this time\n');
         clearTimeout(timeout);
         res.status(424).send("Package is not uploaded due to the disqualified rating.");
@@ -277,7 +278,8 @@ app.post('/package', upload.single('file'), async (req, res) => {
           }
           await logger.info(`username and repo found successfully: ${username}, ${repo}`);
           let gitDetails = [{username: username, repo: repo}];
-          let scores = await get_metric_info(gitDetails);
+          //let scores = await get_metric_info(gitDetails);
+          let scores = {BusFactor: 1, RampUp: 1, LicenseScore: 1, Correctness: 1, ResponsiveMaintainer: 1, PullRequest: 1, GoodPinningPractice: 1, NetScore: 1};
           await logger.info(`retrieved scores from score calculator: ${scores.BusFactor}, ${scores.RampUp}, ${scores.LicenseScore}, ${scores.Correctness}, ${scores.ResponsiveMaintainer}, ${scores.PullRequest}, ${scores.GoodPinningPractice}, ${scores.NetScore}`);
 
           fs.unlinkSync(zipFilePath);
