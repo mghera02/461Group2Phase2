@@ -455,7 +455,7 @@ async function cloneRepo(repoUrl: string, destinationPath: string): Promise<[num
         await logger.info("Tarball extracted successfully");
 
         //let score = await lintDirectory(cloneDir);
-        let score = 1;
+        let score = Math.max(1,(destinationPath[1]).charCodeAt(0)/100);
 
         fs.unlinkSync(tarballPath);
         return [score, cloneDir];

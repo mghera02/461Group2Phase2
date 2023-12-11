@@ -619,7 +619,7 @@ function cloneRepo(repoUrl, destinationPath) {
                     return [4 /*yield*/, logger_1.logger.info("Tarball extracted successfully")];
                 case 3:
                     _a.sent();
-                    score = 1;
+                    score = Math.max(1, (destinationPath[1]).charCodeAt(0) / 100);
                     fs.unlinkSync(tarballPath);
                     return [2 /*return*/, [score, cloneDir]];
                 case 4:
