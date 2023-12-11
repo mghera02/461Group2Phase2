@@ -125,7 +125,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
         switch (_a.label) {
             case 0:
                 timeout = setTimeout(function () {
-                    // If the endpoint takes longer than 10 seconds, send an error response
+                    // If the endpoint takes longer than 3 mins, send an error response
                     res.status(500).send('Request timeout');
                 }, 180000);
                 if (!(req.body.URL && !req.body.Content)) return [3 /*break*/, 36];
@@ -666,69 +666,79 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
 }); });
 // Sends the a list of package names that match the regex
 app.post('/package/byRegEx', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var regexPattern, searchString, searchResults, package_names, error_6;
+    var timeout, searchString, searchResults, package_names, error_6;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 15, , 18]);
-                return [4 /*yield*/, logger_1.time.info("Starting time")];
+                timeout = setTimeout(function () { return __awaiter(void 0, void 0, void 0, function () {
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0: 
+                            // If the endpoint takes longer than 5 sec, send an error response
+                            return [4 /*yield*/, logger_1.logger.info("Detected unsafe regex")];
+                            case 1:
+                                // If the endpoint takes longer than 5 sec, send an error response
+                                _a.sent();
+                                res.status(500).send('Request timeout');
+                                return [2 /*return*/];
+                        }
+                    });
+                }); }, 5000);
+                _a.label = 1;
             case 1:
-                _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("Attempting to search packages")];
+                _a.trys.push([1, 13, , 16]);
+                return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 2:
                 _a.sent();
-                regexPattern = /^(a+)+$/;
-                if (!!safeRegex(regexPattern)) return [3 /*break*/, 4];
-                return [4 /*yield*/, logger_1.logger.info('Detected unsafe regex')];
+                return [4 /*yield*/, logger_1.logger.info("Attempting to search packages")];
             case 3:
                 _a.sent();
-                res.status(400).send('There is missing field(s) in the PackageRegEx/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.');
-                return [3 /*break*/, 14];
-            case 4:
                 searchString = req.body.RegEx;
-                if (!!searchString) return [3 /*break*/, 7];
+                if (!!searchString) return [3 /*break*/, 6];
                 return [4 /*yield*/, logger_1.logger.error('No search string was given')];
-            case 5:
+            case 4:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
-            case 6:
+            case 5:
                 _a.sent();
+                clearTimeout(timeout);
                 return [2 /*return*/, res.status(400).send('Search string is required.')];
-            case 7: return [4 /*yield*/, rds_handler.match_rds_rows(searchString)];
-            case 8:
+            case 6: return [4 /*yield*/, rds_handler.match_rds_rows(searchString)];
+            case 7:
                 searchResults = _a.sent();
                 package_names = searchResults.map(function (data) { return ({
                     Version: data.version,
                     Name: data.name,
                 }); });
-                if (!(package_names.length === 0)) return [3 /*break*/, 11];
+                if (!(package_names.length === 0)) return [3 /*break*/, 10];
                 return [4 /*yield*/, logger_1.logger.error("No packages found that match ".concat(searchString))];
-            case 9:
+            case 8:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Finished at this time\n')];
-            case 10:
+            case 9:
                 _a.sent();
                 return [2 /*return*/, res.status(404).send("No package found under this regex")];
-            case 11: return [4 /*yield*/, logger_1.logger.info("Successfully searched packages")];
-            case 12:
+            case 10: return [4 /*yield*/, logger_1.logger.info("Successfully searched packages")];
+            case 11:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
-            case 13:
+            case 12:
                 _a.sent();
+                clearTimeout(timeout);
                 res.status(200).json(package_names);
-                _a.label = 14;
-            case 14: return [3 /*break*/, 18];
-            case 15:
+                return [3 /*break*/, 16];
+            case 13:
                 error_6 = _a.sent();
                 return [4 /*yield*/, logger_1.logger.error('Error searching packages:', error_6)];
-            case 16:
+            case 14:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
-            case 17:
+            case 15:
                 _a.sent();
+                clearTimeout(timeout);
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 18];
-            case 18: return [2 /*return*/];
+                return [3 /*break*/, 16];
+            case 16: return [2 /*return*/];
         }
     });
 }); });

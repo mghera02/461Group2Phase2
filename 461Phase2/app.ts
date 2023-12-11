@@ -95,9 +95,9 @@ function extractRepoInfo(zipFilePath: string): Promise<RepoInfo> {
 //TODO: if RDS succeeds to upload but S3 fails, remove the corresponding RDS entry
 app.post('/package', upload.single('file'), async (req, res) => {
   const timeout = setTimeout(() => {
-    // If the endpoint takes longer than 10 seconds, send an error response
+    // If the endpoint takes longer than 3 mins, send an error response
       res.status(500).send('Request timeout');
-  }, 180000); // 10 seconds
+  }, 180000);
 
   // NPM ingest
   if(req.body.URL && !req.body.Content) {
@@ -478,46 +478,49 @@ app.post('/packages', async (req, res) => {
 
 // Sends the a list of package names that match the regex
 app.post('/package/byRegEx', async (req, res) => {
+  const timeout = setTimeout(async () => {
+    // If the endpoint takes longer than 5 sec, send an error response
+    await logger.info(`Detected unsafe regex`);
+    res.status(500).send('Request timeout');
+  }, 5000);
+
   try {
     await time.info("Starting time")
     await logger.info("Attempting to search packages")
 
-    const regexPattern = /^(a+)+$/
-    if (!safeRegex(regexPattern)) {
-      await logger.info('Detected unsafe regex')
-      res.status(400).send('There is missing field(s) in the PackageRegEx/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.');
-    } else {
-      const searchString = req.body.RegEx as string;
-      if (!searchString) {
-        await logger.error('No search string was given');
-        await time.error('Error occurred at this time\n');
-        return res.status(400).send('Search string is required.');
-      }
-
-      // const searchResults = packages.filter((pkg) => {
-      //   const regex = new RegExp(searchString, 'i');
-      //   return regex.test(pkg) || regex.test(pkg + '.readme');
-      // });
-
-      const searchResults = await rds_handler.match_rds_rows(searchString);
-      const package_names = searchResults.map((data) => ({
-          Version: data.version,
-          Name: data.name,
-      }));
-
-      if (package_names.length === 0) {
-        await logger.error(`No packages found that match ${searchString}`);
-        await time.error('Finished at this time\n');
-        return res.status(404).send("No package found under this regex")
-      }
-
-      await logger.info(`Successfully searched packages`)
-      await time.info("Finished at this time\n")
-      res.status(200).json(package_names);
+    const searchString = req.body.RegEx as string;
+    if (!searchString) {
+      await logger.error('No search string was given');
+      await time.error('Error occurred at this time\n');
+      clearTimeout(timeout);
+      return res.status(400).send('Search string is required.');
     }
+
+    // const searchResults = packages.filter((pkg) => {
+    //   const regex = new RegExp(searchString, 'i');
+    //   return regex.test(pkg) || regex.test(pkg + '.readme');
+    // });
+
+    const searchResults = await rds_handler.match_rds_rows(searchString);
+    const package_names = searchResults.map((data) => ({
+      Version: data.version,
+      Name: data.name,
+    }));
+
+    if (package_names.length === 0) {
+      await logger.error(`No packages found that match ${searchString}`);
+      await time.error('Finished at this time\n');
+      return res.status(404).send("No package found under this regex")
+    }
+
+    await logger.info(`Successfully searched packages`)
+    await time.info("Finished at this time\n")
+    clearTimeout(timeout);
+    res.status(200).json(package_names);
   } catch (error) {
     await logger.error('Error searching packages:', error);
     await time.error('Error occurred at this time\n')
+    clearTimeout(timeout);
     res.status(500).send('An error occurred.');
   }
 });
