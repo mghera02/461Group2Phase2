@@ -126,6 +126,8 @@ app.post('/package', upload.single('file'), async (req, res) => {
       await logger.info(`finished cloning`);
       const zipFilePath = await zipDirectory(cloneRepoOut[1], `./tempZip.zip`);
 
+      const info: RepoInfo = await extractRepoInfo(zipFilePath as string)
+
       let username: string = ""; 
       let repo: string = ""; 
       const gitInfo = get_github_info(gitUrl);
@@ -145,7 +147,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
 
       // Now we start the upload
       //TODO: add in the support for different versions
-      const package_version = "0.0.0" //for now 
+      const package_version = info.version;
       const metadata: PackageMetadata = {
         Name: npmPackageName,
         Version: package_version,
