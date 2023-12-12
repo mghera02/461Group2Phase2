@@ -541,7 +541,7 @@ app.get('/package/:id/rate', function (req, res) { return __awaiter(void 0, void
     });
 }); });
 app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var package_id, metadata, package_name, data, pkg, error_5;
+    var package_id, metadata, package_name, package_ID, package_Version, JSProgram, data, pkg, error_5;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -568,6 +568,9 @@ app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, vo
             case 7:
                 _a.sent();
                 package_name = metadata.Name;
+                package_ID = metadata.ID;
+                package_Version = metadata.Version;
+                JSProgram = metadata.JSProgram;
                 return [4 /*yield*/, (0, s3_packages_1.download_package)(package_id)];
             case 8:
                 data = _a.sent();
@@ -583,8 +586,8 @@ app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, vo
                 res.attachment(package_name + '.zip'); // Set the desired new file name here
                 res.setHeader('Content-Type', 'application/zip');
                 pkg = {
-                    metadata: metadata,
-                    data: data,
+                    metadata: { package_name: package_name, package_ID: package_ID, package_Version: package_Version },
+                    data: { content: data, JSProgram: JSProgram },
                 };
                 return [4 /*yield*/, logger_1.logger.info("Successfully downloaded package with id ".concat(package_id))];
             case 12:

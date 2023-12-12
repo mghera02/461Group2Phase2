@@ -139,7 +139,7 @@ function get_package_metadata(package_id) {
                     if (data.rowCount == 0) {
                         return [2 /*return*/, null];
                     }
-                    metadata = row_to_metadata(data.rows[0]);
+                    metadata = data.rows[0];
                     return [2 /*return*/, metadata];
                 case 4:
                     error_3 = _a.sent();

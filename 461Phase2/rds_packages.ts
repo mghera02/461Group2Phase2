@@ -7,6 +7,7 @@ import {
   PackageMetadata,
   PackageRating,
 } from './package_objs'
+import { Object } from 'aws-sdk/clients/panorama';
 
 interface PackageData {
     package_id: number,
@@ -96,7 +97,7 @@ async function update_rds_package_data(id: string, newName: string, newVersion: 
   }
 }
 
-async function get_package_metadata(package_id: number) : Promise<PackageMetadata | null> {
+async function get_package_metadata(package_id: number) : Promise<any | null> {
   const client = await get_rds_connection();
 
   try {
@@ -111,7 +112,7 @@ async function get_package_metadata(package_id: number) : Promise<PackageMetadat
         return null;
       }
 
-      const metadata = row_to_metadata(data.rows[0])
+      const metadata = data.rows[0]
 
       return metadata;
     } catch (error) {

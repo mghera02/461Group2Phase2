@@ -406,6 +406,9 @@ app.get('/package/:packageId', async (req, res) => {
 
     await logger.debug(`Package data found for package with id: ${package_id}`);
     const package_name = metadata.Name;
+    const package_ID = metadata.ID;
+    const package_Version = metadata.Version;
+    const JSProgram = metadata.JSProgram;
 
     const data = await download_package(package_id);
     if (data === null) {
@@ -417,9 +420,9 @@ app.get('/package/:packageId', async (req, res) => {
     res.attachment(package_name + '.zip'); // Set the desired new file name here
     res.setHeader('Content-Type', 'application/zip');
 
-    const pkg : Package = {
-      metadata: metadata,
-      data: data,
+    const pkg = {
+      metadata: {package_name, package_ID, package_Version},
+      data: {content: data, JSProgram: JSProgram},
     }
 
     await logger.info(`Successfully downloaded package with id ${package_id}`)

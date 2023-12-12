@@ -7,7 +7,7 @@ interface Package {
 interface PackageMetadata {
     Name: string,
     Version: string,
-    ID: string,
+    ID: string
 }
 
 interface PackageData {
