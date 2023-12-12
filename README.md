@@ -5,6 +5,8 @@ Matthew Ghera, Atharva Patil, Gabi Mazion, Christopher Louly, Neha Sharma
 
 This project is a package manager. It is comprised of several API endpoints and an ADA compliant web interface that contains the same functionality as the endpoints. The API and web server are run on AWS on an EC2. The endpoints utilize S3 and RDS to store data.
 
+We also made an ADA compliant web browswer where you can enact each endpoint located here: http://3.145.64.121/
+
 The endpoints are as follows along with how to invoke them via their endpoints and an example output:
 
 1. Reset (DELETE /reset)
