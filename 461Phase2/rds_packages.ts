@@ -49,15 +49,15 @@ function row_to_metadata(row: Row | null) : PackageMetadata | null {
 
 // Adds data to the amazon RDS instance. That data is assigned a unique ID that is returned.
 // This ID is used to locate the package contents in the S3 bucket.
-async function add_rds_package_data(metadata: PackageMetadata, rating: PackageRating) : Promise<string | null> {
+async function add_rds_package_data(metadata: PackageMetadata, rating: PackageRating, JSProgram: String) : Promise<string | null> {
   const client = await get_rds_connection();
 
   try {
       const query = `
-        INSERT INTO package_data(name, version, id, rating, num_downloads) VALUES($1, $2, $3, $4, $5)
+        INSERT INTO package_data(name, version, id, rating, num_downloads, JSProgram) VALUES($1, $2, $3, $4, $5, $6)
         RETURNING id;
       `;
-      const values = [metadata.Name, metadata.Version, metadata.ID, rating, 0]
+      const values = [metadata.Name, metadata.Version, metadata.ID, rating, 0, JSProgram]
       const result: QueryResult<Row> = await client.query(query, values);
 
       // Making sure something is returned at all

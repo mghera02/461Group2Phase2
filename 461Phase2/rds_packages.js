@@ -52,7 +52,7 @@ function row_to_metadata(row) {
 }
 // Adds data to the amazon RDS instance. That data is assigned a unique ID that is returned.
 // This ID is used to locate the package contents in the S3 bucket.
-function add_rds_package_data(metadata, rating) {
+function add_rds_package_data(metadata, rating, JSProgram) {
     return __awaiter(this, void 0, void 0, function () {
         var client, query, values, result, error_1;
         return __generator(this, function (_a) {
@@ -63,8 +63,8 @@ function add_rds_package_data(metadata, rating) {
                     _a.label = 2;
                 case 2:
                     _a.trys.push([2, 4, 5, 7]);
-                    query = "\n        INSERT INTO package_data(name, version, id, rating, num_downloads) VALUES($1, $2, $3, $4, $5)\n        RETURNING id;\n      ";
-                    values = [metadata.Name, metadata.Version, metadata.ID, rating, 0];
+                    query = "\n        INSERT INTO package_data(name, version, id, rating, num_downloads, JSProgram) VALUES($1, $2, $3, $4, $5, $6)\n        RETURNING id;\n      ";
+                    values = [metadata.Name, metadata.Version, metadata.ID, rating, 0, JSProgram];
                     return [4 /*yield*/, client.query(query, values)];
                 case 3:
                     result = _a.sent();

@@ -95,6 +95,11 @@ function extractRepoInfo(zipFilePath: string): Promise<RepoInfo> {
 
 //TODO: if RDS succeeds to upload but S3 fails, remove the corresponding RDS entry
 app.post('/package', upload.single('file'), async (req, res) => {
+  let JSProgram = "";
+  if(req.body.JSProgram) {
+    JSProgram = req.body.JSProgram;
+  }
+
   // NPM ingest
   if(req.body.URL && !req.body.Content) {
     try {
@@ -175,7 +180,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
         ID: generate_id(npmPackageName, package_version)
       }
 
-      const package_id = await rds_handler.add_rds_package_data(metadata, scores);
+      const package_id = await rds_handler.add_rds_package_data(metadata, scores, JSProgram);
 
       // Check to see if package metadata was upladed to RDS
       if (package_id === null) { //  happens when package exists already
@@ -219,7 +224,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
         metadata: metadata,
         data: {
           Content: base64EncodedData,
-          JSProgram: "Not Implementing",
+          JSProgram: JSProgram,
         },
       }
       
@@ -302,7 +307,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
             ID: generate_id(repo, version),
           }
 
-          const package_id = await rds_handler.add_rds_package_data(metadata, scores);
+          const package_id = await rds_handler.add_rds_package_data(metadata, scores, JSProgram);
 
           // Check to see if package metadata was upladed to RDS
           if (package_id === null) { //  happens when package exists already
@@ -334,7 +339,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
             metadata: metadata,
             data: {
               Content: String(req.body.Content),
-              JSProgram: "Not Implementing",
+              JSProgram: JSProgram,
             },
           }
 

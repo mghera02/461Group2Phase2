@@ -125,10 +125,14 @@ function extractRepoInfo(zipFilePath) {
 }
 //TODO: if RDS succeeds to upload but S3 fails, remove the corresponding RDS entry
 app.post('/package', upload.single('file'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, version_1, username, repo, gitInfo, gitDetails, scores, info, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, base64EncodedData, response, error_1, binaryData_1, uploadDir, timestamp, zipFilePath_1, writeStream_1, error_2;
+    var JSProgram, url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, version_1, username, repo, gitInfo, gitDetails, scores, info, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, base64EncodedData, response, error_1, binaryData_1, uploadDir, timestamp, zipFilePath_1, writeStream_1, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
+                JSProgram = "";
+                if (req.body.JSProgram) {
+                    JSProgram = req.body.JSProgram;
+                }
                 if (!(req.body.URL && !req.body.Content)) return [3 /*break*/, 36];
                 _a.label = 1;
             case 1:
@@ -244,7 +248,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                     Version: package_version,
                     ID: (0, package_objs_1.generate_id)(npmPackageName, package_version)
                 };
-                return [4 /*yield*/, rds_handler.add_rds_package_data(metadata, scores)];
+                return [4 /*yield*/, rds_handler.add_rds_package_data(metadata, scores, JSProgram)];
             case 18:
                 package_id = _a.sent();
                 if (!(package_id === null)) return [3 /*break*/, 21];
@@ -305,7 +309,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                     metadata: metadata,
                     data: {
                         Content: base64EncodedData,
-                        JSProgram: "Not Implementing",
+                        JSProgram: JSProgram,
                     },
                 };
                 // Old return value
@@ -403,7 +407,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                                     Version: version,
                                     ID: (0, package_objs_1.generate_id)(repo, version),
                                 };
-                                return [4 /*yield*/, rds_handler.add_rds_package_data(metadata, scores)];
+                                return [4 /*yield*/, rds_handler.add_rds_package_data(metadata, scores, JSProgram)];
                             case 9:
                                 package_id = _a.sent();
                                 if (!(package_id === null)) return [3 /*break*/, 12];
@@ -445,7 +449,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                                     metadata: metadata,
                                     data: {
                                         Content: String(req.body.Content),
-                                        JSProgram: "Not Implementing",
+                                        JSProgram: JSProgram,
                                     },
                                 };
                                 res.status(201).json(response);
