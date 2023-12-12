@@ -410,7 +410,8 @@ app.get('/package/:packageId', async (req, res) => {
     const package_Version = metadata.Version;
     const JSProgram = metadata.JSProgram;
 
-    const data = await download_package(package_id);
+    let data = await download_package(package_id);
+    let data2 = data?.Content;
     if (data === null) {
       await logger.error(`Package with id: ${package_id} not found in S3`);
       await time.error('Error occurred at this time\n');
@@ -422,7 +423,7 @@ app.get('/package/:packageId', async (req, res) => {
 
     const pkg = {
       metadata: {package_name, package_ID, package_Version},
-      data: {content: data, JSProgram: JSProgram},
+      data: {content: data2, JSProgram: JSProgram},
     }
 
     await logger.info(`Successfully downloaded package with id ${package_id}`)
