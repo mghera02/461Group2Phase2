@@ -642,7 +642,7 @@ app.put('/package/:id', async (req: any, res: any) => {
       const s3_response = await upload_package(ID, zippedFile);
     } else if(!URL && Content) {
       await logger.info(`Updating via content`);
-      const binaryData = Buffer.from(req.body.Content, 'base64');
+      const binaryData = Buffer.from(Content, 'base64');
       const file = {buffer: binaryData}
       let s3Url = await updateS3Package(ID, file);
     } else {

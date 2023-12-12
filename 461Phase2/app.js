@@ -960,7 +960,7 @@ app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, v
                 return [4 /*yield*/, logger_1.logger.info("Updating via content")];
             case 22:
                 _b.sent();
-                binaryData = Buffer.from(req.body.Content, 'base64');
+                binaryData = Buffer.from(Content, 'base64');
                 file = { buffer: binaryData };
                 return [4 /*yield*/, (0, s3_packages_1.updateS3Package)(ID, file)];
             case 23:
