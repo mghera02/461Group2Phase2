@@ -880,7 +880,7 @@ app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, v
                 _a = req.body, metadata = _a.metadata, data = _a.data;
                 Name = metadata.Name, Version = metadata.Version, ID = metadata.ID;
                 Content = data.Content, URL_1 = data.URL, JSProgram = data.JSProgram;
-                return [4 /*yield*/, logger_1.logger.logger("Input: ".concat(Name, ", ").concat(Version, ", ").concat(ID))];
+                return [4 /*yield*/, logger_1.logger.info("Input: ".concat(Name, ", ").concat(Version, ", ").concat(ID))];
             case 3:
                 _b.sent();
                 return [4 /*yield*/, rds_handler.get_package_metadata(ID)];
@@ -898,7 +898,7 @@ app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, v
             case 8:
                 rowsUpdated = _b.sent();
                 if (!(URL_1 && !Content)) return [3 /*break*/, 21];
-                return [4 /*yield*/, logger_1.logger.logger("Updating via URL")];
+                return [4 /*yield*/, logger_1.logger.info("Updating via URL")];
             case 9:
                 _b.sent();
                 npmURL = void 0;
@@ -957,7 +957,7 @@ app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, v
                 return [3 /*break*/, 25];
             case 21:
                 if (!(!URL_1 && Content)) return [3 /*break*/, 24];
-                return [4 /*yield*/, logger_1.logger.logger("Updating via content")];
+                return [4 /*yield*/, logger_1.logger.info("Updating via content")];
             case 22:
                 _b.sent();
                 binaryData = Buffer.from(req.body.Content, 'base64');

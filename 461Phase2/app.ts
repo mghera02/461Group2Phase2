@@ -589,7 +589,7 @@ app.put('/package/:id', async (req: any, res: any) => {
     // Extract relevant data from the request body
     const { Name, Version, ID } = metadata;
     const { Content, URL, JSProgram } = data;
-    await logger.logger(`Input: ${Name}, ${Version}, ${ID}`);
+    await logger.info(`Input: ${Name}, ${Version}, ${ID}`);
 
     const existingPackage = await rds_handler.get_package_metadata(ID);
 
@@ -602,7 +602,7 @@ app.put('/package/:id', async (req: any, res: any) => {
     let rowsUpdated = await rds_handler.update_rds_package_data(ID, Name, Version);
 
     if(URL && !Content) {
-      await logger.logger(`Updating via URL`);
+      await logger.info(`Updating via URL`);
       let npmURL;
       if(URL.includes("github")) {
         const parts = URL.split('/');
@@ -641,7 +641,7 @@ app.put('/package/:id', async (req: any, res: any) => {
       };
       const s3_response = await upload_package(ID, zippedFile);
     } else if(!URL && Content) {
-      await logger.logger(`Updating via content`);
+      await logger.info(`Updating via content`);
       const binaryData = Buffer.from(req.body.Content, 'base64');
       const file = {buffer: binaryData}
       let s3Url = await updateS3Package(ID, file);
