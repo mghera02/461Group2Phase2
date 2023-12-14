@@ -20,10 +20,10 @@ The endpoints are as follows along with how to invoke them via their endpoints a
    How to invoke: curl -X POST "http://3.145.64.121:8080/packages" -H "Content-Type: application/json" -d '[{"Version":"*", "Name": "*"}]'
    Example output: [{"Version":"1.0.6","Name":"copee","ID":"copee1.0.6"},{"Version":"4.3.4","Name":"debug","ID":"debug4.3.4"}] 
 
-3. Return Package: (GET /package/{id}) - Not completely working as of now
+3. Return Package: (GET /package/{id}) - Not working in the frontend
    Description: Return this package.
    How to invoke: curl -X GET "http://3.145.64.121:8080/package/copee1.0.6/" -H "Content-Type:application/json"
-   Example output: {"metadata":{"Name":"copee","Version":"1.0.6","ID":"copee1.0.6"},"data":{"Content":{"type":"Buffer","data":[80,75,3,4,10,0....]},"JSProgram":""}}
+   Example output:{"metadata":{"Name":"copee","ID":"copee1.0.6","Version":"1.0.6"},"data":{"Content":"UEsDBAoAAAAAAGKbYVcAAAAAAAAAAAAAAAALAAkAY29wZWUtbWFpbi9VVAUAAfkIQ2VQSwMECgAAAAgAYpthV/a+8/SnAAAAegEAABkACQBjb3BlZS1tYWluLy5naXRhdHRyaWJ1dGVzVVQFAAH5
 
 4. Update Package: (PUT /package/{id})
    Description: Return this package.
