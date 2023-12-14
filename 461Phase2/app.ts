@@ -482,8 +482,9 @@ app.post('/packages', async (req, res) => {
     if(version != ".*") {
       await logger.info(`version: ${version}`)
       let rangeResults = await rds_handler.match_rds_rows(packageName);
+      await logger.info(`rangeResults: ${rangeResults}`);
       for (const result of rangeResults) {
-        logger.info(`result version: ${result.version}`)
+        await logger.info(`result version: ${result.version}`)
         const [operator, rest] = version.split(/[0-9]/);
         const rangeParts = rest.split('-');
 
@@ -491,7 +492,7 @@ app.post('/packages', async (req, res) => {
         
         let minRange;
         let maxRange;
-        if(rangeParts) {
+        if(rangeParts.length > 1) {
           await logger.info(`rangeParts1`)
           minRange = rangeParts[0].split('.').map(Number);
           maxRange = rangeParts[1].split('.').map(Number);
