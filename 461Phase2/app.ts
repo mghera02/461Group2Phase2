@@ -413,10 +413,17 @@ app.get('/package/:packageId', async (req, res) => {
     let data = await download_package(package_id);
     let data2 = data.Content;
     /// Extracting the Buffer data from the string
-    await logger.info(`data2: ${data2}`);
     // Convert the Buffer array to a Buffer instance
-    const buffer = Buffer.from(data2);
 
+    let buffer;
+    if (typeof data2 === 'string') {
+      buffer = Buffer.from(data2);
+      await logger.info(`data2 is of type string, correct`);
+    } else {
+      await logger.error(`Package content was not a string type`);
+      await time.error('Error occurred at this time\n');
+      return res.status(400).json({ error: 'Package content is not of \'string\' type'});
+    }
     // Convert the Buffer to a Base64 encoded string
     const base64Encoded = buffer.toString('base64');
     if (data === null) {

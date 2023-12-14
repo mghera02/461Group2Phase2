@@ -545,7 +545,7 @@ app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, vo
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 15, , 18]);
+                _a.trys.push([0, 19, , 22]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 1:
                 _a.sent();
@@ -575,22 +575,31 @@ app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, vo
             case 8:
                 data = _a.sent();
                 data2 = data.Content;
-                /// Extracting the Buffer data from the string
-                return [4 /*yield*/, logger_1.logger.info("data2: ".concat(data2))];
-            case 9:
-                /// Extracting the Buffer data from the string
-                _a.sent();
+                buffer = void 0;
+                if (!(typeof data2 === 'string')) return [3 /*break*/, 10];
                 buffer = Buffer.from(data2);
-                base64Encoded = buffer.toString('base64');
-                if (!(data === null)) return [3 /*break*/, 12];
-                return [4 /*yield*/, logger_1.logger.error("Package with id: ".concat(package_id, " not found in S3"))];
-            case 10:
+                return [4 /*yield*/, logger_1.logger.info("data2 is of type string, correct")];
+            case 9:
                 _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                return [3 /*break*/, 13];
+            case 10: return [4 /*yield*/, logger_1.logger.error("Package content was not a string type")];
             case 11:
                 _a.sent();
-                return [2 /*return*/, res.status(404).json({ error: 'Package data not found' })];
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 12:
+                _a.sent();
+                return [2 /*return*/, res.status(400).json({ error: 'Package content is not of \'string\' type' })];
+            case 13:
+                base64Encoded = buffer.toString('base64');
+                if (!(data === null)) return [3 /*break*/, 16];
+                return [4 /*yield*/, logger_1.logger.error("Package with id: ".concat(package_id, " not found in S3"))];
+            case 14:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 15:
+                _a.sent();
+                return [2 /*return*/, res.status(404).json({ error: 'Package data not found' })];
+            case 16:
                 res.attachment(package_name + '.zip'); // Set the desired new file name here
                 res.setHeader('Content-Type', 'application/zip');
                 pkg = {
@@ -598,24 +607,24 @@ app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, vo
                     data: { Content: base64Encoded, JSProgram: JSProgram },
                 };
                 return [4 /*yield*/, logger_1.logger.info("Successfully downloaded package with id ".concat(package_id))];
-            case 13:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
-            case 14:
-                _a.sent();
-                res.status(200).json(pkg);
-                return [3 /*break*/, 18];
-            case 15:
-                error_5 = _a.sent();
-                return [4 /*yield*/, logger_1.logger.error('Error downloading package:', error_5)];
-            case 16:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 17:
                 _a.sent();
+                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
+            case 18:
+                _a.sent();
+                res.status(200).json(pkg);
+                return [3 /*break*/, 22];
+            case 19:
+                error_5 = _a.sent();
+                return [4 /*yield*/, logger_1.logger.error('Error downloading package:', error_5)];
+            case 20:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 21:
+                _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 18];
-            case 18: return [2 /*return*/];
+                return [3 /*break*/, 22];
+            case 22: return [2 /*return*/];
         }
     });
 }); });
