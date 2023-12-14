@@ -833,7 +833,7 @@ app.post('/package/byRegEx', function (req, res) { return __awaiter(void 0, void
                 }); }, 5000);
                 _a.label = 1;
             case 1:
-                _a.trys.push([1, 14, , 17]);
+                _a.trys.push([1, 15, , 18]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 2:
                 _a.sent();
@@ -860,36 +860,39 @@ app.post('/package/byRegEx', function (req, res) { return __awaiter(void 0, void
                     Version: data.version,
                     Name: data.name,
                 }); });
-                if (!(package_names.length === 0)) return [3 /*break*/, 11];
-                return [4 /*yield*/, logger_1.logger.error("No packages found that match ".concat(searchString))];
+                return [4 /*yield*/, logger_1.logger.info("package_names: ".concat(package_names))];
             case 9:
                 _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Finished at this time\n')];
+                if (!(package_names.length === 0)) return [3 /*break*/, 12];
+                return [4 /*yield*/, logger_1.logger.error("No packages found that match ".concat(searchString))];
             case 10:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Finished at this time\n')];
+            case 11:
                 _a.sent();
                 clearTimeout(timeout);
                 return [2 /*return*/, res.status(404).send("No package found under this regex")];
-            case 11: return [4 /*yield*/, logger_1.logger.info("Successfully searched packages")];
-            case 12:
+            case 12: return [4 /*yield*/, logger_1.logger.info("Successfully searched packages")];
+            case 13:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
-            case 13:
+            case 14:
                 _a.sent();
                 clearTimeout(timeout);
                 res.status(200).json(package_names);
-                return [3 /*break*/, 17];
-            case 14:
+                return [3 /*break*/, 18];
+            case 15:
                 error_7 = _a.sent();
                 return [4 /*yield*/, logger_1.logger.error('Error searching packages:', error_7)];
-            case 15:
+            case 16:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
-            case 16:
+            case 17:
                 _a.sent();
                 clearTimeout(timeout);
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 17];
-            case 17: return [2 /*return*/];
+                return [3 /*break*/, 18];
+            case 18: return [2 /*return*/];
         }
     });
 }); });
