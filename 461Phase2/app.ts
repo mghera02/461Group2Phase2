@@ -467,16 +467,15 @@ app.post('/packages', async (req, res) => {
     await logger.info(`Length of req body: ${req.body.length}`);
     await logger.info(`Got req.body.Name:${req.body[0].Name}, req.body.Version:${req.body[0].Version}`);
 
-    if(version == undefined || version == "*") {
+    if(version == undefined || version == null || version == "*") {
+      await logger.info(`Setting version to .*`);
       version = ".*";
     }
 
-    if (!packageName && !version) {
+    if (!packageName) {
       await logger.error('No name was given');
       await time.error('Error occurred at this time\n');
       return res.status(400).send('There is missing field(s) in the PackageQuery/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.');
-    } else if (!packageName && version) {
-      return res.status(501).send('This system does not support versions.');
     }
 
     // Trying to get all ranges of versions
