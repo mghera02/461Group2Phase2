@@ -860,7 +860,7 @@ app.post('/package/byRegEx', function (req, res) { return __awaiter(void 0, void
                     Version: data.version,
                     Name: data.name,
                 }); });
-                return [4 /*yield*/, logger_1.logger.info("package_names: ".concat(package_names))];
+                return [4 /*yield*/, logger_1.logger.info("package_names: ".concat(JSON.stringify(package_names)))];
             case 9:
                 _a.sent();
                 if (!(package_names.length === 0)) return [3 /*break*/, 12];

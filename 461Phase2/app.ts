@@ -618,7 +618,7 @@ app.post('/package/byRegEx', async (req, res) => {
       Version: data.version,
       Name: data.name,
     }));
-    await logger.info(`package_names: ${package_names}`);
+    await logger.info(`package_names: ${JSON.stringify(package_names)}`);
 
     if (package_names.length === 0) {
       await logger.error(`No packages found that match ${searchString}`);
