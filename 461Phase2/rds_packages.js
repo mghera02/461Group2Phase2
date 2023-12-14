@@ -214,7 +214,7 @@ function match_rds_rows(regex, useExactMatch) {
                     return [4 /*yield*/, client.query(query, values)];
                 case 3:
                     result = _a.sent();
-                    logger_1.logger.debug('Query result:', result.rows);
+                    logger_1.logger.debug('Query result:', JSON.stringify(result.rows));
                     return [2 /*return*/, result.rows];
                 case 4:
                     error_5 = _a.sent();

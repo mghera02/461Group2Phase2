@@ -73,45 +73,41 @@ function extractRepoInfo(zipFilePath) {
                 }
                 zipfile.on('entry', function (entry) { return __awaiter(_this, void 0, void 0, function () {
                     return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0: return [4 /*yield*/, logger_1.logger.info("Entry Name: ".concat(entry.fileName))];
-                            case 1:
-                                _a.sent();
-                                if (/\/package\.json$/.test(entry.fileName)) {
-                                    zipfile.openReadStream(entry, function (err, readStream) {
-                                        if (err || !readStream) {
-                                            reject(err || new Error('Unable to read package.json'));
-                                            return "Unable to read package.json";
+                        //await logger.info(`Entry Name: ${entry.fileName}`);
+                        if (/\/package\.json$/.test(entry.fileName)) {
+                            zipfile.openReadStream(entry, function (err, readStream) {
+                                if (err || !readStream) {
+                                    reject(err || new Error('Unable to read package.json'));
+                                    return "Unable to read package.json";
+                                }
+                                var fileContent = '';
+                                readStream.on('data', function (data) {
+                                    fileContent += data;
+                                });
+                                readStream.on('end', function () {
+                                    try {
+                                        var jsonObject = JSON.parse(fileContent);
+                                        if ('repository' in jsonObject && 'url' in jsonObject.repository && 'version' in jsonObject) {
+                                            var info = {
+                                                version: jsonObject.version,
+                                                url: jsonObject.repository.url
+                                            };
+                                            resolve(info);
                                         }
-                                        var fileContent = '';
-                                        readStream.on('data', function (data) {
-                                            fileContent += data;
-                                        });
-                                        readStream.on('end', function () {
-                                            try {
-                                                var jsonObject = JSON.parse(fileContent);
-                                                if ('repository' in jsonObject && 'url' in jsonObject.repository && 'version' in jsonObject) {
-                                                    var info = {
-                                                        version: jsonObject.version,
-                                                        url: jsonObject.repository.url
-                                                    };
-                                                    resolve(info);
-                                                }
-                                                else {
-                                                    reject(new Error('Repository URL not found in package.json'));
-                                                }
-                                            }
-                                            catch (parseError) {
-                                                reject(new Error('Error parsing package.json'));
-                                            }
-                                        });
-                                    });
-                                }
-                                else {
-                                    zipfile.readEntry();
-                                }
-                                return [2 /*return*/];
+                                        else {
+                                            reject(new Error('Repository URL not found in package.json'));
+                                        }
+                                    }
+                                    catch (parseError) {
+                                        reject(new Error('Error parsing package.json'));
+                                    }
+                                });
+                            });
                         }
+                        else {
+                            zipfile.readEntry();
+                        }
+                        return [2 /*return*/];
                     });
                 }); });
                 zipfile.on('end', function () {
@@ -886,7 +882,7 @@ app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, v
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                _b.trys.push([0, 28, , 31]);
+                _b.trys.push([0, 27, , 30]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 1:
                 _b.sent();
@@ -983,32 +979,67 @@ app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, v
                 s3Url = _b.sent();
                 return [3 /*break*/, 25];
             case 24: return [2 /*return*/, res.status(400).json('Package does not exist.')];
-            case 25: return [4 /*yield*/, logger_1.logger.info("There is missing field(s) in the PackageID/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.")];
+            case 25: return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
             case 26:
                 _b.sent();
-                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
-            case 27:
-                _b.sent();
                 res.status(200).send('Version is updated.');
-                return [3 /*break*/, 31];
-            case 28:
+                return [3 /*break*/, 30];
+            case 27:
                 error_10 = _b.sent();
                 return [4 /*yield*/, logger_1.logger.error('Error updating package content:', error_10)];
-            case 29:
+            case 28:
                 _b.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
-            case 30:
+            case 29:
                 _b.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 31];
-            case 31: return [2 /*return*/];
+                return [3 /*break*/, 30];
+            case 30: return [2 /*return*/];
         }
     });
 }); });
 app.put('/authenticate', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
-        res.status(501).send('This system does not support authentication.');
-        return [2 /*return*/];
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, logger_1.logger.info('Request received for authentication')];
+            case 1:
+                _a.sent();
+                res.status(501).send('This system does not support authentication.');
+                return [2 /*return*/];
+        }
+    });
+}); });
+app.delete('/package/:id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, logger_1.logger.info('Request received for package deletion 1')];
+            case 1:
+                _a.sent();
+                res.status(501).send('This system does not support package deletion.');
+                return [2 /*return*/];
+        }
+    });
+}); });
+app.get('/package/byName/:name', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, logger_1.logger.info('Request received for package history')];
+            case 1:
+                _a.sent();
+                res.status(501).send('This system does not support package history.');
+                return [2 /*return*/];
+        }
+    });
+}); });
+app.delete('/package/byName/:name', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, logger_1.logger.info('Request received for package deletion 2')];
+            case 1:
+                _a.sent();
+                res.status(501).send('This system does not support deletion.');
+                return [2 /*return*/];
+        }
     });
 }); });
 app.listen(port, function () { return __awaiter(void 0, void 0, void 0, function () {

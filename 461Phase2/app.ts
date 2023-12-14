@@ -48,7 +48,7 @@ function extractRepoInfo(zipFilePath: string): Promise<RepoInfo> {
       }
 
       zipfile.on('entry', async (entry: any) => {
-        await logger.info(`Entry Name: ${entry.fileName}`);
+        //await logger.info(`Entry Name: ${entry.fileName}`);
         if (/\/package\.json$/.test(entry.fileName)) {
           zipfile.openReadStream(entry, (err: Error | null, readStream: NodeJS.ReadableStream | null) => {
             if (err || !readStream) {
@@ -679,7 +679,6 @@ app.put('/package/:id', async (req: any, res: any) => {
       return res.status(400).json('Package does not exist.');
     }
 
-    await logger.info(`There is missing field(s) in the PackageID/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.`);
     await time.info("Finished at this time\n");
 
     res.status(200).send('Version is updated.');
@@ -691,7 +690,23 @@ app.put('/package/:id', async (req: any, res: any) => {
 });
 
 app.put('/authenticate', async (req, res) => {
+  await logger.info('Request received for authentication');
   res.status(501).send('This system does not support authentication.');
+});
+
+app.delete('/package/:id', async (req, res) => {
+  await logger.info('Request received for package deletion 1');
+  res.status(501).send('This system does not support package deletion.');
+});
+
+app.get('/package/byName/:name', async (req, res) => {
+  await logger.info('Request received for package history');
+  res.status(501).send('This system does not support package history.');
+});
+
+app.delete('/package/byName/:name', async (req, res) => {
+  await logger.info('Request received for package deletion 2');
+  res.status(501).send('This system does not support deletion.');
 });
 
 app.listen(port, async () => {

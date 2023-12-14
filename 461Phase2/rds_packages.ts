@@ -169,7 +169,7 @@ async function match_rds_rows(regex: string, useExactMatch: boolean = false): Pr
 
       const result = await client.query(query, values);
 
-      logger.debug('Query result:', result.rows);
+      logger.debug('Query result:', JSON.stringify(result.rows));
   
       return result.rows;
 
