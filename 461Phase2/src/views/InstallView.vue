@@ -36,7 +36,7 @@
             async getPackageZip() {
                 // Extracting package ID from route parameters
                 let id = this.$route.params.packageId;
-                const endpoint = `http://${this.ip}:8080/download/${id}`;
+                const endpoint = `http://${this.ip}:8080/package/${id}`;
 
                 try {
                     // Fetch package ZIP file
