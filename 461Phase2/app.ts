@@ -414,13 +414,8 @@ app.get('/package/:packageId', async (req, res) => {
     let data2 = data.Content;
     /// Extracting the Buffer data from the string
     await logger.info(`data2: ${data2}`);
-    await logger.info(`data2 stringified: ${JSON.stringify(data2)}`);
-    const startIndex = data2.indexOf('[');
-    const endIndex = data2.lastIndexOf(']');
-    const bufferDataArray = JSON.parse(data2.substring(startIndex, endIndex + 1));
-
     // Convert the Buffer array to a Buffer instance
-    const buffer = Buffer.from(bufferDataArray);
+    const buffer = Buffer.from(data2);
 
     // Convert the Buffer to a Base64 encoded string
     const base64Encoded = buffer.toString('base64');
