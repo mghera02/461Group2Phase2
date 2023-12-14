@@ -54,9 +54,11 @@
 
                     // Create blob from response and generate URL
                     const jsonResponse = await response.json();
+                    console.log(`jsonResponse: ${jsonResponse}`)
 
                     // Retrieve Content from data object
                     const content = jsonResponse.data.Content;
+                    console.log(`content: ${content}`)
 
                     // Create blob from content and generate URL
                     const blob = new Blob([content]);
