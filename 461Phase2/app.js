@@ -611,7 +611,7 @@ app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, vo
     });
 }); });
 app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var packageName, version, rangeResults, _i, rangeResults_1, result, _a, operator, rest, rangeParts, minRange, maxRange, versionNumbers, offsetValue, searchResults, package_names, error_6;
+    var packageName, version, rangeResults, _i, rangeResults_1, result, _a, operator, rest, offsetValue, searchResults, package_names, error_6;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -660,46 +660,54 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                     result = rangeResults_1[_i];
                     logger_1.logger.info("result version: ".concat(result.version));
                     _a = version.split(/[0-9]/), operator = _a[0], rest = _a[1];
-                    rangeParts = rest.split('-');
-                    minRange = void 0;
-                    maxRange = void 0;
-                    if (rangeParts) {
-                        minRange = rangeParts[0].split('.').map(Number);
-                        maxRange = rangeParts[1].split('.').map(Number);
+                    /*const rangeParts = rest.split('-');
+                    
+                    let minRange;
+                    let maxRange;
+                    if(rangeParts) {
+                      minRange = rangeParts[0].split('.').map(Number);
+                      maxRange = rangeParts[1].split('.').map(Number);
+                    } else {
+                      minRange = rest.split('.').map(Number);
                     }
-                    else {
-                        minRange = rest.split('.').map(Number);
-                    }
-                    versionNumbers = result.version.split('.').map(Number);
+            
+                    const versionNumbers = result.version.split('.').map(Number);
+            
                     switch (operator) {
-                        case '^':
-                            if (versionNumbers[0] === minRange[0] &&
-                                versionNumbers[1] === minRange[1] &&
-                                versionNumbers[2] >= minRange[2] &&
-                                versionNumbers[2] <= minRange[2] + 4) {
-                                version = result.version;
-                            }
-                        case '~':
-                            if (versionNumbers[0] === minRange[0] &&
-                                versionNumbers[1] === minRange[1] &&
-                                versionNumbers[2] >= minRange[2] &&
-                                versionNumbers[2] <= minRange[2] + 1) {
-                                version = result.version;
-                            }
-                        case '-':
-                            if (versionNumbers[0] === minRange[0] &&
-                                versionNumbers[1] === minRange[1] &&
-                                versionNumbers[2] >= minRange[2] &&
-                                versionNumbers[0] === maxRange[0] &&
-                                versionNumbers[1] === maxRange[1] &&
-                                versionNumbers[2] <= maxRange[2]) {
-                                version = result.version;
-                            }
-                        default:
-                            if (version == result.version) {
-                                version = result.version;
-                            }
-                    }
+                      case '^':
+                        if (
+                          versionNumbers[0] === minRange[0] &&
+                          versionNumbers[1] === minRange[1] &&
+                          versionNumbers[2] >= minRange[2] &&
+                          versionNumbers[2] <= minRange[2] + 4
+                        ) {
+                          version = result.version
+                        }
+                      case '~':
+                        if (
+                          versionNumbers[0] === minRange[0] &&
+                          versionNumbers[1] === minRange[1] &&
+                          versionNumbers[2] >= minRange[2] &&
+                          versionNumbers[2] <= minRange[2] + 1
+                        ) {
+                          version = result.version
+                        }
+                      case '-':
+                        if (
+                          versionNumbers[0] === minRange[0] &&
+                          versionNumbers[1] === minRange[1] &&
+                          versionNumbers[2] >= minRange[2] &&
+                          versionNumbers[0] === maxRange[0] &&
+                          versionNumbers[1] === maxRange[1] &&
+                          versionNumbers[2] <= maxRange[2]
+                        ) {
+                          version = result.version
+                        }
+                      default:
+                        if(version == result.version) {
+                          version = result.version
+                        }
+                    }*/
                 }
                 _b.label = 13;
             case 13:
