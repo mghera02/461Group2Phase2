@@ -545,7 +545,7 @@ app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, vo
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 14, , 17]);
+                _a.trys.push([0, 16, , 19]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 1:
                 _a.sent();
@@ -575,20 +575,28 @@ app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, vo
             case 8:
                 data = _a.sent();
                 data2 = data.Content;
+                /// Extracting the Buffer data from the string
+                return [4 /*yield*/, logger_1.logger.info("data2: ".concat(data2))];
+            case 9:
+                /// Extracting the Buffer data from the string
+                _a.sent();
+                return [4 /*yield*/, logger_1.logger.info("data2 stringified: ".concat(JSON.stringify(data2)))];
+            case 10:
+                _a.sent();
                 startIndex = data2.indexOf('[');
                 endIndex = data2.lastIndexOf(']');
                 bufferDataArray = JSON.parse(data2.substring(startIndex, endIndex + 1));
                 buffer = Buffer.from(bufferDataArray);
                 base64Encoded = buffer.toString('base64');
-                if (!(data === null)) return [3 /*break*/, 11];
+                if (!(data === null)) return [3 /*break*/, 13];
                 return [4 /*yield*/, logger_1.logger.error("Package with id: ".concat(package_id, " not found in S3"))];
-            case 9:
+            case 11:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
-            case 10:
+            case 12:
                 _a.sent();
                 return [2 /*return*/, res.status(404).json({ error: 'Package data not found' })];
-            case 11:
+            case 13:
                 res.attachment(package_name + '.zip'); // Set the desired new file name here
                 res.setHeader('Content-Type', 'application/zip');
                 pkg = {
@@ -596,24 +604,24 @@ app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, vo
                     data: { content: base64Encoded, JSProgram: JSProgram },
                 };
                 return [4 /*yield*/, logger_1.logger.info("Successfully downloaded package with id ".concat(package_id))];
-            case 12:
+            case 14:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
-            case 13:
-                _a.sent();
-                res.status(200).json(pkg);
-                return [3 /*break*/, 17];
-            case 14:
-                error_5 = _a.sent();
-                return [4 /*yield*/, logger_1.logger.error('Error downloading package:', error_5)];
             case 15:
                 _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                res.status(200).json(pkg);
+                return [3 /*break*/, 19];
             case 16:
+                error_5 = _a.sent();
+                return [4 /*yield*/, logger_1.logger.error('Error downloading package:', error_5)];
+            case 17:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 18:
                 _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 17];
-            case 17: return [2 /*return*/];
+                return [3 /*break*/, 19];
+            case 19: return [2 /*return*/];
         }
     });
 }); });

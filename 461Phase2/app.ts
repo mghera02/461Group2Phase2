@@ -413,6 +413,8 @@ app.get('/package/:packageId', async (req, res) => {
     let data = await download_package(package_id);
     let data2 = data.Content;
     /// Extracting the Buffer data from the string
+    await logger.info(`data2: ${data2}`);
+    await logger.info(`data2 stringified: ${JSON.stringify(data2)}`);
     const startIndex = data2.indexOf('[');
     const endIndex = data2.lastIndexOf(']');
     const bufferDataArray = JSON.parse(data2.substring(startIndex, endIndex + 1));
