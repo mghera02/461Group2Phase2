@@ -415,15 +415,20 @@ app.get('/package/:packageId', async (req, res) => {
     /// Extracting the Buffer data from the string
     // Convert the Buffer array to a Buffer instance
 
-    let buffer;
-    if (typeof data2 === 'string') {
-      buffer = Buffer.from(data2);
-      await logger.info(`data2 is of type string, correct`);
-    } else {
-      await logger.error(`Package content was not a string type`);
-      await time.error('Error occurred at this time\n');
-      return res.status(400).json({ error: 'Package content is not of \'string\' type'});
-    }
+    //VERSION WITH ISSUE
+    // let buffer;
+    // if (typeof data2 === 'string') {
+    //   buffer = Buffer.from(data2);
+    //   await logger.info(`data2 is of type string, correct`);
+    // } else {
+    //   await logger.error(`Package content was not a string type`);
+    //   await time.error('Error occurred at this time\n');
+    //   return res.status(400).json({ error: 'Package content is not of \'string\' type'});
+    // }
+
+    //OLD VERSION
+    const buffer = Buffer.from(data2);
+
     // Convert the Buffer to a Base64 encoded string
     const base64Encoded = buffer.toString('base64');
     if (data === null) {
