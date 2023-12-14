@@ -567,9 +567,9 @@ app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, vo
             case 6: return [4 /*yield*/, logger_1.logger.debug("Package data found for package with id: ".concat(package_id))];
             case 7:
                 _a.sent();
-                package_name = metadata.Name;
-                package_ID = metadata.ID;
-                package_Version = metadata.Version;
+                package_name = metadata.name;
+                package_ID = metadata.id;
+                package_Version = metadata.version;
                 JSProgram = metadata.JSProgram;
                 return [4 /*yield*/, (0, s3_packages_1.download_package)(package_id)];
             case 8:
@@ -594,7 +594,7 @@ app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, vo
                 res.attachment(package_name + '.zip'); // Set the desired new file name here
                 res.setHeader('Content-Type', 'application/zip');
                 pkg = {
-                    metadata: { Name: package_name, ID: package_ID, Version: package_Version },
+                    metadata: { Name: package_name, ID: package_id, Version: package_Version },
                     data: { Content: base64Encoded, JSProgram: JSProgram },
                 };
                 return [4 /*yield*/, logger_1.logger.info("Successfully downloaded package with id ".concat(package_id))];

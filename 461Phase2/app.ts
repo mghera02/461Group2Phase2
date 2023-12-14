@@ -405,9 +405,9 @@ app.get('/package/:packageId', async (req, res) => {
     }
 
     await logger.debug(`Package data found for package with id: ${package_id}`);
-    const package_name = metadata.Name;
-    const package_ID = metadata.ID;
-    const package_Version = metadata.Version;
+    const package_name = metadata.name;
+    const package_ID = metadata.id;
+    const package_Version = metadata.version;
     const JSProgram = metadata.JSProgram;
 
     let data = await download_package(package_id);
@@ -429,7 +429,7 @@ app.get('/package/:packageId', async (req, res) => {
     res.setHeader('Content-Type', 'application/zip');
 
     const pkg = {
-      metadata: {Name: package_name, ID: package_ID, Version: package_Version},
+      metadata: {Name: package_name, ID: package_id, Version: package_Version},
       data: {Content: base64Encoded, JSProgram: JSProgram},
     }
 
