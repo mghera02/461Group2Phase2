@@ -485,8 +485,7 @@ app.post('/packages', async (req, res) => {
       await logger.info(`rangeResults: ${rangeResults}`);
       for (const result of rangeResults) {
         await logger.info(`result version: ${result.version}`)
-        const [operator, rest] = version.split(/[0-9]/);
-        const rangeParts = rest.split('-');
+        const rangeParts = version.split('-');
 
         await logger.info(`rangeParts: ${rangeParts}`)
         
@@ -498,13 +497,12 @@ app.post('/packages', async (req, res) => {
           maxRange = rangeParts[1].split('.').map(Number);
         } else {
           await logger.info(`rangeParts2`)
-          minRange = rest.split('.').map(Number);
+          minRange = version.split('.').map(Number);
         }
 
         const versionNumbers = result.version.split('.').map(Number);
 
-        switch (operator) {
-          case '^':
+        if(version.indexOf('^') !== -1) {
             if (
               versionNumbers[0] === minRange[0] &&
               versionNumbers[1] === minRange[1] &&
@@ -513,7 +511,7 @@ app.post('/packages', async (req, res) => {
             ) {
               version = result.version
             }
-          case '~':
+        } else if(version.indexOf('~') !== -1) {
             if (
               versionNumbers[0] === minRange[0] &&
               versionNumbers[1] === minRange[1] &&
@@ -522,7 +520,7 @@ app.post('/packages', async (req, res) => {
             ) {
               version = result.version
             }
-          case '-':
+        } else if(version.indexOf('-') !== -1) {
             if (
               versionNumbers[0] === minRange[0] &&
               versionNumbers[1] === minRange[1] &&
@@ -533,7 +531,7 @@ app.post('/packages', async (req, res) => {
             ) {
               version = result.version
             }
-          default:
+        } else {
             if(version == result.version) {
               version = result.version
             }
