@@ -480,50 +480,52 @@ app.post('/packages', async (req, res) => {
     }
 
     // Trying to get all ranges of versions
-    let rangeResults = await rds_handler.match_rds_rows(packageName);
-    for (const result of rangeResults) {
-      const [operator, rest] = version.split(/[0-9]/);
-      const rangeParts = rest.split('-');
-      
-      const minRange = rangeParts[0].split('.').map(Number);
-      const maxRange = rangeParts[1].split('.').map(Number);
+    if(version != ".*") {
+      let rangeResults = await rds_handler.match_rds_rows(packageName);
+      for (const result of rangeResults) {
+        const [operator, rest] = version.split(/[0-9]/);
+        const rangeParts = rest.split('-');
+        
+        const minRange = rangeParts[0].split('.').map(Number);
+        const maxRange = rangeParts[1].split('.').map(Number);
 
-      const versionNumbers = version.split('.').map(Number);
+        const versionNumbers = version.split('.').map(Number);
 
-      switch (operator) {
-        case '^':
-          if (
-            versionNumbers[0] === minRange[0] &&
-            versionNumbers[1] === minRange[1] &&
-            versionNumbers[2] >= minRange[2] &&
-            versionNumbers[2] <= minRange[2] + 4
-          ) {
-            version = result.version
-          }
-        case '~':
-          if (
-            versionNumbers[0] === minRange[0] &&
-            versionNumbers[1] === minRange[1] &&
-            versionNumbers[2] >= minRange[2] &&
-            versionNumbers[2] <= minRange[2] + 1
-          ) {
-            version = result.version
-          }
-        case '-':
-          if (
-            versionNumbers[0] === minRange[0] &&
-            versionNumbers[1] === minRange[1] &&
-            versionNumbers[2] >= minRange[2] &&
-            versionNumbers[0] === maxRange[0] &&
-            versionNumbers[1] === maxRange[1] &&
-            versionNumbers[2] <= maxRange[2]
-          ) {
-            version = result.version
-          }
-        default:
-          if(version == result.version) {
-            version = result.version
-          }
+        switch (operator) {
+          case '^':
+            if (
+              versionNumbers[0] === minRange[0] &&
+              versionNumbers[1] === minRange[1] &&
+              versionNumbers[2] >= minRange[2] &&
+              versionNumbers[2] <= minRange[2] + 4
+            ) {
+              version = result.version
+            }
+          case '~':
+            if (
+              versionNumbers[0] === minRange[0] &&
+              versionNumbers[1] === minRange[1] &&
+              versionNumbers[2] >= minRange[2] &&
+              versionNumbers[2] <= minRange[2] + 1
+            ) {
+              version = result.version
+            }
+          case '-':
+            if (
+              versionNumbers[0] === minRange[0] &&
+              versionNumbers[1] === minRange[1] &&
+              versionNumbers[2] >= minRange[2] &&
+              versionNumbers[0] === maxRange[0] &&
+              versionNumbers[1] === maxRange[1] &&
+              versionNumbers[2] <= maxRange[2]
+            ) {
+              version = result.version
+            }
+          default:
+            if(version == result.version) {
+              version = result.version
+            }
+        }
       }
     }
 
