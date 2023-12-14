@@ -412,10 +412,14 @@ app.get('/package/:packageId', async (req, res) => {
 
     let data = await download_package(package_id);
     let data2 = data.Content;
-    // Parse the string into a JavaScript object
-    const bufferDataObject = JSON.parse(data2);
-    // Convert the Buffer object to a Buffer instance
-    const buffer = Buffer.from(bufferDataObject);
+    /// Extracting the Buffer data from the string
+    const startIndex = data2.indexOf('[');
+    const endIndex = data2.lastIndexOf(']');
+    const bufferDataArray = JSON.parse(data2.substring(startIndex, endIndex + 1));
+
+    // Convert the Buffer array to a Buffer instance
+    const buffer = Buffer.from(bufferDataArray);
+
     // Convert the Buffer to a Base64 encoded string
     const base64Encoded = buffer.toString('base64');
     if (data === null) {
@@ -429,7 +433,7 @@ app.get('/package/:packageId', async (req, res) => {
 
     const pkg = {
       metadata: {package_name, package_ID, package_Version},
-      data: {content: data2, JSProgram: JSProgram},
+      data: {content: base64Encoded, JSProgram: JSProgram},
     }
 
     await logger.info(`Successfully downloaded package with id ${package_id}`)
