@@ -485,9 +485,9 @@ app.post('/packages', async (req, res) => {
       for (const result of rangeResults) {
         logger.info(`result version: ${result.version}`)
         const [operator, rest] = version.split(/[0-9]/);
-        /*const rangeParts = rest.split('-');
+        const rangeParts = rest.split('-');
         
-        let minRange;
+        /*let minRange;
         let maxRange;
         if(rangeParts) {
           minRange = rangeParts[0].split('.').map(Number);

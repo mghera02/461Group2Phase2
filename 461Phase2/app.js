@@ -611,7 +611,7 @@ app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, vo
     });
 }); });
 app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var packageName, version, rangeResults, _i, rangeResults_1, result, _a, operator, rest, offsetValue, searchResults, package_names, error_6;
+    var packageName, version, rangeResults, _i, rangeResults_1, result, _a, operator, rest, rangeParts, offsetValue, searchResults, package_names, error_6;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -660,9 +660,8 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                     result = rangeResults_1[_i];
                     logger_1.logger.info("result version: ".concat(result.version));
                     _a = version.split(/[0-9]/), operator = _a[0], rest = _a[1];
-                    /*const rangeParts = rest.split('-');
-                    
-                    let minRange;
+                    rangeParts = rest.split('-');
+                    /*let minRange;
                     let maxRange;
                     if(rangeParts) {
                       minRange = rangeParts[0].split('.').map(Number);
