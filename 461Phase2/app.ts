@@ -503,24 +503,29 @@ app.post('/packages', async (req, res) => {
         const versionNumbers = result.version.split('.').map(Number);
 
         if(version.indexOf('^') !== -1) {
+          await logger.info(`version range is ^`);
             if (
               versionNumbers[0] === minRange[0] &&
               versionNumbers[1] === minRange[1] &&
               versionNumbers[2] >= minRange[2] &&
               versionNumbers[2] <= minRange[2] + 4
             ) {
+              await logger.info(`version is in range`);
               version = result.version
             }
         } else if(version.indexOf('~') !== -1) {
+          await logger.info(`version range is ~`);
             if (
               versionNumbers[0] === minRange[0] &&
               versionNumbers[1] === minRange[1] &&
               versionNumbers[2] >= minRange[2] &&
               versionNumbers[2] <= minRange[2] + 1
             ) {
+              await logger.info(`version is in range`);
               version = result.version
             }
         } else if(version.indexOf('-') !== -1) {
+          await logger.info(`version range is -`);
             if (
               versionNumbers[0] === minRange[0] &&
               versionNumbers[1] === minRange[1] &&
@@ -529,10 +534,13 @@ app.post('/packages', async (req, res) => {
               versionNumbers[1] === maxRange[1] &&
               versionNumbers[2] <= maxRange[2]
             ) {
+              await logger.info(`version is in range`);
               version = result.version
             }
         } else {
+          await logger.info(`version range is single`);
             if(version == result.version) {
+              await logger.info(`version is in range`);
               version = result.version
             }
         }
