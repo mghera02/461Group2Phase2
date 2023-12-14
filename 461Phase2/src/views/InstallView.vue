@@ -53,8 +53,14 @@
                     const package_name = filenameHeader ? filenameHeader.split('filename=')[1] : 'yourPackage.zip';
 
                     // Create blob from response and generate URL
-                    const blob = await (response.data.Content).blob();
-                    const url = window.URL.createObjectURL(new Blob([blob]));
+                    const jsonResponse = await response.json();
+
+                    // Retrieve Content from data object
+                    const content = jsonResponse.data.Content;
+
+                    // Create blob from content and generate URL
+                    const blob = new Blob([content]);
+                    const url = window.URL.createObjectURL(blob);
 
                     // Create link element for downloading
                     const link = document.createElement('a');
