@@ -616,7 +616,7 @@ app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, vo
     });
 }); });
 app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var packageName, version, rangeResults, _i, rangeResults_1, result, operator, rangeParts, minRange, maxRange, versionNumbers, offsetValue, searchResults, package_names, error_6;
+    var packageName, version_2, rangeResults, _i, rangeResults_1, result, operator, rangeParts, minRange, maxRange, versionNumbers, offsetValue, searchResults, package_names, error_6;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -631,18 +631,18 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
             case 3:
                 _a.sent();
                 packageName = req.body[0].Name;
-                version = req.body[0].Version;
+                version_2 = req.body[0].Version;
                 return [4 /*yield*/, logger_1.logger.info("Length of req body: ".concat(req.body.length))];
             case 4:
                 _a.sent();
                 return [4 /*yield*/, logger_1.logger.info("Got req.body.Name:".concat(req.body[0].Name, ", req.body.Version:").concat(req.body[0].Version))];
             case 5:
                 _a.sent();
-                if (!(version == undefined || version == null || version == "*" || version.length == 0)) return [3 /*break*/, 7];
+                if (!(version_2 == undefined || version_2 == null || version_2 == "*" || version_2.length == 0)) return [3 /*break*/, 7];
                 return [4 /*yield*/, logger_1.logger.info("Setting version to .*")];
             case 6:
                 _a.sent();
-                version = ".*";
+                version_2 = ".*";
                 _a.label = 7;
             case 7:
                 if (!!packageName) return [3 /*break*/, 10];
@@ -654,8 +654,8 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                 _a.sent();
                 return [2 /*return*/, res.status(400).send('There is missing field(s) in the PackageQuery/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.')];
             case 10:
-                if (!(version != ".*")) return [3 /*break*/, 38];
-                return [4 /*yield*/, logger_1.logger.info("version: ".concat(version))];
+                if (!(version_2 != ".*")) return [3 /*break*/, 38];
+                return [4 /*yield*/, logger_1.logger.info("version: ".concat(version_2))];
             case 11:
                 _a.sent();
                 return [4 /*yield*/, rds_handler.match_rds_rows(packageName)];
@@ -673,15 +673,15 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
             case 15:
                 _a.sent();
                 operator = "";
-                if (version.charAt(0) == '^') {
-                    version = version.substring(1);
+                if (version_2.charAt(0) == '^') {
+                    version_2 = version_2.substring(1);
                     operator = '^';
                 }
-                else if (version.charAt(0) == '~') {
-                    version = version.substring(1);
+                else if (version_2.charAt(0) == '~') {
+                    version_2 = version_2.substring(1);
                     operator = '~';
                 }
-                rangeParts = version.split('-');
+                rangeParts = version_2.split('-');
                 return [4 /*yield*/, logger_1.logger.info("rangeParts: ".concat(rangeParts))];
             case 16:
                 _a.sent();
@@ -698,7 +698,7 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                 _a.sent();
                 return [3 /*break*/, 21];
             case 19:
-                minRange = version.split('.').map(Number);
+                minRange = version_2.split('.').map(Number);
                 return [4 /*yield*/, logger_1.logger.info("minRange: ".concat(minRange))];
             case 20:
                 _a.sent();
@@ -716,7 +716,7 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                 return [4 /*yield*/, logger_1.logger.info("version is in range")];
             case 24:
                 _a.sent();
-                version = result.version;
+                version_2 = result.version;
                 _a.label = 25;
             case 25: return [3 /*break*/, 37];
             case 26:
@@ -729,11 +729,11 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                 return [4 /*yield*/, logger_1.logger.info("version is in range")];
             case 28:
                 _a.sent();
-                version = result.version;
+                version_2 = result.version;
                 _a.label = 29;
             case 29: return [3 /*break*/, 37];
             case 30:
-                if (!(version.indexOf('-') !== -1)) return [3 /*break*/, 34];
+                if (!(version_2.indexOf('-') !== -1)) return [3 /*break*/, 34];
                 return [4 /*yield*/, logger_1.logger.info("version range is -")];
             case 31:
                 _a.sent();
@@ -742,17 +742,17 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                 return [4 /*yield*/, logger_1.logger.info("version is in range")];
             case 32:
                 _a.sent();
-                version = result.version;
+                version_2 = result.version;
                 _a.label = 33;
             case 33: return [3 /*break*/, 37];
             case 34: return [4 /*yield*/, logger_1.logger.info("version range is single")];
             case 35:
                 _a.sent();
-                if (!(version == result.version)) return [3 /*break*/, 37];
+                if (!(version_2 == result.version)) return [3 /*break*/, 37];
                 return [4 /*yield*/, logger_1.logger.info("version is in range")];
             case 36:
                 _a.sent();
-                version = result.version;
+                version_2 = result.version;
                 _a.label = 37;
             case 37:
                 _i++;
@@ -774,17 +774,17 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
             case 42:
                 searchResults = void 0;
                 if (!(packageName == "*")) return [3 /*break*/, 44];
-                return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination(".*", version, false, offsetValue)];
+                return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination(".*", version_2, false, offsetValue)];
             case 43:
                 searchResults = _a.sent();
                 return [3 /*break*/, 46];
-            case 44: return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination("".concat(packageName), version, true, offsetValue)];
+            case 44: return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination("".concat(packageName), version_2, true, offsetValue)];
             case 45:
                 searchResults = _a.sent();
                 _a.label = 46;
             case 46:
                 package_names = searchResults.map(function (data) { return ({
-                    Version: data.version,
+                    Version: version_2,
                     Name: data.name,
                     ID: data.id,
                 }); });

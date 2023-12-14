@@ -571,7 +571,7 @@ app.post('/packages', async (req, res) => {
       searchResults = await rds_handler.match_rds_rows_with_pagination(`${packageName}`, version, true, offsetValue);
     }
     const package_names = searchResults.map((data) => ({
-        Version: data.version,
+        Version: version,
         Name: data.name,
         ID: data.id,
     }));
