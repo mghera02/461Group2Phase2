@@ -87,7 +87,7 @@ function upload_package(package_id, file) {
 exports.upload_package = upload_package;
 function download_package(package_id) {
     return __awaiter(this, void 0, void 0, function () {
-        var params, file, data, error_2;
+        var params, file, data, error_2, data;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -110,7 +110,11 @@ function download_package(package_id) {
                 case 3:
                     error_2 = _a.sent();
                     logger_1.logger.error('Error downloading file from S3:', error_2);
-                    return [2 /*return*/, null];
+                    data = {
+                        Content: "",
+                        JSProgram: "",
+                    };
+                    return [2 /*return*/, data];
                 case 4: return [2 /*return*/];
             }
         });

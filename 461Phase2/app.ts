@@ -411,7 +411,13 @@ app.get('/package/:packageId', async (req, res) => {
     const JSProgram = metadata.JSProgram;
 
     let data = await download_package(package_id);
-    let data2 = data?.Content;
+    let data2 = data.Content;
+    // Parse the string into a JavaScript object
+    const bufferDataObject = JSON.parse(data2);
+    // Convert the Buffer object to a Buffer instance
+    const buffer = Buffer.from(bufferDataObject);
+    // Convert the Buffer to a Base64 encoded string
+    const base64Encoded = buffer.toString('base64');
     if (data === null) {
       await logger.error(`Package with id: ${package_id} not found in S3`);
       await time.error('Error occurred at this time\n');

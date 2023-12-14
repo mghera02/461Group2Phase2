@@ -541,7 +541,7 @@ app.get('/package/:id/rate', function (req, res) { return __awaiter(void 0, void
     });
 }); });
 app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var package_id, metadata, package_name, package_ID, package_Version, JSProgram, data, data2, pkg, error_5;
+    var package_id, metadata, package_name, package_ID, package_Version, JSProgram, data, data2, bufferDataObject, buffer, base64Encoded, pkg, error_5;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -574,7 +574,10 @@ app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, vo
                 return [4 /*yield*/, (0, s3_packages_1.download_package)(package_id)];
             case 8:
                 data = _a.sent();
-                data2 = data === null || data === void 0 ? void 0 : data.Content;
+                data2 = data.Content;
+                bufferDataObject = JSON.parse(data2);
+                buffer = Buffer.from(bufferDataObject);
+                base64Encoded = buffer.toString('base64');
                 if (!(data === null)) return [3 /*break*/, 11];
                 return [4 /*yield*/, logger_1.logger.error("Package with id: ".concat(package_id, " not found in S3"))];
             case 9:

@@ -46,7 +46,7 @@ async function upload_package(package_id: string, file: any) : Promise<string | 
     }
 }
 
-async function download_package(package_id: any) : Promise<PackageData | null> {
+async function download_package(package_id: any) : Promise<PackageData> {
     const params = {
         Bucket: BUCKET_NAME,
         Key: `${package_id}`
@@ -65,7 +65,11 @@ async function download_package(package_id: any) : Promise<PackageData | null> {
         return data;
     } catch (error) {
         logger.error('Error downloading file from S3:', error);
-        return null;
+        const data : PackageData = {
+            Content: "",
+            JSProgram: "",
+        }
+        return data;
     }
 }
 
