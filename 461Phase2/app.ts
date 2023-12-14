@@ -517,10 +517,7 @@ app.post('/packages', async (req, res) => {
         if(operator == "^") {
           await logger.info(`version range is ^`);
             if (
-              versionNumbers[0] == minRange[0] &&
-              versionNumbers[1] == minRange[1] &&
-              versionNumbers[2] >= minRange[2] &&
-              versionNumbers[2] <= minRange[2] + 4
+              versionNumbers[0] * 100 + versionNumbers[1] * 10 + versionNumbers[2] >= minRange[0] * 100 + minRange[1] * 10 + minRange[2]
             ) {
               await logger.info(`version is in range`);
               version = result.version
@@ -529,9 +526,7 @@ app.post('/packages', async (req, res) => {
           await logger.info(`version range is ~`);
             if (
               versionNumbers[0] == minRange[0] &&
-              versionNumbers[1] == minRange[1] &&
-              versionNumbers[2] >= minRange[2] &&
-              versionNumbers[2] <= minRange[2] + 1
+              versionNumbers[1] == minRange[1]
             ) {
               await logger.info(`version is in range`);
               version = result.version
