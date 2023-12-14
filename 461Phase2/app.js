@@ -611,11 +611,11 @@ app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, vo
     });
 }); });
 app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var packageName, version, rangeResults, _i, rangeResults_1, result, _a, operator, rest, rangeParts, minRange, maxRange, offsetValue, searchResults, package_names, error_6;
+    var packageName, version, rangeResults, _i, rangeResults_1, result, _a, operator, rest, rangeParts, minRange, maxRange, versionNumbers, offsetValue, searchResults, package_names, error_6;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                _b.trys.push([0, 30, , 33]);
+                _b.trys.push([0, 31, , 34]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 1:
                 _b.sent();
@@ -649,7 +649,7 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                 _b.sent();
                 return [2 /*return*/, res.status(400).send('There is missing field(s) in the PackageQuery/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.')];
             case 10:
-                if (!(version != ".*")) return [3 /*break*/, 19];
+                if (!(version != ".*")) return [3 /*break*/, 20];
                 return [4 /*yield*/, logger_1.logger.info("version: ".concat(version))];
             case 11:
                 _b.sent();
@@ -659,7 +659,7 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                 _i = 0, rangeResults_1 = rangeResults;
                 _b.label = 13;
             case 13:
-                if (!(_i < rangeResults_1.length)) return [3 /*break*/, 19];
+                if (!(_i < rangeResults_1.length)) return [3 /*break*/, 20];
                 result = rangeResults_1[_i];
                 logger_1.logger.info("result version: ".concat(result.version));
                 _a = version.split(/[0-9]/), operator = _a[0], rest = _a[1];
@@ -682,59 +682,91 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                 minRange = rest.split('.').map(Number);
                 _b.label = 18;
             case 18:
+                versionNumbers = result.version.split('.').map(Number);
+                switch (operator) {
+                    case '^':
+                        if (versionNumbers[0] === minRange[0] &&
+                            versionNumbers[1] === minRange[1] &&
+                            versionNumbers[2] >= minRange[2] &&
+                            versionNumbers[2] <= minRange[2] + 4) {
+                            version = result.version;
+                        }
+                    case '~':
+                        if (versionNumbers[0] === minRange[0] &&
+                            versionNumbers[1] === minRange[1] &&
+                            versionNumbers[2] >= minRange[2] &&
+                            versionNumbers[2] <= minRange[2] + 1) {
+                            version = result.version;
+                        }
+                    case '-':
+                        if (versionNumbers[0] === minRange[0] &&
+                            versionNumbers[1] === minRange[1] &&
+                            versionNumbers[2] >= minRange[2] &&
+                            versionNumbers[0] === maxRange[0] &&
+                            versionNumbers[1] === maxRange[1] &&
+                            versionNumbers[2] <= maxRange[2]) {
+                            version = result.version;
+                        }
+                    default:
+                        if (version == result.version) {
+                            version = result.version;
+                        }
+                }
+                _b.label = 19;
+            case 19:
                 _i++;
                 return [3 /*break*/, 13];
-            case 19:
+            case 20:
                 offsetValue = void 0;
-                if (!(req.query.offset !== undefined)) return [3 /*break*/, 21];
+                if (!(req.query.offset !== undefined)) return [3 /*break*/, 22];
                 offsetValue = parseInt(req.query.offset);
                 return [4 /*yield*/, logger_1.logger.info("Offset: ".concat(offsetValue))];
-            case 20:
-                _b.sent();
-                return [3 /*break*/, 23];
             case 21:
+                _b.sent();
+                return [3 /*break*/, 24];
+            case 22:
                 offsetValue = 0;
                 return [4 /*yield*/, logger_1.logger.info('Offset is not provided in the query parameters')];
-            case 22:
-                _b.sent();
-                _b.label = 23;
             case 23:
-                searchResults = void 0;
-                if (!(packageName == "*")) return [3 /*break*/, 25];
-                return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination(".*", version, false, offsetValue)];
+                _b.sent();
+                _b.label = 24;
             case 24:
+                searchResults = void 0;
+                if (!(packageName == "*")) return [3 /*break*/, 26];
+                return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination(".*", version, false, offsetValue)];
+            case 25:
                 searchResults = _b.sent();
-                return [3 /*break*/, 27];
-            case 25: return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination("".concat(packageName), version, true, offsetValue)];
-            case 26:
-                searchResults = _b.sent();
-                _b.label = 27;
+                return [3 /*break*/, 28];
+            case 26: return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination("".concat(packageName), version, true, offsetValue)];
             case 27:
+                searchResults = _b.sent();
+                _b.label = 28;
+            case 28:
                 package_names = searchResults.map(function (data) { return ({
                     Version: data.version,
                     Name: data.name,
                     ID: data.id,
                 }); });
                 return [4 /*yield*/, logger_1.logger.info("Successfully got packages (/packages): ".concat(JSON.stringify(package_names)))];
-            case 28:
+            case 29:
                 _b.sent();
                 return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
-            case 29:
+            case 30:
                 _b.sent();
                 res.setHeader('offset', offsetValue + 2);
                 res.status(200).json(package_names);
-                return [3 /*break*/, 33];
-            case 30:
+                return [3 /*break*/, 34];
+            case 31:
                 error_6 = _b.sent();
                 return [4 /*yield*/, logger_1.logger.error('Error searching packages:', error_6)];
-            case 31:
-                _b.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 32:
                 _b.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 33:
+                _b.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 33];
-            case 33: return [2 /*return*/];
+                return [3 /*break*/, 34];
+            case 34: return [2 /*return*/];
         }
     });
 }); });

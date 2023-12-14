@@ -500,7 +500,7 @@ app.post('/packages', async (req, res) => {
           minRange = rest.split('.').map(Number);
         }
 
-        /*const versionNumbers = result.version.split('.').map(Number);
+        const versionNumbers = result.version.split('.').map(Number);
 
         switch (operator) {
           case '^':
@@ -536,7 +536,7 @@ app.post('/packages', async (req, res) => {
             if(version == result.version) {
               version = result.version
             }
-        }*/
+        }
       }
     }
 
