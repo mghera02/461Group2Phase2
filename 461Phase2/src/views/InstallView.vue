@@ -69,7 +69,7 @@
                     }
 
                     // Create blob from Uint8Array and content type
-                    const blob = new Blob([uint8Array], { type: contentType });
+                    const blob = new Blob([uint8Array]);
                     const url = window.URL.createObjectURL(blob);
 
                     // Create link element for downloading
