@@ -429,7 +429,7 @@ app.get('/package/:packageId', async (req, res) => {
     res.setHeader('Content-Type', 'application/zip');
 
     const pkg = {
-      metadata: {package_name, package_ID, package_Version},
+      metadata: {Name: package_name, ID: package_ID, Version: package_Version},
       data: {Content: base64Encoded, JSProgram: JSProgram},
     }
 
