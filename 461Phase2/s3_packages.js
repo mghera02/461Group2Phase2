@@ -37,7 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateS3Package = exports.clear_s3_bucket = exports.download_package = exports.upload_package = void 0;
+exports.delete_package_from_s3 = exports.updateS3Package = exports.clear_s3_bucket = exports.download_package = exports.upload_package = void 0;
 var AWS = require("aws-sdk");
 var dotenv = require("dotenv");
 var logger_1 = require("./logger");
@@ -189,3 +189,31 @@ function updateS3Package(package_id, newFile) {
     });
 }
 exports.updateS3Package = updateS3Package;
+function delete_package_from_s3(package_id) {
+    return __awaiter(this, void 0, void 0, function () {
+        var params, error_5;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    params = {
+                        Bucket: BUCKET_NAME,
+                        Key: package_id,
+                    };
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, s3.deleteObject(params).promise()];
+                case 2:
+                    _a.sent();
+                    logger_1.logger.debug("File ".concat(package_id, " deleted successfully from S3."));
+                    return [2 /*return*/, true];
+                case 3:
+                    error_5 = _a.sent();
+                    logger_1.logger.error('Error deleting file from S3:', error_5);
+                    return [2 /*return*/, false];
+                case 4: return [2 /*return*/];
+            }
+        });
+    });
+}
+exports.delete_package_from_s3 = delete_package_from_s3;

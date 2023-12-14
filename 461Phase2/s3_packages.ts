@@ -115,9 +115,26 @@ async function updateS3Package(package_id: string, newFile: any): Promise<string
     }
   }
 
+  async function delete_package_from_s3(package_id: string): Promise<boolean> {
+    const params = {
+      Bucket: BUCKET_NAME,
+      Key: package_id,
+    };
+  
+    try {
+      await s3.deleteObject(params).promise();
+      logger.debug(`File ${package_id} deleted successfully from S3.`);
+      return true;
+    } catch (error) {
+      logger.error('Error deleting file from S3:', error);
+      return false;
+    }
+  }
+
 export {
     upload_package,
     download_package,
     clear_s3_bucket,
-    updateS3Package
+    updateS3Package,
+    delete_package_from_s3
 }

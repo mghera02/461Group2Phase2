@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.update_rds_package_data = exports.match_rds_rows_with_pagination = exports.match_rds_rows = exports.get_package_rating = exports.get_package_metadata = exports.add_rds_package_data = void 0;
+exports.delete_rds_package_data = exports.update_rds_package_data = exports.match_rds_rows_with_pagination = exports.match_rds_rows = exports.get_package_rating = exports.get_package_metadata = exports.add_rds_package_data = void 0;
 var rds_config_1 = require("./rds_config");
 var logger_1 = require("./logger");
 function row_to_metadata(row) {
@@ -273,3 +273,38 @@ function match_rds_rows_with_pagination(regex, version, useExactMatch, offset) {
     });
 }
 exports.match_rds_rows_with_pagination = match_rds_rows_with_pagination;
+function delete_rds_package_data(id) {
+    return __awaiter(this, void 0, void 0, function () {
+        var client, query, values, result, error_7;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, (0, rds_config_1.get_rds_connection)()];
+                case 1:
+                    client = _a.sent();
+                    _a.label = 2;
+                case 2:
+                    _a.trys.push([2, 4, 5, 7]);
+                    query = "\n      DELETE FROM package_data WHERE id = $1\n      RETURNING id;\n    ";
+                    values = [id];
+                    return [4 /*yield*/, client.query(query, values)];
+                case 3:
+                    result = _a.sent();
+                    // Checking if any rows were affected
+                    if (result.rowCount === 0) {
+                        return [2 /*return*/, false];
+                    }
+                    return [2 /*return*/, true];
+                case 4:
+                    error_7 = _a.sent();
+                    logger_1.logger.error('Error deleting data:', error_7);
+                    return [2 /*return*/, false];
+                case 5: return [4 /*yield*/, client.end()];
+                case 6:
+                    _a.sent();
+                    return [7 /*endfinally*/];
+                case 7: return [2 /*return*/];
+            }
+        });
+    });
+}
+exports.delete_rds_package_data = delete_rds_package_data;

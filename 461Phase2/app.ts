@@ -17,7 +17,8 @@ import {
   upload_package,
   download_package,
   clear_s3_bucket,
-  updateS3Package
+  updateS3Package,
+  delete_package_from_s3
 } from './s3_packages';
 import {get_metric_info, cloneRepo, check_npm_for_open_source, get_github_info, get_npm_package_name, zipDirectory} from './src/assets/metrics';
 import { 
@@ -695,8 +696,25 @@ app.put('/authenticate', async (req, res) => {
 });
 
 app.delete('/package/:id', async (req, res) => {
-  await logger.info('Request received for package deletion 1');
-  res.status(501).send('This system does not support package deletion.');
+  await time.info("Starting time")
+  await logger.info("Deleting package version (delete /package/:id)")
+
+  const package_id = req.params.id;
+  await logger.debug(`Attempting to delete package with id: ${package_id}`);
+
+  if(package_id) {
+    let deletionStatus = await rds_handler.delete_rds_package_data(package_id);
+    await logger.debug(`Deletion status result: ${deletionStatus}`)
+    await delete_package_from_s3(package_id);
+
+    if(deletionStatus) {
+      res.status(200).send('Package is deleted.');
+    } else {
+      res.status(404).send('Package does not exist.');
+    }
+  } else {
+    res.status(404).send('There is missing field(s) in the PackageID/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.');
+  }
 });
 
 app.get('/package/byName/:name', async (req, res) => {

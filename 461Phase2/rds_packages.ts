@@ -221,7 +221,30 @@ async function match_rds_rows_with_pagination(regex: string, version: string, us
   }
 }
 
+async function delete_rds_package_data(id: string): Promise<boolean> {
+  const client = await get_rds_connection();
 
+  try {
+    const query = `
+      DELETE FROM package_data WHERE id = $1
+      RETURNING id;
+    `;
+    const values = [id];
+    const result: QueryResult<Row> = await client.query(query, values);
+
+    // Checking if any rows were affected
+    if (result.rowCount === 0) {
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    logger.error('Error deleting data:', error);
+    return false;
+  } finally {
+    await client.end();
+  }
+}
 
 export {
     add_rds_package_data,
@@ -230,5 +253,6 @@ export {
     match_rds_rows,
     match_rds_rows_with_pagination,
     update_rds_package_data,
+    delete_rds_package_data,
     PackageData,
 }

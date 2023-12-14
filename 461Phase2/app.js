@@ -1010,13 +1010,40 @@ app.put('/authenticate', function (req, res) { return __awaiter(void 0, void 0, 
     });
 }); });
 app.delete('/package/:id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var package_id, deletionStatus;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, logger_1.logger.info('Request received for package deletion 1')];
+            case 0: return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 1:
                 _a.sent();
-                res.status(501).send('This system does not support package deletion.');
-                return [2 /*return*/];
+                return [4 /*yield*/, logger_1.logger.info("Deleting package version (delete /package/:id)")];
+            case 2:
+                _a.sent();
+                package_id = req.params.id;
+                return [4 /*yield*/, logger_1.logger.debug("Attempting to delete package with id: ".concat(package_id))];
+            case 3:
+                _a.sent();
+                if (!package_id) return [3 /*break*/, 7];
+                return [4 /*yield*/, rds_handler.delete_rds_package_data(package_id)];
+            case 4:
+                deletionStatus = _a.sent();
+                return [4 /*yield*/, logger_1.logger.debug("Deletion status result: ".concat(deletionStatus))];
+            case 5:
+                _a.sent();
+                return [4 /*yield*/, (0, s3_packages_1.delete_package_from_s3)(package_id)];
+            case 6:
+                _a.sent();
+                if (deletionStatus) {
+                    res.status(200).send('Package is deleted.');
+                }
+                else {
+                    res.status(404).send('Package does not exist.');
+                }
+                return [3 /*break*/, 8];
+            case 7:
+                res.status(404).send('There is missing field(s) in the PackageID/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.');
+                _a.label = 8;
+            case 8: return [2 /*return*/];
         }
     });
 }); });
