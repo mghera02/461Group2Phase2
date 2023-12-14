@@ -1006,6 +1006,9 @@ app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, v
                 return [4 /*yield*/, logger_1.logger.info("Input: ".concat(Name, ", ").concat(Version, ", ").concat(ID, ", ").concat(JSProgram))];
             case 3:
                 _b.sent();
+                if (JSProgram == "" || JSProgram == undefined || JSProgram == null || JSProgram.length == 0) {
+                    JSProgram = "";
+                }
                 return [4 /*yield*/, rds_handler.get_package_metadata(ID)];
             case 4:
                 existingPackage = _b.sent();

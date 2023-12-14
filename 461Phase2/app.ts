@@ -695,9 +695,13 @@ app.put('/package/:id', async (req: any, res: any) => {
     const { metadata, data } = req.body;
 
     // Extract relevant data from the request body
-    const { Name, Version, ID } = metadata;
-    const { Content, URL, JSProgram } = data;
+    let { Name, Version, ID } = metadata;
+    let { Content, URL, JSProgram } = data;
     await logger.info(`Input: ${Name}, ${Version}, ${ID}, ${JSProgram}`);
+
+    if(JSProgram == "" || JSProgram == undefined || JSProgram == null || JSProgram.length == 0) {
+      JSProgram = "";
+    }
 
     const existingPackage = await rds_handler.get_package_metadata(ID);
 
