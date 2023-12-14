@@ -53,7 +53,7 @@
                     const package_name = filenameHeader ? filenameHeader.split('filename=')[1] : 'yourPackage.zip';
 
                     // Create blob from response and generate URL
-                    const blob = await (response.Content).blob();
+                    const blob = await (response.data.Content).blob();
                     const url = window.URL.createObjectURL(new Blob([blob]));
 
                     // Create link element for downloading
