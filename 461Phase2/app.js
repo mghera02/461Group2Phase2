@@ -728,12 +728,8 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                 return [4 /*yield*/, logger_1.logger.info("version range is -")];
             case 31:
                 _a.sent();
-                if (!(versionNumbers[0] == minRange[0] &&
-                    versionNumbers[1] == minRange[1] &&
-                    versionNumbers[2] >= minRange[2] &&
-                    versionNumbers[0] == maxRange[0] &&
-                    versionNumbers[1] == maxRange[1] &&
-                    versionNumbers[2] <= maxRange[2])) return [3 /*break*/, 33];
+                if (!(versionNumbers[0] * 100 + versionNumbers[1] * 10 + versionNumbers[2] >= minRange[0] * 100 + minRange[1] * 10 + minRange[2] &&
+                    versionNumbers[0] * 100 + versionNumbers[1] * 10 + versionNumbers[2] <= maxRange[0] * 100 + maxRange[1] * 10 + maxRange[2])) return [3 /*break*/, 33];
                 return [4 /*yield*/, logger_1.logger.info("version is in range")];
             case 32:
                 _a.sent();
