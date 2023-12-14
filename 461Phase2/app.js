@@ -1003,7 +1003,7 @@ app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, v
                 _a = req.body, metadata = _a.metadata, data = _a.data;
                 Name = metadata.Name, Version = metadata.Version, ID = metadata.ID;
                 Content = data.Content, URL_1 = data.URL, JSProgram = data.JSProgram;
-                return [4 /*yield*/, logger_1.logger.info("Input: ".concat(Name, ", ").concat(Version, ", ").concat(ID, ", ").concat(JSProgram))];
+                return [4 /*yield*/, logger_1.logger.info("Input: ".concat(Name, ", ").concat(Version, ", ").concat(ID, ", ").concat(JSProgram, ", ").concat(URL_1))];
             case 3:
                 _b.sent();
                 if (JSProgram == "" || JSProgram == undefined || JSProgram == null || JSProgram.length == 0) {

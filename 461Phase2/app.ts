@@ -697,7 +697,7 @@ app.put('/package/:id', async (req: any, res: any) => {
     // Extract relevant data from the request body
     let { Name, Version, ID } = metadata;
     let { Content, URL, JSProgram } = data;
-    await logger.info(`Input: ${Name}, ${Version}, ${ID}, ${JSProgram}`);
+    await logger.info(`Input: ${Name}, ${Version}, ${ID}, ${JSProgram}, ${URL}`);
 
     if(JSProgram == "" || JSProgram == undefined || JSProgram == null || JSProgram.length == 0) {
       JSProgram = "";
