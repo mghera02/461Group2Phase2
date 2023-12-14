@@ -481,15 +481,17 @@ app.post('/packages', async (req, res) => {
 
     // Trying to get all ranges of versions
     if(version != ".*") {
+      await logger.info(`version: ${version}`)
       let rangeResults = await rds_handler.match_rds_rows(packageName);
       for (const result of rangeResults) {
+        logger.info(`result version: ${result.version}`)
         const [operator, rest] = version.split(/[0-9]/);
         const rangeParts = rest.split('-');
         
         const minRange = rangeParts[0].split('.').map(Number);
         const maxRange = rangeParts[1].split('.').map(Number);
 
-        const versionNumbers = version.split('.').map(Number);
+        const versionNumbers = result.version.split('.').map(Number);
 
         switch (operator) {
           case '^':
