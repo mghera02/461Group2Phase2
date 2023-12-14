@@ -487,7 +487,7 @@ app.post('/packages', async (req, res) => {
         const [operator, rest] = version.split(/[0-9]/);
         const rangeParts = rest.split('-');
         
-        /*let minRange;
+        let minRange;
         let maxRange;
         if(rangeParts) {
           minRange = rangeParts[0].split('.').map(Number);
@@ -496,7 +496,7 @@ app.post('/packages', async (req, res) => {
           minRange = rest.split('.').map(Number);
         }
 
-        const versionNumbers = result.version.split('.').map(Number);
+        /*const versionNumbers = result.version.split('.').map(Number);
 
         switch (operator) {
           case '^':
