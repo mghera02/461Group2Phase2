@@ -595,7 +595,7 @@ app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, vo
                 res.setHeader('Content-Type', 'application/zip');
                 pkg = {
                     metadata: { package_name: package_name, package_ID: package_ID, package_Version: package_Version },
-                    data: { content: base64Encoded, JSProgram: JSProgram },
+                    data: { Content: base64Encoded, JSProgram: JSProgram },
                 };
                 return [4 /*yield*/, logger_1.logger.info("Successfully downloaded package with id ".concat(package_id))];
             case 13:

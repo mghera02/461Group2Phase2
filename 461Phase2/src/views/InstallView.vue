@@ -35,7 +35,7 @@
             // Method to fetch and download package ZIP file
             async getPackageZip() {
                 // Extracting package ID from route parameters
-                let id = Number(this.$route.params.packageId);
+                let id = this.$route.params.packageId;
                 const endpoint = `http://${this.ip}:8080/download/${id}`;
 
                 try {
@@ -53,7 +53,7 @@
                     const package_name = filenameHeader ? filenameHeader.split('filename=')[1] : 'yourPackage.zip';
 
                     // Create blob from response and generate URL
-                    const blob = await response.blob();
+                    const blob = await (response.data.Content).blob();
                     const url = window.URL.createObjectURL(new Blob([blob]));
 
                     // Create link element for downloading
