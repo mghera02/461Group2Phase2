@@ -372,7 +372,7 @@ app.get('/package/:id/rate', async (req, res) => {
       await time.error('Error occurred at this time\n');
       return res.status(404).json('Package does not exist.');
     }
-    await logger.info(`Received package data from RDS: ${scores}`);
+    await logger.info(`Received package data from RDS: ${JSON.stringify(scores)}`);
     
     if (!scores) {
       await logger.error(`No rate data found for package with id: ${package_id}`)

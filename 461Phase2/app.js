@@ -500,7 +500,7 @@ app.get('/package/:id/rate', function (req, res) { return __awaiter(void 0, void
             case 6:
                 _a.sent();
                 return [2 /*return*/, res.status(404).json('Package does not exist.')];
-            case 7: return [4 /*yield*/, logger_1.logger.info("Received package data from RDS: ".concat(scores))];
+            case 7: return [4 /*yield*/, logger_1.logger.info("Received package data from RDS: ".concat(JSON.stringify(scores)))];
             case 8:
                 _a.sent();
                 if (!!scores) return [3 /*break*/, 11];
