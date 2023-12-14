@@ -467,7 +467,6 @@ app.post('/packages', async (req, res) => {
     await logger.info(`Length of req body: ${req.body.length}`);
     await logger.info(`Got req.body.Name:${req.body[0].Name}, req.body.Version:${req.body[0].Version}`);
 
-    await logger.info(`Version string length: ${version.length}`);
     if(version == undefined || version == null || version == "*" || version.length == 0) {
       await logger.info(`Setting version to .*`);
       version = ".*";
@@ -488,8 +487,14 @@ app.post('/packages', async (req, res) => {
         const [operator, rest] = version.split(/[0-9]/);
         const rangeParts = rest.split('-');
         
-        const minRange = rangeParts[0].split('.').map(Number);
-        const maxRange = rangeParts[1].split('.').map(Number);
+        let minRange;
+        let maxRange;
+        if(rangeParts) {
+          minRange = rangeParts[0].split('.').map(Number);
+          maxRange = rangeParts[1].split('.').map(Number);
+        } else {
+          minRange = rest.split('.').map(Number);
+        }
 
         const versionNumbers = result.version.split('.').map(Number);
 
