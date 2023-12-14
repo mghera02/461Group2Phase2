@@ -486,13 +486,17 @@ app.post('/packages', async (req, res) => {
         logger.info(`result version: ${result.version}`)
         const [operator, rest] = version.split(/[0-9]/);
         const rangeParts = rest.split('-');
+
+        await logger.info(`rangeParts: ${rangeParts}`)
         
         let minRange;
         let maxRange;
         if(rangeParts) {
+          await logger.info(`rangeParts1`)
           minRange = rangeParts[0].split('.').map(Number);
           maxRange = rangeParts[1].split('.').map(Number);
         } else {
+          await logger.info(`rangeParts2`)
           minRange = rest.split('.').map(Number);
         }
 
