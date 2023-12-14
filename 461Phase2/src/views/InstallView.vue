@@ -52,7 +52,6 @@
                     const filenameHeader = response.headers.get('Content-Disposition');
                     const package_name = filenameHeader ? filenameHeader.split('filename=')[1] : 'yourPackage.zip';
 
-                    // Create blob from response and generate URL
                     const jsonResponse = await response.json();
                     console.log(`response: ${JSON.stringify(response)}`)
 
@@ -60,8 +59,17 @@
                     const content = jsonResponse.data.Content;
                     console.log(`content: ${content}`)
 
-                    // Create blob from content and generate URL
-                    const blob = new Blob([content]);
+                    // Decode the base64 content
+                    const decodedContent = atob(content);
+
+                    // Convert the decoded content to a Uint8Array
+                    const uint8Array = new Uint8Array(decodedContent.length);
+                    for (let i = 0; i < decodedContent.length; i++) {
+                        uint8Array[i] = decodedContent.charCodeAt(i);
+                    }
+
+                    // Create blob from Uint8Array and content type
+                    const blob = new Blob([uint8Array], { type: contentType });
                     const url = window.URL.createObjectURL(blob);
 
                     // Create link element for downloading
