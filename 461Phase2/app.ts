@@ -467,7 +467,8 @@ app.post('/packages', async (req, res) => {
     await logger.info(`Length of req body: ${req.body.length}`);
     await logger.info(`Got req.body.Name:${req.body[0].Name}, req.body.Version:${req.body[0].Version}`);
 
-    if(version == undefined || version == null || version == "*") {
+    await logger.info(`Version string length: ${version.length}`);
+    if(version == undefined || version == null || version == "*" || version.length == 0) {
       await logger.info(`Setting version to .*`);
       version = ".*";
     }
