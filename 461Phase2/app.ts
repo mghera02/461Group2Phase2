@@ -670,7 +670,7 @@ app.put('/package/:id', async (req: any, res: any) => {
 });
 
 app.put('/authenticate', async (req, res) => {
-  res.status(500).send('This system does not support authentication.');
+  res.status(501).send('This system does not support authentication.');
 });
 
 app.listen(port, async () => {

@@ -999,7 +999,7 @@ app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, v
 }); });
 app.put('/authenticate', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
-        res.status(500).send('This system does not support authentication.');
+        res.status(501).send('This system does not support authentication.');
         return [2 /*return*/];
     });
 }); });
