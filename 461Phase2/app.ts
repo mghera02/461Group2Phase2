@@ -485,6 +485,16 @@ app.post('/packages', async (req, res) => {
       await logger.info(`rangeResults: ${rangeResults}`);
       for (const result of rangeResults) {
         await logger.info(`result version: ${result.version}`)
+
+        let operator = "";
+        if (version.charAt(0) == '^') {
+          version = version.substring(1);
+          operator = '^'
+        } else if (version.charAt(0) == '~') {
+          version = version.substring(1);
+          operator = '~'
+        } 
+
         const rangeParts = version.split('-');
 
         await logger.info(`rangeParts: ${rangeParts}`)
@@ -504,7 +514,7 @@ app.post('/packages', async (req, res) => {
         const versionNumbers = result.version.split('.').map(Number);
         await logger.info(`version number: ${versionNumbers}`);
 
-        if(version.indexOf('^') !== -1) {
+        if(operator == "^") {
           await logger.info(`version range is ^`);
             if (
               versionNumbers[0] == minRange[0] &&
@@ -515,7 +525,7 @@ app.post('/packages', async (req, res) => {
               await logger.info(`version is in range`);
               version = result.version
             }
-        } else if(version.indexOf('~') !== -1) {
+        } else if(operator == "~") {
           await logger.info(`version range is ~`);
             if (
               versionNumbers[0] == minRange[0] &&

@@ -611,7 +611,7 @@ app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, vo
     });
 }); });
 app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var packageName, version, rangeResults, _i, rangeResults_1, result, rangeParts, minRange, maxRange, versionNumbers, offsetValue, searchResults, package_names, error_6;
+    var packageName, version, rangeResults, _i, rangeResults_1, result, operator, rangeParts, minRange, maxRange, versionNumbers, offsetValue, searchResults, package_names, error_6;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -667,6 +667,15 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                 return [4 /*yield*/, logger_1.logger.info("result version: ".concat(result.version))];
             case 15:
                 _a.sent();
+                operator = "";
+                if (version.charAt(0) == '^') {
+                    version = version.substring(1);
+                    operator = '^';
+                }
+                else if (version.charAt(0) == '~') {
+                    version = version.substring(1);
+                    operator = '~';
+                }
                 rangeParts = version.split('-');
                 return [4 /*yield*/, logger_1.logger.info("rangeParts: ".concat(rangeParts))];
             case 16:
@@ -694,7 +703,7 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                 return [4 /*yield*/, logger_1.logger.info("version number: ".concat(versionNumbers))];
             case 22:
                 _a.sent();
-                if (!(version.indexOf('^') !== -1)) return [3 /*break*/, 26];
+                if (!(operator == "^")) return [3 /*break*/, 26];
                 return [4 /*yield*/, logger_1.logger.info("version range is ^")];
             case 23:
                 _a.sent();
@@ -709,7 +718,7 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                 _a.label = 25;
             case 25: return [3 /*break*/, 37];
             case 26:
-                if (!(version.indexOf('~') !== -1)) return [3 /*break*/, 30];
+                if (!(operator == "~")) return [3 /*break*/, 30];
                 return [4 /*yield*/, logger_1.logger.info("version range is ~")];
             case 27:
                 _a.sent();
