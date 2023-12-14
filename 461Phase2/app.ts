@@ -492,21 +492,23 @@ app.post('/packages', async (req, res) => {
         let minRange;
         let maxRange;
         if(rangeParts.length > 1) {
-          await logger.info(`rangeParts1`)
           minRange = rangeParts[0].split('.').map(Number);
           maxRange = rangeParts[1].split('.').map(Number);
+          await logger.info(`minRange: ${minRange}`);
+          await logger.info(`maxRange: ${maxRange}`);
         } else {
-          await logger.info(`rangeParts2`)
           minRange = version.split('.').map(Number);
+          await logger.info(`minRange: ${minRange}`);
         }
 
         const versionNumbers = result.version.split('.').map(Number);
+        await logger.info(`version number: ${versionNumbers}`);
 
         if(version.indexOf('^') !== -1) {
           await logger.info(`version range is ^`);
             if (
-              versionNumbers[0] === minRange[0] &&
-              versionNumbers[1] === minRange[1] &&
+              versionNumbers[0] == minRange[0] &&
+              versionNumbers[1] == minRange[1] &&
               versionNumbers[2] >= minRange[2] &&
               versionNumbers[2] <= minRange[2] + 4
             ) {
@@ -516,8 +518,8 @@ app.post('/packages', async (req, res) => {
         } else if(version.indexOf('~') !== -1) {
           await logger.info(`version range is ~`);
             if (
-              versionNumbers[0] === minRange[0] &&
-              versionNumbers[1] === minRange[1] &&
+              versionNumbers[0] == minRange[0] &&
+              versionNumbers[1] == minRange[1] &&
               versionNumbers[2] >= minRange[2] &&
               versionNumbers[2] <= minRange[2] + 1
             ) {
@@ -527,11 +529,11 @@ app.post('/packages', async (req, res) => {
         } else if(version.indexOf('-') !== -1) {
           await logger.info(`version range is -`);
             if (
-              versionNumbers[0] === minRange[0] &&
-              versionNumbers[1] === minRange[1] &&
+              versionNumbers[0] == minRange[0] &&
+              versionNumbers[1] == minRange[1] &&
               versionNumbers[2] >= minRange[2] &&
-              versionNumbers[0] === maxRange[0] &&
-              versionNumbers[1] === maxRange[1] &&
+              versionNumbers[0] == maxRange[0] &&
+              versionNumbers[1] == maxRange[1] &&
               versionNumbers[2] <= maxRange[2]
             ) {
               await logger.info(`version is in range`);

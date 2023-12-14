@@ -615,7 +615,7 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 47, , 50]);
+                _a.trys.push([0, 49, , 52]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 1:
                 _a.sent();
@@ -649,7 +649,7 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                 _a.sent();
                 return [2 /*return*/, res.status(400).send('There is missing field(s) in the PackageQuery/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.')];
             case 10:
-                if (!(version != ".*")) return [3 /*break*/, 36];
+                if (!(version != ".*")) return [3 /*break*/, 38];
                 return [4 /*yield*/, logger_1.logger.info("version: ".concat(version))];
             case 11:
                 _a.sent();
@@ -662,7 +662,7 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                 _i = 0, rangeResults_1 = rangeResults;
                 _a.label = 14;
             case 14:
-                if (!(_i < rangeResults_1.length)) return [3 /*break*/, 36];
+                if (!(_i < rangeResults_1.length)) return [3 /*break*/, 38];
                 result = rangeResults_1[_i];
                 return [4 /*yield*/, logger_1.logger.info("result version: ".concat(result.version))];
             case 15:
@@ -673,129 +673,136 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                 _a.sent();
                 minRange = void 0;
                 maxRange = void 0;
-                if (!(rangeParts.length > 1)) return [3 /*break*/, 18];
-                return [4 /*yield*/, logger_1.logger.info("rangeParts1")];
-            case 17:
-                _a.sent();
+                if (!(rangeParts.length > 1)) return [3 /*break*/, 19];
                 minRange = rangeParts[0].split('.').map(Number);
                 maxRange = rangeParts[1].split('.').map(Number);
-                return [3 /*break*/, 20];
-            case 18: return [4 /*yield*/, logger_1.logger.info("rangeParts2")];
+                return [4 /*yield*/, logger_1.logger.info("minRange: ".concat(minRange))];
+            case 17:
+                _a.sent();
+                return [4 /*yield*/, logger_1.logger.info("maxRange: ".concat(maxRange))];
+            case 18:
+                _a.sent();
+                return [3 /*break*/, 21];
             case 19:
-                _a.sent();
                 minRange = version.split('.').map(Number);
-                _a.label = 20;
+                return [4 /*yield*/, logger_1.logger.info("minRange: ".concat(minRange))];
             case 20:
-                versionNumbers = result.version.split('.').map(Number);
-                if (!(version.indexOf('^') !== -1)) return [3 /*break*/, 24];
-                return [4 /*yield*/, logger_1.logger.info("version range is ^")];
-            case 21:
                 _a.sent();
-                if (!(versionNumbers[0] === minRange[0] &&
-                    versionNumbers[1] === minRange[1] &&
-                    versionNumbers[2] >= minRange[2] &&
-                    versionNumbers[2] <= minRange[2] + 4)) return [3 /*break*/, 23];
-                return [4 /*yield*/, logger_1.logger.info("version is in range")];
+                _a.label = 21;
+            case 21:
+                versionNumbers = result.version.split('.').map(Number);
+                return [4 /*yield*/, logger_1.logger.info("version number: ".concat(versionNumbers))];
             case 22:
                 _a.sent();
-                version = result.version;
-                _a.label = 23;
-            case 23: return [3 /*break*/, 35];
+                if (!(version.indexOf('^') !== -1)) return [3 /*break*/, 26];
+                return [4 /*yield*/, logger_1.logger.info("version range is ^")];
+            case 23:
+                _a.sent();
+                if (!(versionNumbers[0] == minRange[0] &&
+                    versionNumbers[1] == minRange[1] &&
+                    versionNumbers[2] >= minRange[2] &&
+                    versionNumbers[2] <= minRange[2] + 4)) return [3 /*break*/, 25];
+                return [4 /*yield*/, logger_1.logger.info("version is in range")];
             case 24:
-                if (!(version.indexOf('~') !== -1)) return [3 /*break*/, 28];
-                return [4 /*yield*/, logger_1.logger.info("version range is ~")];
-            case 25:
                 _a.sent();
-                if (!(versionNumbers[0] === minRange[0] &&
-                    versionNumbers[1] === minRange[1] &&
-                    versionNumbers[2] >= minRange[2] &&
-                    versionNumbers[2] <= minRange[2] + 1)) return [3 /*break*/, 27];
-                return [4 /*yield*/, logger_1.logger.info("version is in range")];
+                version = result.version;
+                _a.label = 25;
+            case 25: return [3 /*break*/, 37];
             case 26:
+                if (!(version.indexOf('~') !== -1)) return [3 /*break*/, 30];
+                return [4 /*yield*/, logger_1.logger.info("version range is ~")];
+            case 27:
                 _a.sent();
-                version = result.version;
-                _a.label = 27;
-            case 27: return [3 /*break*/, 35];
-            case 28:
-                if (!(version.indexOf('-') !== -1)) return [3 /*break*/, 32];
-                return [4 /*yield*/, logger_1.logger.info("version range is -")];
-            case 29:
-                _a.sent();
-                if (!(versionNumbers[0] === minRange[0] &&
-                    versionNumbers[1] === minRange[1] &&
+                if (!(versionNumbers[0] == minRange[0] &&
+                    versionNumbers[1] == minRange[1] &&
                     versionNumbers[2] >= minRange[2] &&
-                    versionNumbers[0] === maxRange[0] &&
-                    versionNumbers[1] === maxRange[1] &&
-                    versionNumbers[2] <= maxRange[2])) return [3 /*break*/, 31];
+                    versionNumbers[2] <= minRange[2] + 1)) return [3 /*break*/, 29];
                 return [4 /*yield*/, logger_1.logger.info("version is in range")];
+            case 28:
+                _a.sent();
+                version = result.version;
+                _a.label = 29;
+            case 29: return [3 /*break*/, 37];
             case 30:
+                if (!(version.indexOf('-') !== -1)) return [3 /*break*/, 34];
+                return [4 /*yield*/, logger_1.logger.info("version range is -")];
+            case 31:
                 _a.sent();
-                version = result.version;
-                _a.label = 31;
-            case 31: return [3 /*break*/, 35];
-            case 32: return [4 /*yield*/, logger_1.logger.info("version range is single")];
-            case 33:
-                _a.sent();
-                if (!(version == result.version)) return [3 /*break*/, 35];
+                if (!(versionNumbers[0] == minRange[0] &&
+                    versionNumbers[1] == minRange[1] &&
+                    versionNumbers[2] >= minRange[2] &&
+                    versionNumbers[0] == maxRange[0] &&
+                    versionNumbers[1] == maxRange[1] &&
+                    versionNumbers[2] <= maxRange[2])) return [3 /*break*/, 33];
                 return [4 /*yield*/, logger_1.logger.info("version is in range")];
-            case 34:
+            case 32:
                 _a.sent();
                 version = result.version;
-                _a.label = 35;
+                _a.label = 33;
+            case 33: return [3 /*break*/, 37];
+            case 34: return [4 /*yield*/, logger_1.logger.info("version range is single")];
             case 35:
+                _a.sent();
+                if (!(version == result.version)) return [3 /*break*/, 37];
+                return [4 /*yield*/, logger_1.logger.info("version is in range")];
+            case 36:
+                _a.sent();
+                version = result.version;
+                _a.label = 37;
+            case 37:
                 _i++;
                 return [3 /*break*/, 14];
-            case 36:
+            case 38:
                 offsetValue = void 0;
-                if (!(req.query.offset !== undefined)) return [3 /*break*/, 38];
+                if (!(req.query.offset !== undefined)) return [3 /*break*/, 40];
                 offsetValue = parseInt(req.query.offset);
                 return [4 /*yield*/, logger_1.logger.info("Offset: ".concat(offsetValue))];
-            case 37:
-                _a.sent();
-                return [3 /*break*/, 40];
-            case 38:
-                offsetValue = 0;
-                return [4 /*yield*/, logger_1.logger.info('Offset is not provided in the query parameters')];
             case 39:
                 _a.sent();
-                _a.label = 40;
+                return [3 /*break*/, 42];
             case 40:
-                searchResults = void 0;
-                if (!(packageName == "*")) return [3 /*break*/, 42];
-                return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination(".*", version, false, offsetValue)];
+                offsetValue = 0;
+                return [4 /*yield*/, logger_1.logger.info('Offset is not provided in the query parameters')];
             case 41:
-                searchResults = _a.sent();
-                return [3 /*break*/, 44];
-            case 42: return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination("".concat(packageName), version, true, offsetValue)];
+                _a.sent();
+                _a.label = 42;
+            case 42:
+                searchResults = void 0;
+                if (!(packageName == "*")) return [3 /*break*/, 44];
+                return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination(".*", version, false, offsetValue)];
             case 43:
                 searchResults = _a.sent();
-                _a.label = 44;
-            case 44:
+                return [3 /*break*/, 46];
+            case 44: return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination("".concat(packageName), version, true, offsetValue)];
+            case 45:
+                searchResults = _a.sent();
+                _a.label = 46;
+            case 46:
                 package_names = searchResults.map(function (data) { return ({
                     Version: data.version,
                     Name: data.name,
                     ID: data.id,
                 }); });
                 return [4 /*yield*/, logger_1.logger.info("Successfully got packages (/packages): ".concat(JSON.stringify(package_names)))];
-            case 45:
+            case 47:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
-            case 46:
+            case 48:
                 _a.sent();
                 res.setHeader('offset', offsetValue + 2);
                 res.status(200).json(package_names);
-                return [3 /*break*/, 50];
-            case 47:
+                return [3 /*break*/, 52];
+            case 49:
                 error_6 = _a.sent();
                 return [4 /*yield*/, logger_1.logger.error('Error searching packages:', error_6)];
-            case 48:
+            case 50:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
-            case 49:
+            case 51:
                 _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 50];
-            case 50: return [2 /*return*/];
+                return [3 /*break*/, 52];
+            case 52: return [2 /*return*/];
         }
     });
 }); });
