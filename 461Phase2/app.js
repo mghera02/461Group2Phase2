@@ -1007,7 +1007,7 @@ app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, v
             case 3:
                 _b.sent();
                 if (JSProgram == "" || JSProgram == undefined || JSProgram == null || JSProgram.length == 0) {
-                    JSProgram = "";
+                    JSProgram = "no";
                 }
                 return [4 /*yield*/, rds_handler.get_package_metadata(ID)];
             case 4:

@@ -98,8 +98,14 @@ function update_rds_package_data(id, newName, newVersion, JSProgram) {
                     _a.label = 2;
                 case 2:
                     _a.trys.push([2, 4, 5, 7]);
-                    query = "\n      UPDATE package_data \n      SET name = $1, version = $2, JSProgram = $3\n      WHERE id = $4\n    ";
-                    values = [newName, newVersion, JSProgram, id];
+                    if (JSProgram == "no") {
+                        query = "\n        UPDATE package_data \n        SET name = $1, version = $2\n        WHERE id = $3\n      ";
+                        values = [newName, newVersion, id];
+                    }
+                    else {
+                        query = "\n        UPDATE package_data \n        SET name = $1, version = $2, JSProgram = $3\n        WHERE id = $4\n      ";
+                        values = [newName, newVersion, JSProgram, id];
+                    }
                     return [4 /*yield*/, client.query(query, values)];
                 case 3:
                     result = _a.sent();

@@ -77,15 +77,26 @@ async function add_rds_package_data(metadata: PackageMetadata, rating: PackageRa
 
 async function update_rds_package_data(id: string, newName: string, newVersion: string, JSProgram: string): Promise<number | null> {
   const client = await get_rds_connection();
+  let query:any;
+  let values:any;
 
   try {
-    const query = `
-      UPDATE package_data 
-      SET name = $1, version = $2, JSProgram = $3
-      WHERE id = $4
-    `;
-    const values = [newName, newVersion, JSProgram, id];
-    const result: QueryResult<Row> = await client.query(query, values);
+    if(JSProgram == "no") {
+      query = `
+        UPDATE package_data 
+        SET name = $1, version = $2
+        WHERE id = $3
+      `;
+      values = [newName, newVersion, id];
+    } else {
+      query = `
+        UPDATE package_data 
+        SET name = $1, version = $2, JSProgram = $3
+        WHERE id = $4
+      `;
+      values = [newName, newVersion, JSProgram, id];
+    }
+    let result = await client.query(query, values);
 
     // Check if any rows were affected
     return result.rowCount;

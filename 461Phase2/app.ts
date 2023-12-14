@@ -700,7 +700,7 @@ app.put('/package/:id', async (req: any, res: any) => {
     await logger.info(`Input: ${Name}, ${Version}, ${ID}, ${JSProgram}, ${URL}`);
 
     if(JSProgram == "" || JSProgram == undefined || JSProgram == null || JSProgram.length == 0) {
-      JSProgram = "";
+      JSProgram = "no";
     }
 
     const existingPackage = await rds_handler.get_package_metadata(ID);
