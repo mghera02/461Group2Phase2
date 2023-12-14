@@ -183,7 +183,7 @@ function get_metric_info(gitDetails) {
                     return [4 /*yield*/, calcTotalScore(busFactor, rampup, license, correctness, maintainer, pullRequest, pinning)];
                 case 12:
                     score = _a.sent();
-                    return [4 /*yield*/, logger_1.logger.info("Calculated score ".concat(score, "\n"))];
+                    return [4 /*yield*/, logger_1.logger.info("Calculated score ".concat(score))];
                 case 13:
                     _a.sent();
                     return [2 /*return*/, { BusFactor: busFactor.toFixed(5), RampUp: rampup.toFixed(5), LicenseScore: license.toFixed(5), Correctness: correctness.toFixed(5), ResponsiveMaintainer: maintainer.toFixed(5), PullRequest: pullRequest.toFixed(5), GoodPinningPractice: pinning.toFixed(5), NetScore: score.toFixed(5) }];

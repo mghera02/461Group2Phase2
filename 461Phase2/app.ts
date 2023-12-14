@@ -104,11 +104,10 @@ app.post('/package', upload.single('file'), async (req, res) => {
   if(req.body.URL && !req.body.Content) {
     try {
       await time.info("Starting time")
-      await logger.info('Attempting to ingest package')
+      await logger.info('Ingesting package (POST /package)')
 
       let url = req.body.URL;
 
-      await logger.info(`package url: ${req.body.URL}`);
       await logger.info(`req: ${JSON.stringify(req.body)}`);
 
       if(url.includes("github")) {
@@ -242,7 +241,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
   } else if(!req.body.URL && req.body.Content) {
     try {
       await time.info("Starting time")
-      await logger.info('Attempting to upload package')
+      await logger.info('Uploading package (POST /package)')
 
       const binaryData = Buffer.from(req.body.Content, 'base64');
       await logger.info(`Got buffer/binary data`);
@@ -361,7 +360,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
 app.get('/package/:id/rate', async (req, res) => {
   try {
     await time.info("Starting time")
-    await logger.info("Attempting to get package rating")
+    await logger.info("Rating package (GET /package/:id/rate)")
 
     const package_id = req.params.id;
     await logger.debug(`Attempting to rate package with id: ${package_id}`)
@@ -380,7 +379,8 @@ app.get('/package/:id/rate', async (req, res) => {
       return res.status(404).send('Rate data not found.');
     }
 
-    await logger.info(`Rate data found for package with id: ${package_id}, rateData: ${scores.BusFactor}, ${scores.RampUp}, ${scores.LicenseScore}, ${scores.Correctness}, ${scores.ResponsiveMaintainer}, ${scores.PullRequest}, ${scores.GoodPinningPractice}, ${scores.NetScore}`);
+    //await logger.debug(`Rate data found for package with id: ${package_id}, rateData: ${scores.BusFactor}, ${scores.RampUp}, ${scores.LicenseScore}, ${scores.Correctness}, ${scores.ResponsiveMaintainer}, ${scores.PullRequest}, ${scores.GoodPinningPractice}, ${scores.NetScore}`);
+    await logger.info(`res: ${JSON.stringify(scores)}`);
     await time.info("Finished at this time\n")
     res.status(200).json(scores);
   } catch (error) {
@@ -393,7 +393,7 @@ app.get('/package/:id/rate', async (req, res) => {
 app.get('/package/:packageId', async (req, res) => {
   try {
     await time.info("Starting time")
-    await logger.info("Attempting to download package")
+    await logger.info("Downloading package (GET /package/:packageId)")
 
     const package_id = req.params.packageId;
 
@@ -453,7 +453,8 @@ app.get('/package/:packageId', async (req, res) => {
 app.post('/packages', async (req, res) => {
   try {
     await time.info("Starting time")
-    await logger.info("Attempting to get packages (/packages)")
+    await logger.info("Listing packages (POST /packages)")
+    await logger.info(`req: ${JSON.stringify(req.body)}`);
 
     const packageName = req.body[0].Name;
     let version = req.body[0].Version;
@@ -514,7 +515,8 @@ app.post('/package/byRegEx', async (req, res) => {
 
   try {
     await time.info("Starting time")
-    await logger.info("Attempting to search packages")
+    await logger.info("Searching packages (POST /package/byRegEx)")
+    await logger.info(`req: ${JSON.stringify(req.body)}`);
 
     const searchString = req.body.RegEx as string;
     if (!searchString) {
@@ -558,7 +560,7 @@ app.post('/package/byRegEx', async (req, res) => {
 app.delete('/reset', async (req, res) => {
   try {
     await time.info("Starting time")
-    await logger.info("Attempting to reset system")
+    await logger.info("System reset (/reset)")
 
     await clear_s3_bucket();
     await rds_configurator.drop_package_data_table();
@@ -577,7 +579,7 @@ app.delete('/reset', async (req, res) => {
 app.get('/packageId/:packageName', async (req, res) => {
   try {
     await time.info("Starting time");
-    await logger.info("Attempting to get package ID by name");
+    await logger.info("Attempting to get package ID by name (GET /packageId/:packageName)");
 
     const packageName = req.params.packageName;
 
@@ -605,7 +607,7 @@ app.get('/packageId/:packageName', async (req, res) => {
 app.put('/package/:id', async (req: any, res: any) => {
   try {
     await time.info("Starting time");
-    await logger.info("Attempting to update package content");
+    await logger.info("Updating Package (PUT /package/:id)");
 
     const { metadata, data } = req.body;
 
