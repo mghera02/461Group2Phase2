@@ -398,8 +398,13 @@ app.get('/package/:packageId', async (req, res) => {
 
     const package_id = req.params.packageId;
 
+    if(!package_id) {
+      await time.info('No ID provided');
+      return res.status(400).json('There is missing field(s) in the PackageID/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.');
+    }
+
     const metadata = await rds_handler.get_package_metadata(package_id)
-    if (metadata === null) {
+    if (metadata == null) {
       await logger.error(`No package found with id: ${package_id}`);
       await time.error('Error occurred at this time\n');
       return res.status(404).json({ error: 'Package metadata not found' });
@@ -701,7 +706,7 @@ app.put('/package/:id', async (req: any, res: any) => {
       return res.status(404).json('Package does not exist.');
     }
 
-    let rowsUpdated = await rds_handler.update_rds_package_data(ID, Name, Version);
+    let rowsUpdated = await rds_handler.update_rds_package_data(ID, Name, Version, JSProgram);
 
     if(URL && !Content) {
       await logger.info(`Updating via URL`);

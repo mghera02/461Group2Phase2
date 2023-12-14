@@ -541,7 +541,7 @@ app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, vo
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 14, , 17]);
+                _a.trys.push([0, 16, , 19]);
                 return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 1:
                 _a.sent();
@@ -549,39 +549,44 @@ app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, vo
             case 2:
                 _a.sent();
                 package_id = req.params.packageId;
-                return [4 /*yield*/, rds_handler.get_package_metadata(package_id)];
+                if (!!package_id) return [3 /*break*/, 4];
+                return [4 /*yield*/, logger_1.time.info('No ID provided')];
             case 3:
+                _a.sent();
+                return [2 /*return*/, res.status(400).json('There is missing field(s) in the PackageID/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.')];
+            case 4: return [4 /*yield*/, rds_handler.get_package_metadata(package_id)];
+            case 5:
                 metadata = _a.sent();
-                if (!(metadata === null)) return [3 /*break*/, 6];
+                if (!(metadata == null)) return [3 /*break*/, 8];
                 return [4 /*yield*/, logger_1.logger.error("No package found with id: ".concat(package_id))];
-            case 4:
+            case 6:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
-            case 5:
+            case 7:
                 _a.sent();
                 return [2 /*return*/, res.status(404).json({ error: 'Package metadata not found' })];
-            case 6: return [4 /*yield*/, logger_1.logger.debug("Package data found for package with id: ".concat(package_id))];
-            case 7:
+            case 8: return [4 /*yield*/, logger_1.logger.debug("Package data found for package with id: ".concat(package_id))];
+            case 9:
                 _a.sent();
                 package_name = metadata.name;
                 package_ID = metadata.id;
                 package_Version = metadata.version;
                 JSProgram = metadata.JSProgram;
                 return [4 /*yield*/, (0, s3_packages_1.download_package)(package_id)];
-            case 8:
+            case 10:
                 data = _a.sent();
                 data2 = data.Content;
                 buffer = Buffer.from(data2);
                 base64Encoded = buffer.toString('base64');
-                if (!(data === null)) return [3 /*break*/, 11];
+                if (!(data === null)) return [3 /*break*/, 13];
                 return [4 /*yield*/, logger_1.logger.error("Package with id: ".concat(package_id, " not found in S3"))];
-            case 9:
+            case 11:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
-            case 10:
+            case 12:
                 _a.sent();
                 return [2 /*return*/, res.status(404).json({ error: 'Package data not found' })];
-            case 11:
+            case 13:
                 res.attachment(package_name + '.zip'); // Set the desired new file name here
                 res.setHeader('Content-Type', 'application/zip');
                 pkg = {
@@ -589,24 +594,24 @@ app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, vo
                     data: { Content: base64Encoded, JSProgram: JSProgram },
                 };
                 return [4 /*yield*/, logger_1.logger.info("Successfully downloaded package with id ".concat(package_id))];
-            case 12:
+            case 14:
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
-            case 13:
-                _a.sent();
-                res.status(200).json(pkg);
-                return [3 /*break*/, 17];
-            case 14:
-                error_5 = _a.sent();
-                return [4 /*yield*/, logger_1.logger.error('Error downloading package:', error_5)];
             case 15:
                 _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                res.status(200).json(pkg);
+                return [3 /*break*/, 19];
             case 16:
+                error_5 = _a.sent();
+                return [4 /*yield*/, logger_1.logger.error('Error downloading package:', error_5)];
+            case 17:
+                _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 18:
                 _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 17];
-            case 17: return [2 /*return*/];
+                return [3 /*break*/, 19];
+            case 19: return [2 /*return*/];
         }
     });
 }); });
@@ -1009,7 +1014,7 @@ app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, v
             case 6:
                 _b.sent();
                 return [2 /*return*/, res.status(404).json('Package does not exist.')];
-            case 7: return [4 /*yield*/, rds_handler.update_rds_package_data(ID, Name, Version)];
+            case 7: return [4 /*yield*/, rds_handler.update_rds_package_data(ID, Name, Version, JSProgram)];
             case 8:
                 rowsUpdated = _b.sent();
                 if (!(URL_1 && !Content)) return [3 /*break*/, 21];

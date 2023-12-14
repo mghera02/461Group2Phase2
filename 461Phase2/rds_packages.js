@@ -87,7 +87,7 @@ function add_rds_package_data(metadata, rating, JSProgram) {
     });
 }
 exports.add_rds_package_data = add_rds_package_data;
-function update_rds_package_data(id, newName, newVersion) {
+function update_rds_package_data(id, newName, newVersion, JSProgram) {
     return __awaiter(this, void 0, void 0, function () {
         var client, query, values, result, error_2;
         return __generator(this, function (_a) {
@@ -98,8 +98,8 @@ function update_rds_package_data(id, newName, newVersion) {
                     _a.label = 2;
                 case 2:
                     _a.trys.push([2, 4, 5, 7]);
-                    query = "\n      UPDATE package_data \n      SET name = $1, version = $2\n      WHERE id = $3\n    ";
-                    values = [newName, newVersion, id];
+                    query = "\n      UPDATE package_data \n      SET name = $1, version = $2, JSProgram = $3\n      WHERE id = $4\n    ";
+                    values = [newName, newVersion, JSProgram, id];
                     return [4 /*yield*/, client.query(query, values)];
                 case 3:
                     result = _a.sent();
