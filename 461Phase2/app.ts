@@ -635,7 +635,7 @@ app.post('/package/byRegEx', async (req, res) => {
     await logger.error('Error searching packages:', error);
     await time.error('Error occurred at this time\n')
     clearTimeout(timeout);
-    res.status(500).send('An error occurred.');
+    res.status(404).send('No package found under this regex.');
   }
 });
 

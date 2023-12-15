@@ -890,7 +890,7 @@ app.post('/package/byRegEx', function (req, res) { return __awaiter(void 0, void
             case 17:
                 _a.sent();
                 clearTimeout(timeout);
-                res.status(500).send('An error occurred.');
+                res.status(404).send('No package found under this regex.');
                 return [3 /*break*/, 18];
             case 18: return [2 /*return*/];
         }
