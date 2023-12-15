@@ -483,7 +483,8 @@ app.get('/package/:packageId', async (req, res) => {
 
     const pkg = {
       metadata: {Name: package_name, ID: package_id, Version: package_Version},
-      data: {Content: base64Encoded, JSProgram: JSProgram},
+      data: {Content: base64Encoded},
+      //data: {Content: base64Encoded, JSProgram: JSProgram},
     }
 
     await logger.info(`Successfully downloaded package with id ${package_id}`)
