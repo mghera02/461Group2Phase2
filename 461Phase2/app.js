@@ -642,7 +642,7 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                 return [4 /*yield*/, logger_1.logger.info("Setting version to .*")];
             case 6:
                 _a.sent();
-                version_2 = ".*";
+                version_2 = "none";
                 _a.label = 7;
             case 7:
                 if (!!packageName) return [3 /*break*/, 10];
@@ -654,7 +654,7 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                 _a.sent();
                 return [2 /*return*/, res.status(400).send('There is missing field(s) in the PackageQuery/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.')];
             case 10:
-                if (!(version_2 != ".*")) return [3 /*break*/, 38];
+                if (!(version_2 != "none")) return [3 /*break*/, 38];
                 return [4 /*yield*/, logger_1.logger.info("version: ".concat(version_2))];
             case 11:
                 _a.sent();
