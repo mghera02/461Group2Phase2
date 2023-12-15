@@ -37,11 +37,16 @@
                 // Extracting package ID from route parameters
                 let id = this.$route.params.packageId;
                 const endpoint = `http://${this.ip}:8080/package/${id}`;
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'X-Authorization': '0'
+                };
 
                 try {
                     // Fetch package ZIP file
                     const response = await fetch(endpoint, {
                         method: 'GET',
+                        headers: headers
                     });
 
                     if (!response.ok) {

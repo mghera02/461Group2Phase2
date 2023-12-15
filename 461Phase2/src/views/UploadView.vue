@@ -69,6 +69,7 @@
                         const response = await axios.post(`http://3.145.64.121:8080/package`, {"Content": base64String}, {
                             headers: {
                                 'Content-Type': 'application/json',
+                                'X-Authorization': '0'
                             }
                         });
                         console.log("File uploaded successfully.", response.data);
@@ -94,6 +95,7 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            'X-Authorization': '0'
                         },
                         body: JSON.stringify({ URL: this.npmUrl }),
                     });

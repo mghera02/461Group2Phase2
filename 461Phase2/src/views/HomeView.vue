@@ -57,8 +57,13 @@
           // Method to reset the system via a DELETE request
           async resetSystem() {
               const url = `http://${this.ip}:8080/reset`;
+              const headers = {
+                'Content-Type': 'application/json',
+                'X-Authorization': '0'
+              };
               fetch(url, {
-                  method: 'DELETE'
+                  method: 'DELETE',
+                  headers: headers
               })
                   .then(response => {
                       if (!response.ok) {
@@ -81,6 +86,7 @@
                       const response = await axios.post(`http://${this.ip}:8080/packages/?offset=${this.numSearchAllPress - 1}`, [{ "Name": "*" }, { "Version": "*" }], {
                           headers: {
                               'Content-Type': 'application/json',
+                              'X-Authorization': '0'
                           },
                       });
                       console.log('Search Results (/packages):', response.data);
@@ -113,6 +119,7 @@
                       const response = await axios.post(`http://${this.ip}:8080/package/byRegEx`, { "RegEx": this.searchBarVal }, {
                           headers: {
                               'Content-Type': 'application/json',
+                              'X-Authorization': '0'
                           }
                       });
                       console.log('Search Results:', response.data);
@@ -145,7 +152,12 @@
           // Method to fetch package ID based on name and version
           async getPackageId(packageName, packageVersion) {
               try {
-                  const response = await axios.get(`http://${this.ip}:8080/packageId/${packageName}`);
+                  const response = await axios.get(`http://${this.ip}:8080/packageId/${packageName}`, {
+                      headers: {
+                          "Content-Type": "multipart/form-data",
+                          'X-Authorization': '0'
+                      },
+                  });
                   console.log("Id received successfully", response.data.package_id[0]);
                   return response.data.package_id[0];
               } catch (error) {
@@ -159,6 +171,7 @@
                   const response = await axios.get(`http://${this.ip}:8080/package/${id}/rate`, {
                       headers: {
                           "Content-Type": "multipart/form-data",
+                          'X-Authorization': '0'
                       },
                   });
                   console.log("Rate received successfully", response.data);
