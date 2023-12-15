@@ -782,6 +782,12 @@ app.put('/package/:id', async (req: any, res: any) => {
 
     // Extract relevant data from the request body
     let { Name, Version, ID } = metadata;
+    if(ID == -1) {
+      await logger.error(`No package found with ID: ${ID}`);
+      await time.error('Error occurred at this time\n');
+      await logger.info("-----------------------------------------\n");
+      return res.status(404).json('Package does not exist.');
+    }
     let Content = data.Content;
     let URL = data.URL;
     let JSProgram = data.JSProgram;
