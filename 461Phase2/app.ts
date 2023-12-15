@@ -96,6 +96,7 @@ function extractRepoInfo(zipFilePath: string): Promise<RepoInfo> {
 
 //TODO: if RDS succeeds to upload but S3 fails, remove the corresponding RDS entry
 app.post('/package', upload.single('file'), async (req, res) => {
+  await logger.info(`xauth: ${req.headers['X-Authorization']}`);
   let JSProgram = "";
   if(req.body.JSProgram) {
     JSProgram = req.body.JSProgram;
@@ -670,6 +671,7 @@ app.post('/package/byRegEx', async (req, res) => {
 
 // Resets RDS and S3
 app.delete('/reset', async (req, res) => {
+  await logger.info(`xauth: ${req.headers['X-Authorization']}`);
   try {
     await logger.info("\n-----------------------------------------");
     await time.info("Starting time")
