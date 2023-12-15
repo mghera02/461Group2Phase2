@@ -70,4 +70,10 @@ The endpoints are as follows along with how to invoke them via their endpoints a
    How to invoke: curl -X POST "http://3.145.64.121:8080/package/byRegEx" -H "Content-Type: application/json" -d '{"RegEx": "co"}'
    Example output: [{"Version":"1.0.6","Name":"copee"}]
 
+9.  Delete package by version (DELETE /package/{ID})
+    Description: Delete only the package that matches "id". (id is a unique identifier for a packge)
+    How to Invoke: curl -X DELETE "http://3.145.64.121:8080/package/copee1.0.6/" -H "Content-Type:application/json"
+    Example Output: Package is deleted.
+
+
 
