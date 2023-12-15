@@ -62,7 +62,10 @@
               headers.append('X-Authorization', '0');
               fetch(url, {
                   method: 'DELETE',
-                  headers: headers
+                  headers: {
+                        'Content-Type': 'application/json',
+                        'X-Authorization': '0'
+                    },
               })
                   .then(response => {
                       if (!response.ok) {
