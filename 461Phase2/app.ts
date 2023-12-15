@@ -474,7 +474,7 @@ app.post('/packages', async (req, res) => {
 
     if(version == undefined || version == null || version == "*" || version.length == 0) {
       await logger.info(`Setting version to .*`);
-      version = "none";
+      version = ".*";
     }
 
     if (!packageName) {
@@ -484,7 +484,7 @@ app.post('/packages', async (req, res) => {
     }
 
     // Trying to get all ranges of versions
-    if(version != "none") {
+    if(version != ".*") {
       await logger.info(`version: ${version}`)
       let rangeResults = await rds_handler.match_rds_rows(packageName);
       await logger.info(`rangeResults: ${rangeResults}`);
