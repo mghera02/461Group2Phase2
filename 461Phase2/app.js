@@ -978,6 +978,7 @@ app.post('/package/byRegEx', function (req, res) { return __awaiter(void 0, void
                 package_names = searchResults.map(function (data) { return ({
                     Version: data.version,
                     Name: data.name,
+                    ID: data.id
                 }); });
                 return [4 /*yield*/, logger_1.logger.info("package_names: ".concat(JSON.stringify(package_names)))];
             case 12:

@@ -673,6 +673,7 @@ app.post('/package/byRegEx', async (req, res) => {
     const package_names = searchResults.map((data) => ({
       Version: data.version,
       Name: data.name,
+      ID: data.id
     }));
     await logger.info(`package_names: ${JSON.stringify(package_names)}`);
 
