@@ -1215,7 +1215,7 @@ app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, v
                 return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
             case 30:
                 _b.sent();
-                res.status(201).send('Version is updated.');
+                res.status(200).send('Version is updated.');
                 return [3 /*break*/, 35];
             case 31:
                 error_10 = _b.sent();
