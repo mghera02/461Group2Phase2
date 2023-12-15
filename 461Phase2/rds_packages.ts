@@ -285,6 +285,8 @@ async function increment_num_downloads(id: string): Promise<number> {
       // Making sure something is returned at all
 
       const num = data.rows[0].num_downloads + 1;
+      await logger.info(`incremented to ${num}`);
+
 
       const query1 = `
       UPDATE package_data 

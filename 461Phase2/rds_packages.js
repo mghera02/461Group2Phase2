@@ -337,28 +337,31 @@ function increment_num_downloads(id) {
                     client = _a.sent();
                     _a.label = 2;
                 case 2:
-                    _a.trys.push([2, 5, 6, 8]);
+                    _a.trys.push([2, 6, 7, 9]);
                     query = "\n        SELECT num_downloads FROM ".concat(rds_config_1.TABLE_NAME, " WHERE id = $1\n      ");
                     values = [id];
                     return [4 /*yield*/, client.query(query, values)];
                 case 3:
                     data = _a.sent();
                     num = data.rows[0].num_downloads + 1;
+                    return [4 /*yield*/, logger_1.logger.info("incremented to ".concat(num))];
+                case 4:
+                    _a.sent();
                     query1 = "\n      UPDATE package_data \n      SET num_downloads = $1\n      WHERE id = $2\n      ";
                     values1 = [num, id];
                     return [4 /*yield*/, client.query(query1, values1)];
-                case 4:
+                case 5:
                     _a.sent();
                     return [2 /*return*/, num];
-                case 5:
+                case 6:
                     error_8 = _a.sent();
                     logger_1.logger.error('Error grabbing data:', error_8);
                     return [2 /*return*/, -1];
-                case 6: return [4 /*yield*/, client.end()];
-                case 7:
+                case 7: return [4 /*yield*/, client.end()];
+                case 8:
                     _a.sent();
                     return [7 /*endfinally*/];
-                case 8: return [2 /*return*/];
+                case 9: return [2 /*return*/];
             }
         });
     });

@@ -791,6 +791,7 @@ app.put('/package/:id', async (req: any, res: any) => {
 
     const num: number = await rds_handler.increment_num_downloads(ID);
     if (num % 3 == 0) {
+      await logger.info("Sending 404 due to 3");
       return res.status(404).json('Package does not exist.');
     }
 
