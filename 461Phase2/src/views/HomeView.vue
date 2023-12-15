@@ -10,7 +10,7 @@
 <template>
   <router-link :to="{ name: 'upload', params: {} }" class="goToBtn">Upload a package</router-link>
   <button @click="resetSystem" class="goToBtn">Reset System</button>
-  <h1 class="title">461 Group 2 Phase 2 Package Manager User Interface</h1>
+  <h1 class="title">461 Group 2 Package Manager User Interface</h1>
   <main>
     <SearchBar @search-bar-val="getSearchBarVal"/>
     <div class="packages" v-for="(packageContent) in packages">
@@ -63,7 +63,6 @@
               fetch(url, {
                   method: 'DELETE',
                   headers: {
-                        'Content-Type': 'application/json',
                         'X-Authorization': '0'
                     },
               })
