@@ -1017,58 +1017,60 @@ app.delete('/reset', function (req, res) { return __awaiter(void 0, void 0, void
         switch (_a.label) {
             case 0:
                 authenticationToken = req.get('X-Authorization');
-                if (!authenticationToken || authenticationToken !== token) {
-                    return [2 /*return*/, res.status(400).json('Auth not given')];
-                }
-                return [4 /*yield*/, logger_1.logger.info("xauth: ".concat(req.headers['X-Authorization']))];
+                if (!(!authenticationToken || authenticationToken !== token)) return [3 /*break*/, 2];
+                return [4 /*yield*/, logger_1.logger.info("auth given: ".concat(authenticationToken))];
             case 1:
                 _a.sent();
-                _a.label = 2;
-            case 2:
-                _a.trys.push([2, 12, , 16]);
-                return [4 /*yield*/, logger_1.logger.info("\n-----------------------------------------")];
+                return [2 /*return*/, res.status(400).json('Auth not given')];
+            case 2: return [4 /*yield*/, logger_1.logger.info("xauth: ".concat(req.headers['X-Authorization']))];
             case 3:
                 _a.sent();
-                return [4 /*yield*/, logger_1.time.info("Starting time")];
+                _a.label = 4;
             case 4:
-                _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("System reset (/reset)")];
+                _a.trys.push([4, 14, , 18]);
+                return [4 /*yield*/, logger_1.logger.info("\n-----------------------------------------")];
             case 5:
                 _a.sent();
-                return [4 /*yield*/, (0, s3_packages_1.clear_s3_bucket)()];
+                return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 6:
                 _a.sent();
-                return [4 /*yield*/, rds_configurator.drop_package_data_table()];
+                return [4 /*yield*/, logger_1.logger.info("System reset (/reset)")];
             case 7:
                 _a.sent();
-                return [4 /*yield*/, rds_configurator.setup_rds_tables()];
+                return [4 /*yield*/, (0, s3_packages_1.clear_s3_bucket)()];
             case 8:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info('Successfully cleared Databses and reset to original state')];
+                return [4 /*yield*/, rds_configurator.drop_package_data_table()];
             case 9:
                 _a.sent();
-                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
+                return [4 /*yield*/, rds_configurator.setup_rds_tables()];
             case 10:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+                return [4 /*yield*/, logger_1.logger.info('Successfully cleared Databses and reset to original state')];
             case 11:
                 _a.sent();
-                res.status(200).send('Registry is reset.');
-                return [3 /*break*/, 16];
+                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
             case 12:
-                error_8 = _a.sent();
-                return [4 /*yield*/, logger_1.logger.error('Error resetting system:', error_8)];
-            case 13:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
-            case 14:
                 _a.sent();
                 return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+            case 13:
+                _a.sent();
+                res.status(200).send('Registry is reset.');
+                return [3 /*break*/, 18];
+            case 14:
+                error_8 = _a.sent();
+                return [4 /*yield*/, logger_1.logger.error('Error resetting system:', error_8)];
             case 15:
                 _a.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 16:
+                _a.sent();
+                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+            case 17:
+                _a.sent();
                 res.status(500).send('An error occurred while resetting the registry');
-                return [3 /*break*/, 16];
-            case 16: return [2 /*return*/];
+                return [3 /*break*/, 18];
+            case 18: return [2 /*return*/];
         }
     });
 }); });

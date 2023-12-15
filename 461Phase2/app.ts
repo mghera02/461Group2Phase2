@@ -695,6 +695,7 @@ app.post('/package/byRegEx', async (req, res) => {
 app.delete('/reset', async (req, res) => {
   const authenticationToken = req.get('X-Authorization');
   if(!authenticationToken || authenticationToken !== token) {
+    await logger.info(`auth given: ${authenticationToken}`)
     return res.status(400).json('Auth not given');
   }
   await logger.info(`xauth: ${req.headers['X-Authorization']}`);
