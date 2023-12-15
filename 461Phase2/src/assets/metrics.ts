@@ -156,10 +156,6 @@ async function get_metric_info(gitDetails: { username: string, repo: string }[])
             const pullRequest = await fetchRepoPullRequest(gitInfo.username, gitInfo.repo);
             let score = await calcTotalScore(busFactor, rampup, license, correctness, maintainer, pullRequest, pinning);
             await logger.info(`Calculated score ${score}`);
-            if(gitInfo.repo == "debug") {
-                await logger.info(`hardcoding for debug`);
-                return {"BusFactor":1,"Correctness":0.58,"RampUp":0.825,"ResponsiveMaintainer":1,"LicenseScore":1,"GoodPinningPractice":0,"PullRequest":0.133,"NetScore":0.851}
-            }
             return {BusFactor: busFactor.toFixed(5), RampUp: rampup.toFixed(5), LicenseScore: license.toFixed(5), Correctness: correctness.toFixed(5), ResponsiveMaintainer: maintainer.toFixed(5), PullRequest: pullRequest.toFixed(5), GoodPinningPractice: pinning.toFixed(5), NetScore: score.toFixed(5)};
             //outputResults(gitInfo.username, gitInfo.repo, busFactor, rampup, license, correctness, maintainer, pinning, pullRequest, score);
             //console.log(`~~~~~~~~~~~~~~~~\n`);
