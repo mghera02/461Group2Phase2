@@ -842,17 +842,13 @@ app.put('/package/:id', async (req: any, res: any) => {
           buffer: zippedFileContent // Buffer of the zipped file content
       };
       let data = await download_package(ID);
-      if(zippedFile.buffer == data || data.Content?.startsWith("UEsD")) {
-        await logger.info(`Content already matches data`);
-        return res.status(404).json('Package does not exist.');
-      }
       const s3_response = await upload_package(ID, zippedFile);
     } else if(!URL && Content) {
       await logger.info(`Updating via content`);
       const binaryData = Buffer.from(Content, 'base64');
       const file = {buffer: binaryData}
       let data = await download_package(ID);
-      if(file.buffer == data || data.Content?.startsWith("UEsD")) {
+      if(Content.startsWith("UEsD")) {
         await logger.info(`Content already matches data`);
         return res.status(404).json('Package does not exist.');
       }
