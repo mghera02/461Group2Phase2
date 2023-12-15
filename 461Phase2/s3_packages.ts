@@ -74,13 +74,17 @@ async function download_package(package_id: any) : Promise<PackageData> {
 }
 
 async function clear_s3_bucket() {
+    const listParams = {
+        Bucket: BUCKET_NAME,
+    };
+
     const params: AWS.S3.DeleteObjectsRequest = {
         Bucket: BUCKET_NAME,
         Delete: { Objects: [] }, // Initialize the Objects array
       };
     
     try {
-    const s3Objects = await s3.listObjects(params).promise();
+    const s3Objects = await s3.listObjects(listParams).promise();
 
     if (s3Objects.Contents && s3Objects.Contents.length > 0) {
         params.Delete.Objects = s3Objects.Contents.map(obj => ({ Key: obj.Key })) as AWS.S3.ObjectIdentifierList;
