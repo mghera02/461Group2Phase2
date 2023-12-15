@@ -319,7 +319,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                     metadata: metadata,
                     data: {
                         Content: base64EncodedData,
-                        JSProgram: JSProgram,
+                        //JSProgram: JSProgram,
                     },
                 };
                 // Old return value
@@ -462,7 +462,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                                     metadata: metadata,
                                     data: {
                                         Content: String(req.body.Content),
-                                        JSProgram: JSProgram,
+                                        //JSProgram: JSProgram,
                                     },
                                 };
                                 return [4 /*yield*/, logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id))];

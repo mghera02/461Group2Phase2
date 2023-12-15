@@ -234,7 +234,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
         metadata: metadata,
         data: {
           Content: base64EncodedData,
-          JSProgram: JSProgram,
+          //JSProgram: JSProgram,
         },
       }
       
@@ -350,7 +350,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
             metadata: metadata,
             data: {
               Content: String(req.body.Content),
-              JSProgram: JSProgram,
+              //JSProgram: JSProgram,
             },
           }
 
