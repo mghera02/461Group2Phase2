@@ -104,6 +104,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
   // NPM ingest
   if(req.body.URL && !req.body.Content) {
     try {
+      await logger.info("\n-----------------------------------------");
       await time.info("Starting time")
       await logger.info('Ingesting package (POST /package)')
 
@@ -186,6 +187,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
       if (package_id === null) { //  happens when package exists already
         await logger.error("Could not upload package data to RDS")
         await time.error('Error occurred at this time\n');
+        await logger.info("-----------------------------------------\n");
         return res.status(409).send('Package exists already.');
       }
       await logger.debug(`ingest package to rds with id: ${package_id}`)
@@ -210,6 +212,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
       if (s3_response === null) {
         await logger.error("Error uploading package to S3")
         await time.error('Error occurred at this time\n');
+        await logger.info("-----------------------------------------\n");
         return res.status(400).send('Could not add package data');
       }
 
@@ -235,12 +238,14 @@ app.post('/package', upload.single('file'), async (req, res) => {
     } catch (error) {
       await logger.error('Could not ingest package', error);
       await time.error('Error occurred at this time\n')
+      await logger.info("-----------------------------------------\n");
       res.status(500).send('An error occurred.');
     }
 
     // zip file
   } else if(!req.body.URL && req.body.Content) {
     try {
+      await logger.info("\n-----------------------------------------");
       await time.info("Starting time")
       await logger.info('Uploading package (POST /package)')
 
@@ -313,6 +318,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
           if (package_id === null) { //  happens when package exists already
             await logger.error("Could not upload package data to RDS")
             await time.error('Error occurred at this time\n');
+            await logger.info("-----------------------------------------\n");
             return res.status(409).send('Package exists already.');
           }
           await logger.debug(`Uploaded package to rds with id: ${package_id}`)
@@ -325,11 +331,9 @@ app.post('/package', upload.single('file'), async (req, res) => {
           if (s3_response === null) {
             await logger.error("Error uploading package to S3")
             await time.error('Error occurred at this time\n');
+            await logger.info("-----------------------------------------\n");
             return res.status(400).send('Could not add package data');
           }
-
-          await logger.info(`Successfully uploaded package with id: ${package_id}`)
-          await time.info("Finished at this time\n")
 
           // Original response
           //let response = {"metadata": {"Name": repo, "Version": "Not Implementing", "ID": package_id}, "data": {"Content": req.file.buffer, "JSProgram": "Not Implementing"}};
@@ -343,6 +347,10 @@ app.post('/package', upload.single('file'), async (req, res) => {
             },
           }
 
+          await logger.info(`Successfully uploaded package with id: ${package_id}`)
+          await time.info("Finished at this time\n")
+          await logger.info("-----------------------------------------\n");
+
           res.status(201).json(response)
         }
         writeStream.end();
@@ -350,6 +358,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
     } catch (error) {
       await logger.error('Could not upload package', error);
       await time.error('Error occurred at this time\n')
+      await logger.info("-----------------------------------------\n");
       res.status(500).send('An error occurred.');
     }
   } else {
@@ -360,6 +369,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
 
 app.get('/package/:id/rate', async (req, res) => {
   try {
+    await logger.info("\n-----------------------------------------");
     await time.info("Starting time")
     await logger.info("Rating package (GET /package/:id/rate)")
 
@@ -370,6 +380,7 @@ app.get('/package/:id/rate', async (req, res) => {
     if (scores === null) {
       await logger.error(`No package found with id: ${package_id}`)
       await time.error('Error occurred at this time\n');
+      await logger.info("-----------------------------------------\n");
       return res.status(404).json('Package does not exist.');
     }
     await logger.info(`Received package data from RDS: ${JSON.stringify(scores)}`);
@@ -377,22 +388,26 @@ app.get('/package/:id/rate', async (req, res) => {
     if (!scores) {
       await logger.error(`No rate data found for package with id: ${package_id}`)
       await time.error('Error occurred at this time\n');
+      await logger.info("-----------------------------------------\n");
       return res.status(404).send('Rate data not found.');
     }
 
     //await logger.debug(`Rate data found for package with id: ${package_id}, rateData: ${scores.BusFactor}, ${scores.RampUp}, ${scores.LicenseScore}, ${scores.Correctness}, ${scores.ResponsiveMaintainer}, ${scores.PullRequest}, ${scores.GoodPinningPractice}, ${scores.NetScore}`);
     await logger.info(`res: ${JSON.stringify(scores)}`);
     await time.info("Finished at this time\n")
+    await logger.info("-----------------------------------------\n");
     res.status(200).json(scores);
   } catch (error) {
     await logger.error('Error rating package:', error);
     await time.error('Error occurred at this time\n')
+    await logger.info("-----------------------------------------\n");
     res.status(500).send('An error occurred.');
   }
 });
 
 app.get('/package/:packageId', async (req, res) => {
   try {
+    await logger.info("\n-----------------------------------------");
     await time.info("Starting time")
     await logger.info("Downloading package (GET /package/:packageId)")
 
@@ -400,6 +415,7 @@ app.get('/package/:packageId', async (req, res) => {
 
     if(!package_id) {
       await time.info('No ID provided');
+      await logger.info("-----------------------------------------\n");
       return res.status(400).json('There is missing field(s) in the PackageID/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.');
     }
 
@@ -407,6 +423,7 @@ app.get('/package/:packageId', async (req, res) => {
     if (metadata == null) {
       await logger.error(`No package found with id: ${package_id}`);
       await time.error('Error occurred at this time\n');
+      await logger.info("-----------------------------------------\n");
       return res.status(404).json({ error: 'Package metadata not found' });
     }
 
@@ -440,6 +457,7 @@ app.get('/package/:packageId', async (req, res) => {
     if (data === null) {
       await logger.error(`Package with id: ${package_id} not found in S3`);
       await time.error('Error occurred at this time\n');
+      await logger.info("-----------------------------------------\n");
       return res.status(404).json({ error: 'Package data not found' });
     }
 
@@ -453,16 +471,19 @@ app.get('/package/:packageId', async (req, res) => {
 
     await logger.info(`Successfully downloaded package with id ${package_id}`)
     await time.info("Finished at this time\n")
+    await logger.info("-----------------------------------------\n");
     res.status(200).json(pkg);
     } catch (error) {
     await logger.error('Error downloading package:', error);
     await time.error('Error occurred at this time\n')
+    await logger.info("-----------------------------------------\n");
     res.status(500).send('An error occurred.');
   }
 });
 
 app.post('/packages', async (req, res) => {
   try {
+    await logger.info("\n-----------------------------------------");
     await time.info("Starting time")
     await logger.info("Listing packages (POST /packages)")
     await logger.info(`req: ${JSON.stringify(req.body)}`);
@@ -578,11 +599,13 @@ app.post('/packages', async (req, res) => {
 
     await logger.info(`Successfully got packages (/packages): ${JSON.stringify(package_names)}`);
     await time.info("Finished at this time\n")
+    await logger.info("-----------------------------------------\n");
     res.setHeader('offset', offsetValue + 2);
     res.status(200).json(package_names);
   } catch (error) {
     await logger.error('Error searching packages:', error);
     await time.error('Error occurred at this time\n')
+    await logger.info("-----------------------------------------\n");
     res.status(500).send('An error occurred.');
   }
 });
@@ -592,10 +615,12 @@ app.post('/package/byRegEx', async (req, res) => {
   const timeout = setTimeout(async () => {
     // If the endpoint takes longer than 5 sec, send an error response
     await logger.info(`Detected unsafe regex`);
+    await logger.info("-----------------------------------------\n");
     res.status(500).send('Request timeout');
   }, 5000);
 
   try {
+    await logger.info("\n-----------------------------------------");
     await time.info("Starting time")
     await logger.info("Searching packages (POST /package/byRegEx)")
     await logger.info(`req: ${JSON.stringify(req.body)}`);
@@ -604,6 +629,7 @@ app.post('/package/byRegEx', async (req, res) => {
     if (!searchString) {
       await logger.error('No search string was given');
       await time.error('Error occurred at this time\n');
+      await logger.info("-----------------------------------------\n");
       clearTimeout(timeout);
       return res.status(400).send('Search string is required.');
     }
@@ -623,17 +649,20 @@ app.post('/package/byRegEx', async (req, res) => {
     if (package_names.length === 0) {
       await logger.error(`No packages found that match ${searchString}`);
       await time.error('Finished at this time\n');
+      await logger.info("-----------------------------------------\n");
       clearTimeout(timeout);
       return res.status(404).send("No package found under this regex")
     }
 
     await logger.info(`Successfully searched packages`)
     await time.info("Finished at this time\n")
+    await logger.info("-----------------------------------------\n");
     clearTimeout(timeout);
     res.status(200).json(package_names);
   } catch (error) {
     await logger.error('Error searching packages:', error);
     await time.error('Error occurred at this time\n')
+    await logger.info("-----------------------------------------\n");
     clearTimeout(timeout);
     res.status(404).send('No package found under this regex.');
   }
@@ -642,6 +671,7 @@ app.post('/package/byRegEx', async (req, res) => {
 // Resets RDS and S3
 app.delete('/reset', async (req, res) => {
   try {
+    await logger.info("\n-----------------------------------------");
     await time.info("Starting time")
     await logger.info("System reset (/reset)")
 
@@ -651,16 +681,19 @@ app.delete('/reset', async (req, res) => {
 
     await logger.info('Successfully cleared Databses and reset to original state');
     await time.info("Finished at this time\n")
+    await logger.info("-----------------------------------------\n");
     res.status(200).send('Registry is reset.');
   } catch (error) {
     await logger.error('Error resetting system:', error);
     await time.error('Error occurred at this time\n')
+    await logger.info("-----------------------------------------\n");
     res.status(500).send('An error occurred while resetting the registry');
   }
 });
 
 app.get('/packageId/:packageName', async (req, res) => {
   try {
+    await logger.info("\n-----------------------------------------");
     await time.info("Starting time");
     await logger.info("Attempting to get package ID by name (GET /packageId/:packageName)");
 
@@ -671,6 +704,7 @@ app.get('/packageId/:packageName', async (req, res) => {
     if (!searchResults) {
       await logger.error(`No package found with name: ${packageName}`);
       await time.error('Error occurred at this time\n');
+      await logger.info("-----------------------------------------\n");
       return res.status(404).json({ error: 'Package not found' });
     }
 
@@ -678,17 +712,20 @@ app.get('/packageId/:packageName', async (req, res) => {
 
     await logger.debug(`Package ID found for package '${packageName}': ${package_id}`);
     await time.info("Finished at this time\n");
+    await logger.info("-----------------------------------------\n");
 
     res.status(200).json({ package_id });
   } catch (error) {
     await logger.error('Error getting package ID by name:', error);
     await time.error('Error occurred at this time\n');
+    await logger.info("-----------------------------------------\n");
     res.status(500).send('An error occurred.');
   }
 });
 
 app.put('/package/:id', async (req: any, res: any) => {
   try {
+    await logger.info("\n-----------------------------------------");
     await time.info("Starting time");
     await logger.info("Updating Package (PUT /package/:id)");
 
@@ -710,6 +747,7 @@ app.put('/package/:id', async (req: any, res: any) => {
     if (!existingPackage) {
       await logger.error(`No package found with ID: ${ID}`);
       await time.error('Error occurred at this time\n');
+      await logger.info("-----------------------------------------\n");
       return res.status(404).json('Package does not exist.');
     }
 
@@ -760,25 +798,31 @@ app.put('/package/:id', async (req: any, res: any) => {
       const file = {buffer: binaryData}
       let s3Url = await updateS3Package(ID, file);
     } else {
+      await logger.info("-----------------------------------------\n");
       return res.status(400).json('Package does not exist.');
     }
 
     await time.info("Finished at this time\n");
+    await logger.info("-----------------------------------------\n");
 
     res.status(200).send('Version is updated.');
   } catch (error) {
     await logger.error('Error updating package content:', error);
     await time.error('Error occurred at this time\n');
+    await logger.info("-----------------------------------------\n");
     res.status(500).send('An error occurred.');
   }
 });
 
 app.put('/authenticate', async (req, res) => {
+  await logger.info("\n-----------------------------------------");
   await logger.info('Request received for authentication');
+  await logger.info("-----------------------------------------\n");
   res.status(501).send('This system does not support authentication.');
 });
 
 app.delete('/package/:id', async (req, res) => {
+  await logger.info("\n-----------------------------------------");
   await time.info("Starting time")
   await logger.info("Deleting package version (delete /package/:id)")
 
@@ -801,12 +845,16 @@ app.delete('/package/:id', async (req, res) => {
 });
 
 app.get('/package/byName/:name', async (req, res) => {
+  await logger.info("\n-----------------------------------------");
   await logger.info('Request received for package history');
+  await logger.info("-----------------------------------------\n");
   res.status(501).send('This system does not support package history.');
 });
 
 app.delete('/package/byName/:name', async (req, res) => {
+  await logger.info("\n-----------------------------------------");
   await logger.info('Request received for package deletion 2');
+  await logger.info("-----------------------------------------\n");
   res.status(501).send('This system does not support deletion.');
 });
 
