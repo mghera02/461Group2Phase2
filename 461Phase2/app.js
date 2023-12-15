@@ -61,6 +61,7 @@ var port = process.env.PORT || 8080;
 var upload = multer({ storage: multer.memoryStorage() });
 app.use(cors());
 app.use(express.json());
+var token = '0';
 function extractRepoInfo(zipFilePath) {
     var _this = this;
     return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
@@ -121,10 +122,15 @@ function extractRepoInfo(zipFilePath) {
 }
 //TODO: if RDS succeeds to upload but S3 fails, remove the corresponding RDS entry
 app.post('/package', upload.single('file'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var JSProgram, url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, version_1, username, repo, gitInfo, gitDetails, scores, info, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, base64EncodedData, response, error_1, binaryData_1, uploadDir, timestamp, zipFilePath_1, writeStream_1, error_2;
+    var authenticationToken, JSProgram, url, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, version_1, username, repo, gitInfo, gitDetails, scores, info, package_version, metadata, package_id, zippedFileContent, zippedFile, s3_response, base64EncodedData, response, error_1, binaryData_1, uploadDir, timestamp, zipFilePath_1, writeStream_1, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, logger_1.logger.info("xauth: ".concat(req.headers['X-Authorization']))];
+            case 0:
+                authenticationToken = req.get('X-Authorization');
+                if (!authenticationToken || authenticationToken !== token) {
+                    return [2 /*return*/, res.status(400).json('Auth not given')];
+                }
+                return [4 /*yield*/, logger_1.logger.info("xauth: ".concat(req.headers['X-Authorization']))];
             case 1:
                 _a.sent();
                 JSProgram = "";
@@ -500,146 +506,158 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
     });
 }); });
 app.get('/package/:id/rate', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var package_id, scores, error_4;
+    var authenticationToken, package_id, scores, error_4;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 18, , 22]);
-                return [4 /*yield*/, logger_1.logger.info("\n-----------------------------------------")];
+                authenticationToken = req.get('X-Authorization');
+                if (!authenticationToken || authenticationToken !== token) {
+                    return [2 /*return*/, res.status(400).json('Auth not given')];
+                }
+                _a.label = 1;
             case 1:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.info("Starting time")];
+                _a.trys.push([1, 19, , 23]);
+                return [4 /*yield*/, logger_1.logger.info("\n-----------------------------------------")];
             case 2:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("Rating package (GET /package/:id/rate)")];
+                return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 3:
+                _a.sent();
+                return [4 /*yield*/, logger_1.logger.info("Rating package (GET /package/:id/rate)")];
+            case 4:
                 _a.sent();
                 package_id = req.params.id;
                 return [4 /*yield*/, logger_1.logger.debug("Attempting to rate package with id: ".concat(package_id))];
-            case 4:
+            case 5:
                 _a.sent();
                 return [4 /*yield*/, rds_handler.get_package_rating(package_id)];
-            case 5:
-                scores = _a.sent();
-                if (!(scores === null)) return [3 /*break*/, 9];
-                return [4 /*yield*/, logger_1.logger.error("No package found with id: ".concat(package_id))];
             case 6:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                scores = _a.sent();
+                if (!(scores === null)) return [3 /*break*/, 10];
+                return [4 /*yield*/, logger_1.logger.error("No package found with id: ".concat(package_id))];
             case 7:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 8:
                 _a.sent();
-                return [2 /*return*/, res.status(404).json('Package does not exist.')];
-            case 9: return [4 /*yield*/, logger_1.logger.info("Received package data from RDS: ".concat(JSON.stringify(scores)))];
-            case 10:
+                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+            case 9:
                 _a.sent();
-                if (!!scores) return [3 /*break*/, 14];
-                return [4 /*yield*/, logger_1.logger.error("No rate data found for package with id: ".concat(package_id))];
+                return [2 /*return*/, res.status(404).json('Package does not exist.')];
+            case 10: return [4 /*yield*/, logger_1.logger.info("Received package data from RDS: ".concat(JSON.stringify(scores)))];
             case 11:
                 _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                if (!!scores) return [3 /*break*/, 15];
+                return [4 /*yield*/, logger_1.logger.error("No rate data found for package with id: ".concat(package_id))];
             case 12:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 13:
                 _a.sent();
+                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+            case 14:
+                _a.sent();
                 return [2 /*return*/, res.status(404).send('Rate data not found.')];
-            case 14: 
+            case 15: 
             //await logger.debug(`Rate data found for package with id: ${package_id}, rateData: ${scores.BusFactor}, ${scores.RampUp}, ${scores.LicenseScore}, ${scores.Correctness}, ${scores.ResponsiveMaintainer}, ${scores.PullRequest}, ${scores.GoodPinningPractice}, ${scores.NetScore}`);
             return [4 /*yield*/, logger_1.logger.info("res: ".concat(JSON.stringify(scores)))];
-            case 15:
+            case 16:
                 //await logger.debug(`Rate data found for package with id: ${package_id}, rateData: ${scores.BusFactor}, ${scores.RampUp}, ${scores.LicenseScore}, ${scores.Correctness}, ${scores.ResponsiveMaintainer}, ${scores.PullRequest}, ${scores.GoodPinningPractice}, ${scores.NetScore}`);
                 _a.sent();
                 return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
-            case 16:
-                _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
             case 17:
                 _a.sent();
-                res.status(200).json(scores);
-                return [3 /*break*/, 22];
+                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
             case 18:
+                _a.sent();
+                res.status(200).json(scores);
+                return [3 /*break*/, 23];
+            case 19:
                 error_4 = _a.sent();
                 return [4 /*yield*/, logger_1.logger.error('Error rating package:', error_4)];
-            case 19:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 20:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 21:
                 _a.sent();
+                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+            case 22:
+                _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 22];
-            case 22: return [2 /*return*/];
+                return [3 /*break*/, 23];
+            case 23: return [2 /*return*/];
         }
     });
 }); });
 app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var package_id, metadata, package_name, package_ID, package_Version, JSProgram, data, data2, buffer, base64Encoded, pkg, error_5;
+    var authenticationToken, package_id, metadata, package_name, package_ID, package_Version, JSProgram, data, data2, buffer, base64Encoded, pkg, error_5;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 21, , 25]);
-                return [4 /*yield*/, logger_1.logger.info("\n-----------------------------------------")];
+                authenticationToken = req.get('X-Authorization');
+                if (!authenticationToken || authenticationToken !== token) {
+                    return [2 /*return*/, res.status(400).json('Auth not given')];
+                }
+                _a.label = 1;
             case 1:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.info("Starting time")];
+                _a.trys.push([1, 22, , 26]);
+                return [4 /*yield*/, logger_1.logger.info("\n-----------------------------------------")];
             case 2:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("Downloading package (GET /package/:packageId)")];
+                return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 3:
                 _a.sent();
-                package_id = req.params.packageId;
-                if (!!package_id) return [3 /*break*/, 6];
-                return [4 /*yield*/, logger_1.time.info('No ID provided')];
+                return [4 /*yield*/, logger_1.logger.info("Downloading package (GET /package/:packageId)")];
             case 4:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+                package_id = req.params.packageId;
+                if (!!package_id) return [3 /*break*/, 7];
+                return [4 /*yield*/, logger_1.time.info('No ID provided')];
             case 5:
                 _a.sent();
-                return [2 /*return*/, res.status(400).json('There is missing field(s) in the PackageID/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.')];
-            case 6: return [4 /*yield*/, rds_handler.get_package_metadata(package_id)];
-            case 7:
-                metadata = _a.sent();
-                if (!(metadata == null)) return [3 /*break*/, 11];
-                return [4 /*yield*/, logger_1.logger.error("No package found with id: ".concat(package_id))];
-            case 8:
+                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+            case 6:
                 _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                return [2 /*return*/, res.status(400).json('There is missing field(s) in the PackageID/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.')];
+            case 7: return [4 /*yield*/, rds_handler.get_package_metadata(package_id)];
+            case 8:
+                metadata = _a.sent();
+                if (!(metadata == null)) return [3 /*break*/, 12];
+                return [4 /*yield*/, logger_1.logger.error("No package found with id: ".concat(package_id))];
             case 9:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 10:
                 _a.sent();
+                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+            case 11:
+                _a.sent();
                 return [2 /*return*/, res.status(404).json({ error: 'Package metadata not found' })];
-            case 11: return [4 /*yield*/, logger_1.logger.debug("Package data found for package with id: ".concat(package_id))];
-            case 12:
+            case 12: return [4 /*yield*/, logger_1.logger.debug("Package data found for package with id: ".concat(package_id))];
+            case 13:
                 _a.sent();
                 package_name = metadata.name;
                 package_ID = metadata.id;
                 package_Version = metadata.version;
                 JSProgram = metadata.JSProgram;
                 return [4 /*yield*/, (0, s3_packages_1.download_package)(package_id)];
-            case 13:
+            case 14:
                 data = _a.sent();
                 data2 = data.Content;
                 buffer = Buffer.from(data2);
                 base64Encoded = buffer.toString('base64');
-                if (!(data === null)) return [3 /*break*/, 17];
+                if (!(data === null)) return [3 /*break*/, 18];
                 return [4 /*yield*/, logger_1.logger.error("Package with id: ".concat(package_id, " not found in S3"))];
-            case 14:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 15:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 16:
                 _a.sent();
-                return [2 /*return*/, res.status(404).json({ error: 'Package data not found' })];
+                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
             case 17:
+                _a.sent();
+                return [2 /*return*/, res.status(404).json({ error: 'Package data not found' })];
+            case 18:
                 res.attachment(package_name + '.zip'); // Set the desired new file name here
                 res.setHeader('Content-Type', 'application/zip');
                 pkg = {
@@ -647,92 +665,98 @@ app.get('/package/:packageId', function (req, res) { return __awaiter(void 0, vo
                     data: { Content: base64Encoded, JSProgram: JSProgram },
                 };
                 return [4 /*yield*/, logger_1.logger.info("Successfully downloaded package with id ".concat(package_id))];
-            case 18:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
             case 19:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
             case 20:
                 _a.sent();
-                res.status(200).json(pkg);
-                return [3 /*break*/, 25];
+                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
             case 21:
+                _a.sent();
+                res.status(200).json(pkg);
+                return [3 /*break*/, 26];
+            case 22:
                 error_5 = _a.sent();
                 return [4 /*yield*/, logger_1.logger.error('Error downloading package:', error_5)];
-            case 22:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 23:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 24:
                 _a.sent();
+                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+            case 25:
+                _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 25];
-            case 25: return [2 /*return*/];
+                return [3 /*break*/, 26];
+            case 26: return [2 /*return*/];
         }
     });
 }); });
 app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var packageName, version_2, rangeResults, _i, rangeResults_1, result, operator, rangeParts, minRange, maxRange, versionNumbers, offsetValue, searchResults, package_names, error_6;
+    var authenticationToken, packageName, version_2, rangeResults, _i, rangeResults_1, result, operator, rangeParts, minRange, maxRange, versionNumbers, offsetValue, searchResults, package_names, error_6;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 51, , 55]);
-                return [4 /*yield*/, logger_1.logger.info("\n-----------------------------------------")];
+                authenticationToken = req.get('X-Authorization');
+                if (!authenticationToken || authenticationToken !== token) {
+                    return [2 /*return*/, res.status(400).json('Auth not given')];
+                }
+                _a.label = 1;
             case 1:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.info("Starting time")];
+                _a.trys.push([1, 52, , 56]);
+                return [4 /*yield*/, logger_1.logger.info("\n-----------------------------------------")];
             case 2:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("Listing packages (POST /packages)")];
+                return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 3:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("req: ".concat(JSON.stringify(req.body)))];
+                return [4 /*yield*/, logger_1.logger.info("Listing packages (POST /packages)")];
             case 4:
+                _a.sent();
+                return [4 /*yield*/, logger_1.logger.info("req: ".concat(JSON.stringify(req.body)))];
+            case 5:
                 _a.sent();
                 packageName = req.body[0].Name;
                 version_2 = req.body[0].Version;
                 return [4 /*yield*/, logger_1.logger.info("Length of req body: ".concat(req.body.length))];
-            case 5:
-                _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("Got req.body.Name:".concat(req.body[0].Name, ", req.body.Version:").concat(req.body[0].Version))];
             case 6:
                 _a.sent();
-                if (!(version_2 == undefined || version_2 == null || version_2 == "*" || version_2.length == 0)) return [3 /*break*/, 8];
-                return [4 /*yield*/, logger_1.logger.info("Setting version to .*")];
+                return [4 /*yield*/, logger_1.logger.info("Got req.body.Name:".concat(req.body[0].Name, ", req.body.Version:").concat(req.body[0].Version))];
             case 7:
                 _a.sent();
-                version_2 = ".*";
-                _a.label = 8;
+                if (!(version_2 == undefined || version_2 == null || version_2 == "*" || version_2.length == 0)) return [3 /*break*/, 9];
+                return [4 /*yield*/, logger_1.logger.info("Setting version to .*")];
             case 8:
-                if (!!packageName) return [3 /*break*/, 11];
-                return [4 /*yield*/, logger_1.logger.error('No name was given')];
-            case 9:
                 _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                version_2 = ".*";
+                _a.label = 9;
+            case 9:
+                if (!!packageName) return [3 /*break*/, 12];
+                return [4 /*yield*/, logger_1.logger.error('No name was given')];
             case 10:
                 _a.sent();
-                return [2 /*return*/, res.status(400).send('There is missing field(s) in the PackageQuery/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.')];
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 11:
-                if (!(version_2 != ".*")) return [3 /*break*/, 39];
-                return [4 /*yield*/, logger_1.logger.info("version: ".concat(version_2))];
+                _a.sent();
+                return [2 /*return*/, res.status(400).send('There is missing field(s) in the PackageQuery/AuthenticationToken or it is formed improperly, or the AuthenticationToken is invalid.')];
             case 12:
+                if (!(version_2 != ".*")) return [3 /*break*/, 40];
+                return [4 /*yield*/, logger_1.logger.info("version: ".concat(version_2))];
+            case 13:
                 _a.sent();
                 return [4 /*yield*/, rds_handler.match_rds_rows(packageName)];
-            case 13:
+            case 14:
                 rangeResults = _a.sent();
                 return [4 /*yield*/, logger_1.logger.info("rangeResults: ".concat(rangeResults))];
-            case 14:
+            case 15:
                 _a.sent();
                 _i = 0, rangeResults_1 = rangeResults;
-                _a.label = 15;
-            case 15:
-                if (!(_i < rangeResults_1.length)) return [3 /*break*/, 39];
+                _a.label = 16;
+            case 16:
+                if (!(_i < rangeResults_1.length)) return [3 /*break*/, 40];
                 result = rangeResults_1[_i];
                 return [4 /*yield*/, logger_1.logger.info("result version: ".concat(result.version))];
-            case 16:
+            case 17:
                 _a.sent();
                 operator = "";
                 if (version_2.charAt(0) == '^') {
@@ -745,146 +769,150 @@ app.post('/packages', function (req, res) { return __awaiter(void 0, void 0, voi
                 }
                 rangeParts = version_2.split('-');
                 return [4 /*yield*/, logger_1.logger.info("rangeParts: ".concat(rangeParts))];
-            case 17:
+            case 18:
                 _a.sent();
                 minRange = void 0;
                 maxRange = void 0;
-                if (!(rangeParts.length > 1)) return [3 /*break*/, 20];
+                if (!(rangeParts.length > 1)) return [3 /*break*/, 21];
                 minRange = rangeParts[0].split('.').map(Number);
                 maxRange = rangeParts[1].split('.').map(Number);
                 return [4 /*yield*/, logger_1.logger.info("minRange: ".concat(minRange))];
-            case 18:
-                _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("maxRange: ".concat(maxRange))];
             case 19:
                 _a.sent();
-                return [3 /*break*/, 22];
+                return [4 /*yield*/, logger_1.logger.info("maxRange: ".concat(maxRange))];
             case 20:
+                _a.sent();
+                return [3 /*break*/, 23];
+            case 21:
                 minRange = version_2.split('.').map(Number);
                 return [4 /*yield*/, logger_1.logger.info("minRange: ".concat(minRange))];
-            case 21:
-                _a.sent();
-                _a.label = 22;
             case 22:
+                _a.sent();
+                _a.label = 23;
+            case 23:
                 versionNumbers = result.version.split('.').map(Number);
                 return [4 /*yield*/, logger_1.logger.info("version number: ".concat(versionNumbers))];
-            case 23:
-                _a.sent();
-                if (!(operator == "^")) return [3 /*break*/, 27];
-                return [4 /*yield*/, logger_1.logger.info("version range is ^")];
             case 24:
                 _a.sent();
-                if (!(versionNumbers[0] * 100 + versionNumbers[1] * 10 + versionNumbers[2] >= minRange[0] * 100 + minRange[1] * 10 + minRange[2])) return [3 /*break*/, 26];
-                return [4 /*yield*/, logger_1.logger.info("version is in range")];
+                if (!(operator == "^")) return [3 /*break*/, 28];
+                return [4 /*yield*/, logger_1.logger.info("version range is ^")];
             case 25:
                 _a.sent();
-                version_2 = result.version;
-                _a.label = 26;
-            case 26: return [3 /*break*/, 38];
-            case 27:
-                if (!(operator == "~")) return [3 /*break*/, 31];
-                return [4 /*yield*/, logger_1.logger.info("version range is ~")];
-            case 28:
-                _a.sent();
-                if (!(versionNumbers[0] == minRange[0] &&
-                    versionNumbers[1] == minRange[1])) return [3 /*break*/, 30];
+                if (!(versionNumbers[0] * 100 + versionNumbers[1] * 10 + versionNumbers[2] >= minRange[0] * 100 + minRange[1] * 10 + minRange[2])) return [3 /*break*/, 27];
                 return [4 /*yield*/, logger_1.logger.info("version is in range")];
+            case 26:
+                _a.sent();
+                version_2 = result.version;
+                _a.label = 27;
+            case 27: return [3 /*break*/, 39];
+            case 28:
+                if (!(operator == "~")) return [3 /*break*/, 32];
+                return [4 /*yield*/, logger_1.logger.info("version range is ~")];
             case 29:
                 _a.sent();
-                version_2 = result.version;
-                _a.label = 30;
-            case 30: return [3 /*break*/, 38];
-            case 31:
-                if (!(version_2.indexOf('-') !== -1)) return [3 /*break*/, 35];
-                return [4 /*yield*/, logger_1.logger.info("version range is -")];
-            case 32:
-                _a.sent();
-                if (!(versionNumbers[0] * 100 + versionNumbers[1] * 10 + versionNumbers[2] >= minRange[0] * 100 + minRange[1] * 10 + minRange[2] &&
-                    versionNumbers[0] * 100 + versionNumbers[1] * 10 + versionNumbers[2] <= maxRange[0] * 100 + maxRange[1] * 10 + maxRange[2])) return [3 /*break*/, 34];
+                if (!(versionNumbers[0] == minRange[0] &&
+                    versionNumbers[1] == minRange[1])) return [3 /*break*/, 31];
                 return [4 /*yield*/, logger_1.logger.info("version is in range")];
+            case 30:
+                _a.sent();
+                version_2 = result.version;
+                _a.label = 31;
+            case 31: return [3 /*break*/, 39];
+            case 32:
+                if (!(version_2.indexOf('-') !== -1)) return [3 /*break*/, 36];
+                return [4 /*yield*/, logger_1.logger.info("version range is -")];
             case 33:
                 _a.sent();
-                version_2 = result.version;
-                _a.label = 34;
-            case 34: return [3 /*break*/, 38];
-            case 35: return [4 /*yield*/, logger_1.logger.info("version range is single")];
-            case 36:
-                _a.sent();
-                if (!(version_2 == result.version)) return [3 /*break*/, 38];
+                if (!(versionNumbers[0] * 100 + versionNumbers[1] * 10 + versionNumbers[2] >= minRange[0] * 100 + minRange[1] * 10 + minRange[2] &&
+                    versionNumbers[0] * 100 + versionNumbers[1] * 10 + versionNumbers[2] <= maxRange[0] * 100 + maxRange[1] * 10 + maxRange[2])) return [3 /*break*/, 35];
                 return [4 /*yield*/, logger_1.logger.info("version is in range")];
+            case 34:
+                _a.sent();
+                version_2 = result.version;
+                _a.label = 35;
+            case 35: return [3 /*break*/, 39];
+            case 36: return [4 /*yield*/, logger_1.logger.info("version range is single")];
             case 37:
                 _a.sent();
-                version_2 = result.version;
-                _a.label = 38;
+                if (!(version_2 == result.version)) return [3 /*break*/, 39];
+                return [4 /*yield*/, logger_1.logger.info("version is in range")];
             case 38:
-                _i++;
-                return [3 /*break*/, 15];
+                _a.sent();
+                version_2 = result.version;
+                _a.label = 39;
             case 39:
+                _i++;
+                return [3 /*break*/, 16];
+            case 40:
                 offsetValue = void 0;
-                if (!(req.query.offset !== undefined)) return [3 /*break*/, 41];
+                if (!(req.query.offset !== undefined)) return [3 /*break*/, 42];
                 offsetValue = parseInt(req.query.offset);
                 return [4 /*yield*/, logger_1.logger.info("Offset: ".concat(offsetValue))];
-            case 40:
-                _a.sent();
-                return [3 /*break*/, 43];
             case 41:
+                _a.sent();
+                return [3 /*break*/, 44];
+            case 42:
                 offsetValue = 0;
                 return [4 /*yield*/, logger_1.logger.info('Offset is not provided in the query parameters')];
-            case 42:
-                _a.sent();
-                _a.label = 43;
             case 43:
-                searchResults = void 0;
-                if (!(packageName == "*")) return [3 /*break*/, 45];
-                return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination(".*", version_2, false, offsetValue)];
+                _a.sent();
+                _a.label = 44;
             case 44:
+                searchResults = void 0;
+                if (!(packageName == "*")) return [3 /*break*/, 46];
+                return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination(".*", version_2, false, offsetValue)];
+            case 45:
                 searchResults = _a.sent();
-                return [3 /*break*/, 47];
-            case 45: return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination("".concat(packageName), version_2, true, offsetValue)];
-            case 46:
-                searchResults = _a.sent();
-                _a.label = 47;
+                return [3 /*break*/, 48];
+            case 46: return [4 /*yield*/, rds_handler.match_rds_rows_with_pagination("".concat(packageName), version_2, true, offsetValue)];
             case 47:
+                searchResults = _a.sent();
+                _a.label = 48;
+            case 48:
                 package_names = searchResults.map(function (data) { return ({
                     Version: version_2,
                     Name: data.name,
                     ID: data.id,
                 }); });
                 return [4 /*yield*/, logger_1.logger.info("Successfully got packages (/packages): ".concat(JSON.stringify(package_names)))];
-            case 48:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
             case 49:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
             case 50:
+                _a.sent();
+                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+            case 51:
                 _a.sent();
                 res.setHeader('offset', offsetValue + 2);
                 res.status(200).json(package_names);
-                return [3 /*break*/, 55];
-            case 51:
+                return [3 /*break*/, 56];
+            case 52:
                 error_6 = _a.sent();
                 return [4 /*yield*/, logger_1.logger.error('Error searching packages:', error_6)];
-            case 52:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 53:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 54:
                 _a.sent();
+                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+            case 55:
+                _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 55];
-            case 55: return [2 /*return*/];
+                return [3 /*break*/, 56];
+            case 56: return [2 /*return*/];
         }
     });
 }); });
 // Sends the a list of package names that match the regex
 app.post('/package/byRegEx', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var timeout, searchString, searchResults, package_names, error_7;
+    var authenticationToken, timeout, searchString, searchResults, package_names, error_7;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
+                authenticationToken = req.get('X-Authorization');
+                if (!authenticationToken || authenticationToken !== token) {
+                    return [2 /*return*/, res.status(400).json('Auth not given')];
+                }
                 timeout = setTimeout(function () { return __awaiter(void 0, void 0, void 0, function () {
                     return __generator(this, function (_a) {
                         switch (_a.label) {
@@ -984,10 +1012,15 @@ app.post('/package/byRegEx', function (req, res) { return __awaiter(void 0, void
 }); });
 // Resets RDS and S3
 app.delete('/reset', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var error_8;
+    var authenticationToken, error_8;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, logger_1.logger.info("xauth: ".concat(req.headers['X-Authorization']))];
+            case 0:
+                authenticationToken = req.get('X-Authorization');
+                if (!authenticationToken || authenticationToken !== token) {
+                    return [2 /*return*/, res.status(400).json('Auth not given')];
+                }
+                return [4 /*yield*/, logger_1.logger.info("xauth: ".concat(req.headers['X-Authorization']))];
             case 1:
                 _a.sent();
                 _a.label = 2;
@@ -1040,79 +1073,91 @@ app.delete('/reset', function (req, res) { return __awaiter(void 0, void 0, void
     });
 }); });
 app.get('/packageId/:packageName', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var packageName, searchResults, package_id, error_9;
+    var authenticationToken, packageName, searchResults, package_id, error_9;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 12, , 16]);
-                return [4 /*yield*/, logger_1.logger.info("\n-----------------------------------------")];
+                authenticationToken = req.get('X-Authorization');
+                if (!authenticationToken || authenticationToken !== token) {
+                    return [2 /*return*/, res.status(400).json('Auth not given')];
+                }
+                _a.label = 1;
             case 1:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.info("Starting time")];
+                _a.trys.push([1, 13, , 17]);
+                return [4 /*yield*/, logger_1.logger.info("\n-----------------------------------------")];
             case 2:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("Attempting to get package ID by name (GET /packageId/:packageName)")];
+                return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 3:
+                _a.sent();
+                return [4 /*yield*/, logger_1.logger.info("Attempting to get package ID by name (GET /packageId/:packageName)")];
+            case 4:
                 _a.sent();
                 packageName = req.params.packageName;
                 return [4 /*yield*/, rds_handler.match_rds_rows(packageName)];
-            case 4:
-                searchResults = _a.sent();
-                if (!!searchResults) return [3 /*break*/, 8];
-                return [4 /*yield*/, logger_1.logger.error("No package found with name: ".concat(packageName))];
             case 5:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                searchResults = _a.sent();
+                if (!!searchResults) return [3 /*break*/, 9];
+                return [4 /*yield*/, logger_1.logger.error("No package found with name: ".concat(packageName))];
             case 6:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 7:
                 _a.sent();
-                return [2 /*return*/, res.status(404).json({ error: 'Package not found' })];
+                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
             case 8:
+                _a.sent();
+                return [2 /*return*/, res.status(404).json({ error: 'Package not found' })];
+            case 9:
                 package_id = searchResults.map(function (data) { return data.id; });
                 return [4 /*yield*/, logger_1.logger.debug("Package ID found for package '".concat(packageName, "': ").concat(package_id))];
-            case 9:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
             case 10:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+                return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
             case 11:
                 _a.sent();
-                res.status(200).json({ package_id: package_id });
-                return [3 /*break*/, 16];
+                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
             case 12:
+                _a.sent();
+                res.status(200).json({ package_id: package_id });
+                return [3 /*break*/, 17];
+            case 13:
                 error_9 = _a.sent();
                 return [4 /*yield*/, logger_1.logger.error('Error getting package ID by name:', error_9)];
-            case 13:
-                _a.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 14:
                 _a.sent();
-                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 15:
                 _a.sent();
+                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+            case 16:
+                _a.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 16];
-            case 16: return [2 /*return*/];
+                return [3 /*break*/, 17];
+            case 17: return [2 /*return*/];
         }
     });
 }); });
 app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, metadata, data, Name, Version, ID, Content, URL_1, JSProgram, existingPackage, rowsUpdated, npmURL, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, zippedFileContent, zippedFile, s3_response, binaryData, file, s3Url, error_10;
+    var authenticationToken, _a, metadata, data, Name, Version, ID, Content, URL_1, JSProgram, existingPackage, rowsUpdated, npmURL, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, zippedFileContent, zippedFile, s3_response, binaryData, file, s3Url, error_10;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                _b.trys.push([0, 31, , 35]);
-                return [4 /*yield*/, logger_1.logger.info("\n-----------------------------------------")];
+                authenticationToken = req.get('X-Authorization');
+                if (!authenticationToken || authenticationToken !== token) {
+                    return [2 /*return*/, res.status(400).json('Auth not given')];
+                }
+                _b.label = 1;
             case 1:
-                _b.sent();
-                return [4 /*yield*/, logger_1.time.info("Starting time")];
+                _b.trys.push([1, 32, , 36]);
+                return [4 /*yield*/, logger_1.logger.info("\n-----------------------------------------")];
             case 2:
                 _b.sent();
-                return [4 /*yield*/, logger_1.logger.info("Updating Package (PUT /package/:id)")];
+                return [4 /*yield*/, logger_1.time.info("Starting time")];
             case 3:
+                _b.sent();
+                return [4 /*yield*/, logger_1.logger.info("Updating Package (PUT /package/:id)")];
+            case 4:
                 _b.sent();
                 _a = req.body, metadata = _a.metadata, data = _a.data;
                 Name = metadata.Name, Version = metadata.Version, ID = metadata.ID;
@@ -1120,74 +1165,74 @@ app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, v
                 URL_1 = data.URL;
                 JSProgram = data.JSProgram;
                 return [4 /*yield*/, logger_1.logger.info("Input: ".concat(Name, ", ").concat(Version, ", ").concat(ID, ", ").concat(JSProgram, ", ").concat(URL_1))];
-            case 4:
+            case 5:
                 _b.sent();
                 if (JSProgram == "" || JSProgram == undefined || JSProgram == null || JSProgram.length == 0) {
                     JSProgram = "no";
                 }
                 return [4 /*yield*/, rds_handler.get_package_metadata(ID)];
-            case 5:
-                existingPackage = _b.sent();
-                if (!!existingPackage) return [3 /*break*/, 9];
-                return [4 /*yield*/, logger_1.logger.error("No package found with ID: ".concat(ID))];
             case 6:
-                _b.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                existingPackage = _b.sent();
+                if (!!existingPackage) return [3 /*break*/, 10];
+                return [4 /*yield*/, logger_1.logger.error("No package found with ID: ".concat(ID))];
             case 7:
                 _b.sent();
-                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 8:
                 _b.sent();
+                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+            case 9:
+                _b.sent();
                 return [2 /*return*/, res.status(404).json('Package does not exist.')];
-            case 9: return [4 /*yield*/, rds_handler.update_rds_package_data(ID, Name, Version, JSProgram)];
-            case 10:
-                rowsUpdated = _b.sent();
-                if (!(URL_1 && !Content)) return [3 /*break*/, 23];
-                return [4 /*yield*/, logger_1.logger.info("Updating via URL")];
+            case 10: return [4 /*yield*/, rds_handler.update_rds_package_data(ID, Name, Version, JSProgram)];
             case 11:
+                rowsUpdated = _b.sent();
+                if (!(URL_1 && !Content)) return [3 /*break*/, 24];
+                return [4 /*yield*/, logger_1.logger.info("Updating via URL")];
+            case 12:
                 _b.sent();
                 npmURL = void 0;
-                if (!URL_1.includes("github")) return [3 /*break*/, 13];
+                if (!URL_1.includes("github")) return [3 /*break*/, 14];
                 parts = URL_1.split('/');
                 repositoryName = parts[parts.length - 1];
                 // Constructing the npm package URL
                 npmURL = "https://www.npmjs.com/package/".concat(repositoryName);
                 return [4 /*yield*/, logger_1.logger.info("constructed npm package url: ".concat(npmURL))];
-            case 12:
-                _b.sent();
-                _b.label = 13;
             case 13:
+                _b.sent();
+                _b.label = 14;
+            case 14:
                 npmPackageName = (0, metrics_1.get_npm_package_name)(String(npmURL));
                 return [4 /*yield*/, logger_1.logger.info("package name: ".concat(npmPackageName))];
-            case 14:
+            case 15:
                 _b.sent();
                 output = (0, child_process_1.execSync)("npm view ".concat(npmPackageName, " --json --silent"), { encoding: 'utf8' });
                 fs.writeFileSync("./temp_npm_json/".concat(npmPackageName, "_info.json"), output); // write json to file
                 return [4 /*yield*/, logger_1.logger.info("wrote json file")];
-            case 15:
+            case 16:
                 _b.sent();
                 file = "./temp_npm_json/".concat(npmPackageName, "_info.json");
                 return [4 /*yield*/, (0, metrics_1.check_npm_for_open_source)(file)];
-            case 16:
+            case 17:
                 gitUrl = _b.sent();
                 return [4 /*yield*/, logger_1.logger.info("gitUrl: ".concat(gitUrl))];
-            case 17:
+            case 18:
                 _b.sent();
                 destinationPath = 'temp_linter_test';
                 return [4 /*yield*/, (0, metrics_1.cloneRepo)(gitUrl, destinationPath)];
-            case 18:
+            case 19:
                 cloneRepoOut = _b.sent();
                 return [4 /*yield*/, logger_1.logger.info("finished cloning")];
-            case 19:
+            case 20:
                 _b.sent();
                 return [4 /*yield*/, (0, metrics_1.zipDirectory)(cloneRepoOut[1], "./tempZip.zip")];
-            case 20:
+            case 21:
                 zipFilePath = _b.sent();
                 zippedFileContent = fs.readFileSync(zipFilePath);
                 return [4 /*yield*/, logger_1.logger.debug("got zipped file content")
                     // Create Express.Multer.File object
                 ];
-            case 21:
+            case 22:
                 _b.sent();
                 zippedFile = {
                     fieldname: 'file',
@@ -1197,46 +1242,46 @@ app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, v
                     buffer: zippedFileContent // Buffer of the zipped file content
                 };
                 return [4 /*yield*/, (0, s3_packages_1.upload_package)(ID, zippedFile)];
-            case 22:
-                s3_response = _b.sent();
-                return [3 /*break*/, 28];
             case 23:
-                if (!(!URL_1 && Content)) return [3 /*break*/, 26];
-                return [4 /*yield*/, logger_1.logger.info("Updating via content")];
+                s3_response = _b.sent();
+                return [3 /*break*/, 29];
             case 24:
+                if (!(!URL_1 && Content)) return [3 /*break*/, 27];
+                return [4 /*yield*/, logger_1.logger.info("Updating via content")];
+            case 25:
                 _b.sent();
                 binaryData = Buffer.from(Content, 'base64');
                 file = { buffer: binaryData };
                 return [4 /*yield*/, (0, s3_packages_1.updateS3Package)(ID, file)];
-            case 25:
+            case 26:
                 s3Url = _b.sent();
-                return [3 /*break*/, 28];
-            case 26: return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
-            case 27:
+                return [3 /*break*/, 29];
+            case 27: return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+            case 28:
                 _b.sent();
                 return [2 /*return*/, res.status(400).json('Package does not exist.')];
-            case 28: return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
-            case 29:
-                _b.sent();
-                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+            case 29: return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
             case 30:
                 _b.sent();
-                res.status(200).send('Version is updated.');
-                return [3 /*break*/, 35];
+                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
             case 31:
+                _b.sent();
+                res.status(200).send('Version is updated.');
+                return [3 /*break*/, 36];
+            case 32:
                 error_10 = _b.sent();
                 return [4 /*yield*/, logger_1.logger.error('Error updating package content:', error_10)];
-            case 32:
-                _b.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 33:
                 _b.sent();
-                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
             case 34:
                 _b.sent();
+                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+            case 35:
+                _b.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 35];
-            case 35: return [2 /*return*/];
+                return [3 /*break*/, 36];
+            case 36: return [2 /*return*/];
         }
     });
 }); });
