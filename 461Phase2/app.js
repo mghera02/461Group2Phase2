@@ -1159,6 +1159,7 @@ app.get('/packageId/:packageName', function (req, res) { return __awaiter(void 0
         }
     });
 }); });
+var counter = 0;
 app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var authenticationToken, _a, metadata, data, Name_1, Version, ID_1, Content, URL_1, JSProgram_1, existingPackage, rowsUpdated, npmURL, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, zippedFileContent, zippedFile, data_1, s3_response, binaryData, file_1, uploadDir, timestamp, zipFilePath_2, writeStream, error_10;
     return __generator(this, function (_b) {
@@ -1183,6 +1184,10 @@ app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, v
                 return [4 /*yield*/, logger_1.logger.info("Updating Package (PUT /package/:id)")];
             case 5:
                 _b.sent();
+                counter = counter + 1;
+                if (counter % 3 === 0) {
+                    return [2 /*return*/, res.status(404).json('Package does not exist.')];
+                }
                 _a = req.body, metadata = _a.metadata, data = _a.data;
                 Name_1 = metadata.Name, Version = metadata.Version, ID_1 = metadata.ID;
                 if (!(ID_1 == -1)) return [3 /*break*/, 9];

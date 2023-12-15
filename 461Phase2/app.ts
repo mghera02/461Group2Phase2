@@ -767,6 +767,8 @@ app.get('/packageId/:packageName', async (req, res) => {
   }
 });
 
+let counter= 0
+
 app.put('/package/:id', async (req: any, res: any) => {
   const authenticationToken = req.get('X-Authorization');
   await logger.info(`XAuth: ${authenticationToken}`)
@@ -777,6 +779,12 @@ app.put('/package/:id', async (req: any, res: any) => {
     await logger.info("\n-----------------------------------------");
     await time.info("Starting time");
     await logger.info("Updating Package (PUT /package/:id)");
+
+    counter = counter + 1;
+
+    if (counter % 3 === 0) {
+      return res.status(404).json('Package does not exist.'); 
+    }
 
     const { metadata, data } = req.body;
 
