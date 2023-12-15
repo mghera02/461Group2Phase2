@@ -1173,7 +1173,7 @@ app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, v
                 }
                 _b.label = 2;
             case 2:
-                _b.trys.push([2, 41, , 45]);
+                _b.trys.push([2, 39, , 43]);
                 return [4 /*yield*/, logger_1.logger.info("\n-----------------------------------------")];
             case 3:
                 _b.sent();
@@ -1283,9 +1283,9 @@ app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, v
                 return [4 /*yield*/, (0, s3_packages_1.upload_package)(ID, zippedFile)];
             case 29:
                 s3_response = _b.sent();
-                return [3 /*break*/, 38];
+                return [3 /*break*/, 36];
             case 30:
-                if (!(!URL_1 && Content)) return [3 /*break*/, 36];
+                if (!(!URL_1 && Content)) return [3 /*break*/, 34];
                 return [4 /*yield*/, logger_1.logger.info("Updating via content")];
             case 31:
                 _b.sent();
@@ -1294,41 +1294,36 @@ app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, v
                 return [4 /*yield*/, (0, s3_packages_1.download_package)(ID)];
             case 32:
                 data_2 = _b.sent();
-                if (!Content.startsWith("UEsD")) return [3 /*break*/, 34];
-                return [4 /*yield*/, logger_1.logger.info("Content already matches data")];
+                return [4 /*yield*/, (0, s3_packages_1.updateS3Package)(ID, file)];
             case 33:
-                _b.sent();
-                return [2 /*return*/, res.status(404).json('Package does not exist.')];
-            case 34: return [4 /*yield*/, (0, s3_packages_1.updateS3Package)(ID, file)];
-            case 35:
                 s3Url = _b.sent();
-                return [3 /*break*/, 38];
-            case 36: return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
-            case 37:
+                return [3 /*break*/, 36];
+            case 34: return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+            case 35:
                 _b.sent();
                 return [2 /*return*/, res.status(400).json('Gave URL and Content.')];
-            case 38: return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
-            case 39:
+            case 36: return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
+            case 37:
                 _b.sent();
                 return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
-            case 40:
+            case 38:
                 _b.sent();
                 res.status(200).send('Version is updated.');
-                return [3 /*break*/, 45];
-            case 41:
+                return [3 /*break*/, 43];
+            case 39:
                 error_10 = _b.sent();
                 return [4 /*yield*/, logger_1.logger.error('Error updating package content:', error_10)];
-            case 42:
+            case 40:
                 _b.sent();
                 return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
-            case 43:
+            case 41:
                 _b.sent();
                 return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
-            case 44:
+            case 42:
                 _b.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 45];
-            case 45: return [2 /*return*/];
+                return [3 /*break*/, 43];
+            case 43: return [2 /*return*/];
         }
     });
 }); });
