@@ -144,7 +144,7 @@ function get_package_metadata(package_id, version) {
                         values = [package_id];
                     }
                     else {
-                        query = "\n          SELECT * FROM ".concat(rds_config_1.TABLE_NAME, " WHERE id = $1, version = $2\n        ");
+                        query = "\n          SELECT * FROM ".concat(rds_config_1.TABLE_NAME, " WHERE id = $1 AND version = $2\n        ");
                         values = [package_id, version];
                     }
                     return [4 /*yield*/, client.query(query, values)];

@@ -122,7 +122,7 @@ async function get_package_metadata(package_id: number, version: string = "") : 
         values = [package_id]
       } else {
         query = `
-          SELECT * FROM ${TABLE_NAME} WHERE id = $1, version = $2
+          SELECT * FROM ${TABLE_NAME} WHERE id = $1 AND version = $2
         `;
         values = [package_id, version]
       }
