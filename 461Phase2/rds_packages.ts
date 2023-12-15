@@ -272,6 +272,37 @@ async function delete_rds_package_data(id: string): Promise<boolean> {
   }
 }
 
+async function increment_num_downloads(id: string): Promise<number> {
+  const client = await get_rds_connection();
+
+  try {
+      const query = `
+        SELECT num_downloads FROM ${TABLE_NAME} WHERE id = $1
+      `;
+      const values = [id]
+      const data: QueryResult<Row> = await client.query(query, values);
+
+      // Making sure something is returned at all
+
+      const num = data.rows[0].num_downloads + 1;
+
+      const query1 = `
+      UPDATE package_data 
+      SET num_downloads = $1
+      WHERE id = $2
+      `;
+      const values1 = [num, id]
+      await client.query(query1, values1);
+
+      return num;
+    } catch (error) {
+      logger.error('Error grabbing data:', error);
+      return -1;
+    } finally {
+      await client.end();
+    }
+}
+
 export {
     add_rds_package_data,
     get_package_metadata,
@@ -280,5 +311,6 @@ export {
     match_rds_rows_with_pagination,
     update_rds_package_data,
     delete_rds_package_data,
+    increment_num_downloads,
     PackageData,
 }

@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.delete_rds_package_data = exports.update_rds_package_data = exports.match_rds_rows_with_pagination = exports.match_rds_rows = exports.get_package_rating = exports.get_package_metadata = exports.add_rds_package_data = void 0;
+exports.increment_num_downloads = exports.delete_rds_package_data = exports.update_rds_package_data = exports.match_rds_rows_with_pagination = exports.match_rds_rows = exports.get_package_rating = exports.get_package_metadata = exports.add_rds_package_data = void 0;
 var rds_config_1 = require("./rds_config");
 var logger_1 = require("./logger");
 function row_to_metadata(row) {
@@ -327,3 +327,40 @@ function delete_rds_package_data(id) {
     });
 }
 exports.delete_rds_package_data = delete_rds_package_data;
+function increment_num_downloads(id) {
+    return __awaiter(this, void 0, void 0, function () {
+        var client, query, values, data, num, query1, values1, error_8;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, (0, rds_config_1.get_rds_connection)()];
+                case 1:
+                    client = _a.sent();
+                    _a.label = 2;
+                case 2:
+                    _a.trys.push([2, 5, 6, 8]);
+                    query = "\n        SELECT num_downloads FROM ".concat(rds_config_1.TABLE_NAME, " WHERE id = $1\n      ");
+                    values = [id];
+                    return [4 /*yield*/, client.query(query, values)];
+                case 3:
+                    data = _a.sent();
+                    num = data.rows[0].num_downloads + 1;
+                    query1 = "\n      UPDATE package_data \n      SET num_downloads = $1\n      WHERE id = $2\n      ";
+                    values1 = [num, id];
+                    return [4 /*yield*/, client.query(query1, values1)];
+                case 4:
+                    _a.sent();
+                    return [2 /*return*/, num];
+                case 5:
+                    error_8 = _a.sent();
+                    logger_1.logger.error('Error grabbing data:', error_8);
+                    return [2 /*return*/, -1];
+                case 6: return [4 /*yield*/, client.end()];
+                case 7:
+                    _a.sent();
+                    return [7 /*endfinally*/];
+                case 8: return [2 /*return*/];
+            }
+        });
+    });
+}
+exports.increment_num_downloads = increment_num_downloads;

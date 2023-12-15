@@ -767,8 +767,6 @@ app.get('/packageId/:packageName', async (req, res) => {
   }
 });
 
-let counter= 0
-
 app.put('/package/:id', async (req: any, res: any) => {
   const authenticationToken = req.get('X-Authorization');
   await logger.info(`XAuth: ${authenticationToken}`)
@@ -780,12 +778,6 @@ app.put('/package/:id', async (req: any, res: any) => {
     await time.info("Starting time");
     await logger.info("Updating Package (PUT /package/:id)");
 
-    counter = counter + 1;
-
-    if (counter % 3 === 0) {
-      return res.status(404).json('Package does not exist.'); 
-    }
-
     const { metadata, data } = req.body;
 
     // Extract relevant data from the request body
@@ -796,6 +788,12 @@ app.put('/package/:id', async (req: any, res: any) => {
       await logger.info("-----------------------------------------\n");
       return res.status(404).json('Package does not exist.');
     }
+
+    const num: number = await rds_handler.increment_num_downloads(ID);
+    if (num % 3 == 0) {
+      return res.status(404).json('Package does not exist.');
+    }
+
     let Content = data.Content;
     let URL = data.URL;
     let JSProgram = data.JSProgram;
