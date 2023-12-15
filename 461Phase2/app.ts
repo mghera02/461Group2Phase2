@@ -805,7 +805,7 @@ app.put('/package/:id', async (req: any, res: any) => {
     await time.info("Finished at this time\n");
     await logger.info("-----------------------------------------\n");
 
-    res.status(200).send('Version is updated.');
+    res.status(201).send('Version is updated.');
   } catch (error) {
     await logger.error('Error updating package content:', error);
     await time.error('Error occurred at this time\n');
