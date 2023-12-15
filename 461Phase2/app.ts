@@ -99,10 +99,10 @@ function extractRepoInfo(zipFilePath: string): Promise<RepoInfo> {
 //TODO: if RDS succeeds to upload but S3 fails, remove the corresponding RDS entry
 app.post('/package', upload.single('file'), async (req, res) => {
   const authenticationToken = req.get('X-Authorization');
+  await logger.info(`XAuth: ${authenticationToken}`)
   if(!authenticationToken || authenticationToken !== token) {
     return res.status(400).json('Auth not given');
   }
-  await logger.info(`xauth: ${req.headers['X-Authorization']}`);
   let JSProgram = "";
   if(req.body.JSProgram) {
     JSProgram = req.body.JSProgram;
@@ -376,6 +376,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
 
 app.get('/package/:id/rate', async (req, res) => {
   const authenticationToken = req.get('X-Authorization');
+  await logger.info(`XAuth: ${authenticationToken}`)
   if(!authenticationToken || authenticationToken !== token) {
     return res.status(400).json('Auth not given');
   }
@@ -418,6 +419,7 @@ app.get('/package/:id/rate', async (req, res) => {
 
 app.get('/package/:packageId', async (req, res) => {
   const authenticationToken = req.get('X-Authorization');
+  await logger.info(`XAuth: ${authenticationToken}`)
   if(!authenticationToken || authenticationToken !== token) {
     return res.status(400).json('Auth not given');
   }
@@ -498,6 +500,7 @@ app.get('/package/:packageId', async (req, res) => {
 
 app.post('/packages', async (req, res) => {
   const authenticationToken = req.get('X-Authorization');
+  await logger.info(`XAuth: ${authenticationToken}`)
   if(!authenticationToken || authenticationToken !== token) {
     return res.status(400).json('Auth not given');
   }
@@ -632,6 +635,7 @@ app.post('/packages', async (req, res) => {
 // Sends the a list of package names that match the regex
 app.post('/package/byRegEx', async (req, res) => {
   const authenticationToken = req.get('X-Authorization');
+  await logger.info(`XAuth: ${authenticationToken}`)
   if(!authenticationToken || authenticationToken !== token) {
     return res.status(400).json('Auth not given');
   }
@@ -694,11 +698,10 @@ app.post('/package/byRegEx', async (req, res) => {
 // Resets RDS and S3
 app.delete('/reset', async (req, res) => {
   const authenticationToken = req.get('X-Authorization');
+  await logger.info(`XAuth: ${authenticationToken}`)
   if(!authenticationToken || authenticationToken !== token) {
-    await logger.info(`auth given: ${authenticationToken}`)
     return res.status(400).json('Auth not given');
   }
-  await logger.info(`xauth: ${req.headers['X-Authorization']}`);
   try {
     await logger.info("\n-----------------------------------------");
     await time.info("Starting time")
@@ -722,6 +725,7 @@ app.delete('/reset', async (req, res) => {
 
 app.get('/packageId/:packageName', async (req, res) => {
   const authenticationToken = req.get('X-Authorization');
+  await logger.info(`XAuth: ${authenticationToken}`)
   if(!authenticationToken || authenticationToken !== token) {
     return res.status(400).json('Auth not given');
   }
@@ -758,6 +762,7 @@ app.get('/packageId/:packageName', async (req, res) => {
 
 app.put('/package/:id', async (req: any, res: any) => {
   const authenticationToken = req.get('X-Authorization');
+  await logger.info(`XAuth: ${authenticationToken}`)
   if(!authenticationToken || authenticationToken !== token) {
     return res.status(400).json('Auth not given');
   }
