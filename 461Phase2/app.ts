@@ -703,7 +703,7 @@ app.delete('/reset', async (req, res) => {
   const authenticationToken = req.get('X-Authorization');
   await logger.info(`XAuth: ${authenticationToken}`)
   if(!authenticationToken || authenticationToken !== token) {
-    return res.status(400).json('Auth not given');
+    return res.status(401).json('Auth not given');
   }
   try {
     await logger.info("\n-----------------------------------------");

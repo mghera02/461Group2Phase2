@@ -1035,7 +1035,7 @@ app.delete('/reset', function (req, res) { return __awaiter(void 0, void 0, void
             case 1:
                 _a.sent();
                 if (!authenticationToken || authenticationToken !== token) {
-                    return [2 /*return*/, res.status(400).json('Auth not given')];
+                    return [2 /*return*/, res.status(401).json('Auth not given')];
                 }
                 _a.label = 2;
             case 2:
