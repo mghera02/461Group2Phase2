@@ -57,10 +57,9 @@
           // Method to reset the system via a DELETE request
           async resetSystem() {
               const url = `http://${this.ip}:8080/reset`;
-              const headers = {
-                'Content-Type': 'application/json',
-                'X-Authorization': '0'
-              };
+              const headers = new Headers();
+              headers.append('Content-Type', 'application/json');
+              headers.append('X-Authorization', '0');
               fetch(url, {
                   method: 'DELETE',
                   headers: headers
