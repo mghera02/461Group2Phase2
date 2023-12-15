@@ -125,9 +125,10 @@ function update_rds_package_data(id, newName, newVersion, JSProgram) {
     });
 }
 exports.update_rds_package_data = update_rds_package_data;
-function get_package_metadata(package_id) {
+function get_package_metadata(package_id, version) {
+    if (version === void 0) { version = ""; }
     return __awaiter(this, void 0, void 0, function () {
-        var client, query, values, data, metadata, error_3;
+        var client, query, values, data, data2, metadata, error_3;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, (0, rds_config_1.get_rds_connection)()];
@@ -136,13 +137,22 @@ function get_package_metadata(package_id) {
                     _a.label = 2;
                 case 2:
                     _a.trys.push([2, 4, 5, 7]);
-                    query = "\n        SELECT * FROM ".concat(rds_config_1.TABLE_NAME, " WHERE id = $1\n      ");
-                    values = [package_id];
+                    query = void 0;
+                    values = void 0;
+                    if (version == "") {
+                        query = "\n          SELECT * FROM ".concat(rds_config_1.TABLE_NAME, " WHERE id = $1\n        ");
+                        values = [package_id];
+                    }
+                    else {
+                        query = "\n          SELECT * FROM ".concat(rds_config_1.TABLE_NAME, " WHERE id = $1, version = $2\n        ");
+                        values = [package_id, version];
+                    }
                     return [4 /*yield*/, client.query(query, values)];
                 case 3:
                     data = _a.sent();
+                    data2 = data;
                     // Making sure something is returned at all
-                    if (data.rowCount == 0) {
+                    if (data2.rowCount == 0) {
                         return [2 /*return*/, null];
                     }
                     metadata = data.rows[0];

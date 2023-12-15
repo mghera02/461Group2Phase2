@@ -109,18 +109,28 @@ async function update_rds_package_data(id: string, newName: string, newVersion: 
   }
 }
 
-async function get_package_metadata(package_id: number) : Promise<any | null> {
+async function get_package_metadata(package_id: number, version: string = "") : Promise<any | null> {
   const client = await get_rds_connection();
 
   try {
-      const query = `
-        SELECT * FROM ${TABLE_NAME} WHERE id = $1
-      `;
-      const values = [package_id]
-      const data: QueryResult<Row> = await client.query(query, values);
+      let query;
+      let values;
+      if(version == "") {
+        query = `
+          SELECT * FROM ${TABLE_NAME} WHERE id = $1
+        `;
+        values = [package_id]
+      } else {
+        query = `
+          SELECT * FROM ${TABLE_NAME} WHERE id = $1, version = $2
+        `;
+        values = [package_id, version]
+      }
+      let data: QueryResult<any> = await client.query(query, values);
+      const data2: QueryResult<Row> = data;
 
       // Making sure something is returned at all
-      if (data.rowCount == 0) {
+      if (data2.rowCount == 0) {
         return null;
       }
 

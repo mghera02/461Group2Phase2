@@ -797,7 +797,7 @@ app.put('/package/:id', async (req: any, res: any) => {
       JSProgram = "no";
     }
 
-    const existingPackage = await rds_handler.get_package_metadata(ID);
+    const existingPackage = await rds_handler.get_package_metadata(ID, Version);
 
     if (!existingPackage) {
       await logger.error(`No package found with ID: ${ID}`);
@@ -853,8 +853,37 @@ app.put('/package/:id', async (req: any, res: any) => {
       await logger.info(`Updating via content`);
       const binaryData = Buffer.from(Content, 'base64');
       const file = {buffer: binaryData}
-      let data = await download_package(ID);
-      let s3Url = await updateS3Package(ID, file);
+      await logger.info(`Got buffer/binary data`);
+      const uploadDir = './uploads';
+
+      // Create the uploads directory if it doesn't exist
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir);
+        await logger.info(`created upload directory`);
+      } else {
+        await logger.info(`upload directory exists already, no need to make it`);
+      }
+
+      const timestamp = Date.now(); // Use a timestamp to create a unique file name
+      const zipFilePath = path.join(uploadDir, `file_${timestamp}.zip`);
+      await logger.info(`Got zip file path: ${zipFilePath}`);
+
+      // Create a writable stream to save the zip data
+      const writeStream = fs.createWriteStream(zipFilePath);
+      writeStream.write(binaryData, async (err: any) => {
+        if (err) {
+          await logger.info(`failed to save zip file`);
+        } else {
+          await logger.info(`zip file saved successfully`);
+           
+
+          const info = await extractRepoInfo(zipFilePath);
+          const version = info.version;
+          await logger.info(`got version: ${version}`)
+          let rowsUpdated = await rds_handler.update_rds_package_data(ID, Name, version, JSProgram);
+          let s3Url = await updateS3Package(ID, file);
+        }
+      });
     } else {
       await logger.info("-----------------------------------------\n");
       return res.status(400).json('Gave URL and Content.');
