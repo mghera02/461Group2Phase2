@@ -11,28 +11,28 @@ The endpoints are as follows along with how to invoke them via their endpoints a
 
 1. Reset (DELETE /reset)
    Description: Reset the registry to a system default state.
-   How to invoke: curl -X DELETE "http://3.145.64.121:8080/reset"
+   How to invoke: curl -X DELETE "http://3.145.64.121:8080/reset" -H "X-Authorization: 0"
    Example output: "Registry is reset."
    
 2. List Packages: (POST /packages)
    Description: Get any packages fitting the query. Search for packages satisfying the indicated query. If you want to enumerate all packages, provide an array with a single PackageQuery whose name is "*". The response is paginated; the 
    response header includes the offset to use in the next query. In the Request Body below, "Version" has all the possible inputs. The "Version" cannot be a combination of the all the possibilities.
-   How to invoke: curl -X POST "http://3.145.64.121:8080/packages" -H "Content-Type: application/json" -d '[{"Version":"*", "Name": "*"}]'
+   How to invoke: curl -X POST "http://3.145.64.121:8080/packages" -H "Content-Type: application/json" -H "X-Authorization: 0" -d '[{"Version":"*", "Name": "*"}]'
    Example output: [{"Version":"1.0.6","Name":"copee","ID":"copee1.0.6"},{"Version":"4.3.4","Name":"debug","ID":"debug4.3.4"}] 
 
 3. Return Package: (GET /package/{id}) - Not working in the frontend
    Description: Return this package.
-   How to invoke: curl -X GET "http://3.145.64.121:8080/package/copee1.0.6/" -H "Content-Type:application/json"
+   How to invoke: curl -X GET "http://3.145.64.121:8080/package/copee1.0.6/" -H "Content-Type:application/json" -H "X-Authorization: 0"
    Example output:{"metadata":{"Name":"copee","ID":"copee1.0.6","Version":"1.0.6"},"data":{"Content":"UEsDBAoAAAAAAGKbYVcAAAAAAAAAAAAAAAALAAkAY29wZWUtbWFpbi9VVAUAAfkIQ2VQSwMECgAAAAgAYpthV/a+8/SnAAAAegEAABkACQBjb3BlZS1tYWluLy5naXRhdHRyaWJ1dGVzVVQFAAH5
 
 4. Update Package: (PUT /package/{id})
    Description: Return this package.
-   How to invoke: curl -X PUT "http://3.145.64.121:8080/package/copee1.0.6/" -H "Content-Type:application/json" -d '{"metadata":{"Name": "copee", "Version": "1.0.6", "ID":"copee1.0.6"}, "data":{"URL":"https://github.com/debug-js/debug"}}'
+   How to invoke: curl -X PUT "http://3.145.64.121:8080/package/copee1.0.6/" -H "Content-Type:application/json" -H "X-Authorization: 0" -d '{"metadata":{"Name": "copee", "Version": "1.0.6", "ID":"copee1.0.6"}, "data":{"URL":"https://github.com/debug-js/debug"}}'
    Example output: Version is updated.
 
 5. Upload a package via zip file (POST /package)
    Description: Upload a new package via a zip file. Packages that are uploaded may have the same name but a new version.
-   How to invoke:
+   How to invoke:curl -X POST "http://3.145.64.121:8080/package" -H "Content-Type: application/json" -H "X-Authorization: 0" -d '{"Content": "base 64 encoded content"}'
    Example output: {
     "metadata": {
         "Name": "copee",
@@ -47,7 +47,7 @@ The endpoints are as follows along with how to invoke them via their endpoints a
 
 6. Upload a package via url to a npm or github package (POST /package)
    Description: Upload a new package via a zip file. Packages that are uploaded may have the same name but a new version.
-   How to invoke: curl -X POST "http://3.145.64.121:8080/package" -H "Content-Type: application/json" -d '{"URL": "https://www.npmjs.com/package/axios"}'
+   How to invoke: curl -X POST "http://3.145.64.121:8080/package" -H "Content-Type: application/json" -H "X-Authorization: 0" -d '{"URL": "https://www.npmjs.com/package/axios"}'
    Example output: {
   "metadata": {
     "Name": "axios",
@@ -62,17 +62,17 @@ The endpoints are as follows along with how to invoke them via their endpoints a
 
 7. Rate a package (GET /paclage/{ID}/rate)
    Description: Given a package ID, retrieve the ratings for the package (BusFactor, RampUp, LicenseScore, Correctness, ResponsiveMaintainer, PullRequest, GoodPinningPractice, NetScore)
-   How to invoke: curl -X GET "http://3.145.64.121:8080/package/copee1.0.6/rate" -H "Content-Type: application/json"
+   How to invoke: curl -X GET "http://3.145.64.121:8080/package/copee1.0.6/rate" -H "Content-Type: application/json" -H "X-Authorization: 0"
    Example Output:    {"BusFactor":"0.19882","RampUp":"0.94343","LicenseScore":"1.00000","Correctness":"0.57113","ResponsiveMaintainer":"0.97520","PullRequest":"0.00000","GoodPinningPractice":"1.00000","NetScore":"0.67812"}
 
 8. Search a package using regex (POST /package/byRegEx)
    Description: Given a regex string, retrieve all matching packages
-   How to invoke: curl -X POST "http://3.145.64.121:8080/package/byRegEx" -H "Content-Type: application/json" -d '{"RegEx": "co"}'
+   How to invoke: curl -X POST "http://3.145.64.121:8080/package/byRegEx" -H "Content-Type: application/json" -H "X-Authorization: 0" -d '{"RegEx": "co"}' 
    Example output: [{"Version":"1.0.6","Name":"copee"}]
 
 9.  Delete package by version (DELETE /package/{ID})
     Description: Delete only the package that matches "id". (id is a unique identifier for a packge)
-    How to Invoke: curl -X DELETE "http://3.145.64.121:8080/package/copee1.0.6/" -H "Content-Type:application/json"
+    How to Invoke: curl -X DELETE "http://3.145.64.121:8080/package/copee1.0.6/" -H "Content-Type:application/json" -H "X-Authorization: 0"
     Example Output: Package is deleted.
 
 
