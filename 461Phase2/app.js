@@ -1035,6 +1035,9 @@ app.delete('/reset', function (req, res) { return __awaiter(void 0, void 0, void
                 return [4 /*yield*/, logger_1.logger.info("XAuth: ".concat(authenticationToken))];
             case 1:
                 _a.sent();
+                if (authenticationToken === undefined) {
+                    return [2 /*return*/, res.status(400).json('Auth doesnt exist')];
+                }
                 if (!authenticationToken || authenticationToken !== token) {
                     return [2 /*return*/, res.status(401).json('Auth not given')];
                 }
