@@ -103,8 +103,10 @@ app.post('/package', upload.single('file'), async (req, res) => {
   if(!authenticationToken || authenticationToken !== token) {
     return res.status(400).json('Auth not given');
   }
-  let JSProgram = "";
-  if(req.body.JSProgram) {
+  let JSProgram: string | null;
+  if(req.body.JSProgram === undefined) {
+    JSProgram = null;
+  } else {
     JSProgram = req.body.JSProgram;
   }
 
@@ -230,11 +232,12 @@ app.post('/package', upload.single('file'), async (req, res) => {
       await time.info("Finished at this time\n")
 
       const base64EncodedData = (zippedFileContent).toString('base64');
+      
       let response: Package = {
         metadata: metadata,
         data: {
           Content: base64EncodedData,
-          //JSProgram: JSProgram,
+          JSProgram: req.body.JSProgram,
         },
       }
       
@@ -350,7 +353,7 @@ app.post('/package', upload.single('file'), async (req, res) => {
             metadata: metadata,
             data: {
               Content: String(req.body.Content),
-              //JSProgram: JSProgram,
+              JSProgram: req.body.JSProgram,
             },
           }
 

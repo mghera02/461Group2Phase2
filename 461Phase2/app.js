@@ -133,8 +133,10 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                 if (!authenticationToken || authenticationToken !== token) {
                     return [2 /*return*/, res.status(400).json('Auth not given')];
                 }
-                JSProgram = "";
-                if (req.body.JSProgram) {
+                if (req.body.JSProgram === undefined) {
+                    JSProgram = null;
+                }
+                else {
                     JSProgram = req.body.JSProgram;
                 }
                 if (!(req.body.URL && !req.body.Content)) return [3 /*break*/, 40];
@@ -319,7 +321,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                     metadata: metadata,
                     data: {
                         Content: base64EncodedData,
-                        //JSProgram: JSProgram,
+                        JSProgram: req.body.JSProgram,
                     },
                 };
                 // Old return value
@@ -462,7 +464,7 @@ app.post('/package', upload.single('file'), function (req, res) { return __await
                                     metadata: metadata,
                                     data: {
                                         Content: String(req.body.Content),
-                                        //JSProgram: JSProgram,
+                                        JSProgram: req.body.JSProgram,
                                     },
                                 };
                                 return [4 /*yield*/, logger_1.logger.info("Successfully uploaded package with id: ".concat(package_id))];

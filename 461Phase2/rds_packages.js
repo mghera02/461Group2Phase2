@@ -146,6 +146,9 @@ function get_package_metadata(package_id) {
                         return [2 /*return*/, null];
                     }
                     metadata = data.rows[0];
+                    if (metadata.JSProgram === null) {
+                        metadata.JSProgram = undefined;
+                    }
                     return [2 /*return*/, metadata];
                 case 4:
                     error_3 = _a.sent();

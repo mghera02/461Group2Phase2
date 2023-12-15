@@ -52,7 +52,7 @@ async function setup_rds_tables() {
             version VARCHAR(50) NOT NULL,
             rating JSON NOT NULL,
             num_downloads INT NOT NULL,
-            JSProgram VARCHAR(400) NOT NULL,
+            JSProgram VARCHAR(400),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
           );
         `);

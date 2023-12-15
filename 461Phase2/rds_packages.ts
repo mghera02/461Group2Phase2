@@ -32,6 +32,7 @@ interface Row {
   version: string,
   rating: PackageRating,
   num_downloads: number,
+  JSProgram: string | null | undefined,
 } // This is a makeshift ORM, kind of a bandaid fix lol
 
 function row_to_metadata(row: Row | null) : PackageMetadata | null {
@@ -50,7 +51,7 @@ function row_to_metadata(row: Row | null) : PackageMetadata | null {
 
 // Adds data to the amazon RDS instance. That data is assigned a unique ID that is returned.
 // This ID is used to locate the package contents in the S3 bucket.
-async function add_rds_package_data(metadata: PackageMetadata, rating: PackageRating, JSProgram: String) : Promise<string | null> {
+async function add_rds_package_data(metadata: PackageMetadata, rating: PackageRating, JSProgram: String | null) : Promise<string | null> {
   const client = await get_rds_connection();
 
   try {
@@ -75,7 +76,7 @@ async function add_rds_package_data(metadata: PackageMetadata, rating: PackageRa
     }
 }
 
-async function update_rds_package_data(id: string, newName: string, newVersion: string, JSProgram: string): Promise<number | null> {
+async function update_rds_package_data(id: string, newName: string, newVersion: string, JSProgram: string | null): Promise<number | null> {
   const client = await get_rds_connection();
   let query:any;
   let values:any;
@@ -123,7 +124,11 @@ async function get_package_metadata(package_id: number) : Promise<any | null> {
         return null;
       }
 
-      const metadata = data.rows[0]
+      let metadata = data.rows[0]
+
+      if (metadata.JSProgram === null) {
+        metadata.JSProgram = undefined;
+      }
 
       return metadata;
     } catch (error) {
