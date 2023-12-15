@@ -804,6 +804,7 @@ app.put('/package/:id', async (req: any, res: any) => {
 
     if(URL && !Content) {
       await logger.info(`Updating via URL`);
+
       let npmURL;
       if(URL.includes("github")) {
         const parts = URL.split('/');
@@ -840,15 +841,25 @@ app.put('/package/:id', async (req: any, res: any) => {
           mimetype: 'application/zip',
           buffer: zippedFileContent // Buffer of the zipped file content
       };
+      let data = await download_package(ID);
+      if(zippedFile.buffer == data) {
+        await logger.info(`Content already matches data`);
+        return res.status(404).json('Package does not exist.');
+      }
       const s3_response = await upload_package(ID, zippedFile);
     } else if(!URL && Content) {
       await logger.info(`Updating via content`);
       const binaryData = Buffer.from(Content, 'base64');
       const file = {buffer: binaryData}
+      let data = await download_package(ID);
+      if(file.buffer == data) {
+        await logger.info(`Content already matches data`);
+        return res.status(404).json('Package does not exist.');
+      }
       let s3Url = await updateS3Package(ID, file);
     } else {
       await logger.info("-----------------------------------------\n");
-      return res.status(400).json('Package does not exist.');
+      return res.status(400).json('Gave URL and Content.');
     }
 
     await time.info("Finished at this time\n");

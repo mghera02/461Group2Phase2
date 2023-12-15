@@ -1160,7 +1160,7 @@ app.get('/packageId/:packageName', function (req, res) { return __awaiter(void 0
     });
 }); });
 app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var authenticationToken, _a, metadata, data, Name, Version, ID, Content, URL_1, JSProgram, existingPackage, rowsUpdated, npmURL, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, zippedFileContent, zippedFile, s3_response, binaryData, file, s3Url, error_10;
+    var authenticationToken, _a, metadata, data, Name, Version, ID, Content, URL_1, JSProgram, existingPackage, rowsUpdated, npmURL, parts, repositoryName, npmPackageName, output, file, gitUrl, destinationPath, cloneRepoOut, zipFilePath, zippedFileContent, zippedFile, data_1, s3_response, binaryData, file, data_2, s3Url, error_10;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -1173,7 +1173,7 @@ app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, v
                 }
                 _b.label = 2;
             case 2:
-                _b.trys.push([2, 33, , 37]);
+                _b.trys.push([2, 39, , 43]);
                 return [4 /*yield*/, logger_1.logger.info("\n-----------------------------------------")];
             case 3:
                 _b.sent();
@@ -1211,7 +1211,7 @@ app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, v
             case 11: return [4 /*yield*/, rds_handler.update_rds_package_data(ID, Name, Version, JSProgram)];
             case 12:
                 rowsUpdated = _b.sent();
-                if (!(URL_1 && !Content)) return [3 /*break*/, 25];
+                if (!(URL_1 && !Content)) return [3 /*break*/, 28];
                 return [4 /*yield*/, logger_1.logger.info("Updating via URL")];
             case 13:
                 _b.sent();
@@ -1265,47 +1265,63 @@ app.put('/package/:id', function (req, res) { return __awaiter(void 0, void 0, v
                     mimetype: 'application/zip',
                     buffer: zippedFileContent // Buffer of the zipped file content
                 };
-                return [4 /*yield*/, (0, s3_packages_1.upload_package)(ID, zippedFile)];
+                return [4 /*yield*/, (0, s3_packages_1.download_package)(ID)];
             case 24:
-                s3_response = _b.sent();
-                return [3 /*break*/, 30];
+                data_1 = _b.sent();
+                if (!(zippedFile.buffer == data_1)) return [3 /*break*/, 26];
+                return [4 /*yield*/, logger_1.logger.info("Content already matches data")];
             case 25:
-                if (!(!URL_1 && Content)) return [3 /*break*/, 28];
+                _b.sent();
+                return [2 /*return*/, res.status(404).json('Package does not exist.')];
+            case 26: return [4 /*yield*/, (0, s3_packages_1.upload_package)(ID, zippedFile)];
+            case 27:
+                s3_response = _b.sent();
+                return [3 /*break*/, 36];
+            case 28:
+                if (!(!URL_1 && Content)) return [3 /*break*/, 34];
                 return [4 /*yield*/, logger_1.logger.info("Updating via content")];
-            case 26:
+            case 29:
                 _b.sent();
                 binaryData = Buffer.from(Content, 'base64');
                 file = { buffer: binaryData };
-                return [4 /*yield*/, (0, s3_packages_1.updateS3Package)(ID, file)];
-            case 27:
-                s3Url = _b.sent();
-                return [3 /*break*/, 30];
-            case 28: return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
-            case 29:
-                _b.sent();
-                return [2 /*return*/, res.status(400).json('Package does not exist.')];
-            case 30: return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
+                return [4 /*yield*/, (0, s3_packages_1.download_package)(ID)];
+            case 30:
+                data_2 = _b.sent();
+                if (!(file.buffer == data_2)) return [3 /*break*/, 32];
+                return [4 /*yield*/, logger_1.logger.info("Content already matches data")];
             case 31:
                 _b.sent();
-                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
-            case 32:
-                _b.sent();
-                res.status(200).send('Version is updated.');
-                return [3 /*break*/, 37];
+                return [2 /*return*/, res.status(404).json('Package does not exist.')];
+            case 32: return [4 /*yield*/, (0, s3_packages_1.updateS3Package)(ID, file)];
             case 33:
-                error_10 = _b.sent();
-                return [4 /*yield*/, logger_1.logger.error('Error updating package content:', error_10)];
-            case 34:
-                _b.sent();
-                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+                s3Url = _b.sent();
+                return [3 /*break*/, 36];
+            case 34: return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
             case 35:
                 _b.sent();
+                return [2 /*return*/, res.status(400).json('Gave URL and Content.')];
+            case 36: return [4 /*yield*/, logger_1.time.info("Finished at this time\n")];
+            case 37:
+                _b.sent();
                 return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
-            case 36:
+            case 38:
+                _b.sent();
+                res.status(200).send('Version is updated.');
+                return [3 /*break*/, 43];
+            case 39:
+                error_10 = _b.sent();
+                return [4 /*yield*/, logger_1.logger.error('Error updating package content:', error_10)];
+            case 40:
+                _b.sent();
+                return [4 /*yield*/, logger_1.time.error('Error occurred at this time\n')];
+            case 41:
+                _b.sent();
+                return [4 /*yield*/, logger_1.logger.info("-----------------------------------------\n")];
+            case 42:
                 _b.sent();
                 res.status(500).send('An error occurred.');
-                return [3 /*break*/, 37];
-            case 37: return [2 /*return*/];
+                return [3 /*break*/, 43];
+            case 43: return [2 /*return*/];
         }
     });
 }); });
