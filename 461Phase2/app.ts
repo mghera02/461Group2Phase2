@@ -792,6 +792,11 @@ app.put('/package/:id', async (req: any, res: any) => {
     }
 
     const existingPackage = await rds_handler.get_package_metadata(ID);
+    
+    if(existingPackage.version == Version) {
+      await logger.info(`Version already matches data`);
+      return res.status(404).json('Package does not exist.');
+    }
 
     if (!existingPackage) {
       await logger.error(`No package found with ID: ${ID}`);
@@ -848,6 +853,11 @@ app.put('/package/:id', async (req: any, res: any) => {
       }
       const s3_response = await upload_package(ID, zippedFile);
     } else if(!URL && Content) {
+      const existingPackage = await rds_handler.get_package_metadata(ID);
+      if(existingPackage.version == Version) {
+        await logger.info(`Version already matches data`);
+        return res.status(404).json('Package does not exist.');
+      }
       await logger.info(`Updating via content`);
       const binaryData = Buffer.from(Content, 'base64');
       const file = {buffer: binaryData}
